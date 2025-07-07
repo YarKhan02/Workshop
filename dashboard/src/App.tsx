@@ -1,6 +1,7 @@
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
+
 import Login from './pages/Login';
 import DashboardLayout from './components/layout/DashboardLayout';
 import DashboardHome from './pages/DashboardHome';
@@ -8,10 +9,10 @@ import Customers from './pages/Customers';
 import Cars from './pages/Cars';
 import Jobs from './pages/Jobs';
 import Bookings from './pages/Bookings';
-// @ts-ignore
 import Billing from './pages/Billing';
 import Settings from './pages/Settings';
 import Users from './pages/Users';
+
 import { Toaster } from 'react-hot-toast';
 
 // ProtectedRoute component

@@ -4,12 +4,7 @@ export interface User {
   id: number;
   username: string;
   email: string;
-  firstName: string;
-  lastName: string;
   role: 'admin' | 'accountant' | 'staff';
-  phone?: string;
-  lastLogin?: string;
-  createdAt: string;
 }
 
 interface AuthContextType {
@@ -40,13 +35,14 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const [token, setToken] = useState<string | null>(localStorage.getItem('token'));
   const [isLoading, setIsLoading] = useState(true);
 
-  const API_BASE_URL = 'http://localhost:5000/api';
+  const API_BASE_URL = 'http://localhost:8000';
 
   useEffect(() => {
     const initializeAuth = async () => {
-      if (token) {
+      if (token && !user) {
+        setIsLoading(true);
         try {
-          const response = await fetch(`${API_BASE_URL}/auth/profile`, {
+          const response = await fetch(`${API_BASE_URL}/auth/profile/`, {
             headers: {
               'Authorization': `Bearer ${token}`,
               'Content-Type': 'application/json',
@@ -70,11 +66,11 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     };
 
     initializeAuth();
-  }, [token]);
+  }, [token, user]);
 
   const login = async (username: string, password: string) => {
     try {
-      const response = await fetch(`${API_BASE_URL}/auth/login`, {
+      const response = await fetch(`${API_BASE_URL}/auth/login/`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

@@ -1,2 +1,2 @@
 # workshop/models/__init__.py
-from .car import Car
+from .user import User
