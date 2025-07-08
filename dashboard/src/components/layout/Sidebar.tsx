@@ -23,6 +23,7 @@ const Sidebar: React.FC = () => {
     { name: 'Bookings', to: '/bookings', icon: CalendarDaysIcon },
     { name: 'Jobs', to: '/jobs', icon: ClipboardDocumentListIcon },
     { name: 'Billing', to: '/billing', icon: CurrencyDollarIcon },
+    { name: 'Inventory', to: '/inventory', icon: ClipboardDocumentListIcon },
     ...(isAdmin ? [{ name: 'Users', to: '/users', icon: ShieldCheckIcon }] : []),
     { name: 'Settings', to: '/settings', icon: Cog6ToothIcon },
   ];

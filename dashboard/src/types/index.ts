@@ -197,11 +197,7 @@ export enum PaymentMethod {
   CHECK = 'Check'
 }
 
-
-
 // Staff Management Types
-
-
 export interface Attendance {
   id: string;
   staffId: string;
@@ -313,14 +309,25 @@ export enum BookingStatus {
   COMPLETED = 'Completed'
 }
 
-
-
 // User Types
 export interface User {
   id: number;
   name: string;
   email: string;
   role: 'admin' | 'staff';
+  isActive: boolean;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface Inventory {
+  id: number;
+  name: string;
+  price: number;
+  quantity: number;
+  description?: string;
+  sku?: string;
+  category?: string;
   isActive: boolean;
   createdAt: string;
   updatedAt: string;

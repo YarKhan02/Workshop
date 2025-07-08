@@ -12,6 +12,7 @@ import Bookings from './pages/Bookings';
 import Billing from './pages/Billing';
 import Settings from './pages/Settings';
 import Users from './pages/Users';
+import Inventory from './pages/Inventory';
 import { Toaster } from 'react-hot-toast';
 
 // ProtectedRoute component
@@ -41,6 +42,7 @@ const App: React.FC = () => (
                   <Route path="/billing" element={<Billing />} />
                   <Route path="/settings" element={<Settings />} />
                   <Route path="/users" element={<Users />} />
+                  <Route path="/inventory" element={<Inventory />} />
                 </Routes>
               </DashboardLayout>
             </ProtectedRoute>

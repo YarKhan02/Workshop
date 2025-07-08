@@ -12,6 +12,7 @@ import jobRoutes from './routes/jobs';
 import bookingRoutes from './routes/bookings';
 import billingRoutes from './routes/billing';
 import dashboardRoutes from './routes/dashboard';
+import inventoryRoutes from './routes/inventory';
 import { runSeeders } from './utils/seeder';
 
 // Load environment variables
@@ -59,6 +60,7 @@ app.use('/api/bookings', bookingRoutes);
 
 app.use('/api/billing', billingRoutes);
 app.use('/api/dashboard', dashboardRoutes);
+app.use('/api/inventory', inventoryRoutes);
 
 app.get('/api', (req, res) => {
   res.json({ 
