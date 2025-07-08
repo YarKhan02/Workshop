@@ -40,7 +40,7 @@ const CarDetailModal: React.FC<CarDetailModalProps> = ({
                 <h3 className="text-xl font-semibold text-gray-900">
                   {car.year} {car.make} {car.model}
                 </h3>
-                <p className="text-gray-600">Car ID: {car.id}</p>
+                {/* <p className="text-gray-600">Car ID: {car.id}</p> */}
               </div>
               <div className="flex gap-2">
                 <button
@@ -94,7 +94,7 @@ const CarDetailModal: React.FC<CarDetailModalProps> = ({
 
                 <div>
                   <p className="text-sm text-gray-500">License Plate</p>
-                  <p className="text-gray-900 font-mono text-lg">{car.licensePlate}</p>
+                  <p className="text-gray-900 font-mono text-lg">{car.license_plate}</p>
                 </div>
               </div>
 
@@ -108,7 +108,7 @@ const CarDetailModal: React.FC<CarDetailModalProps> = ({
                   </div>
                 )}
 
-                {car.mileage && (
+                {/* {car.mileage && (
                   <div className="flex items-center gap-3">
                     <Gauge className="text-gray-400" size={20} />
                     <div>
@@ -116,25 +116,25 @@ const CarDetailModal: React.FC<CarDetailModalProps> = ({
                       <p className="text-gray-900">{car.mileage.toLocaleString()} km</p>
                     </div>
                   </div>
-                )}
+                )} */}
               </div>
             </div>
 
-            {car.notes && (
+            {/* {car.notes && (
               <div className="mt-6">
                 <h4 className="text-lg font-semibold text-gray-900 mb-2">Notes</h4>
                 <div className="bg-gray-50 p-4 rounded-lg">
                   <p className="text-gray-900">{car.notes}</p>
                 </div>
-              </div>
-            )}
+              </div>*/}
+            {/* )} */}
 
-            <div className="mt-8 pt-6 border-t">
+            {/* <div className="mt-8 pt-6 border-t">
               <div className="flex items-center justify-between text-sm text-gray-500">
                 <span>Created: {new Date(car.createdAt).toLocaleDateString()}</span>
                 <span>Updated: {new Date(car.updatedAt).toLocaleDateString()}</span>
               </div>
-            </div>
+            </div> */}
           </div>
 
           <div className="flex justify-end gap-3 p-6 border-t">

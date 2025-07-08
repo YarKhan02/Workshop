@@ -1,5 +1,6 @@
 # workshop/serializers.py
 from rest_framework import serializers
+from workshop.serializers.car_serializer import CarSerializer
 from workshop.models.customer import Customer
 
 class CustomerSerializer(serializers.ModelSerializer):
@@ -8,6 +9,7 @@ class CustomerSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 class CustomerDetailSerializer(serializers.ModelSerializer):
+    cars = CarSerializer(many=True, read_only=True)
     class Meta:
         model = Customer
         fields = [
@@ -21,6 +23,7 @@ class CustomerDetailSerializer(serializers.ModelSerializer):
             'state',
             'address',
             'date_joined',
+            'cars',
         ]
 
 class CustomerCreateSerializer(serializers.ModelSerializer):

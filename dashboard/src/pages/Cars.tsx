@@ -24,7 +24,7 @@ const Cars: React.FC = () => {
   const { data: carsData, isLoading, error } = useQuery({
     queryKey: ['cars'],
     queryFn: async (): Promise<Car[]> => {
-      const response = await fetch('http://localhost:5000/api/cars', {
+      const response = await fetch('http://localhost:8000/cars/details/', {
         headers: {
           'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json',
@@ -34,8 +34,7 @@ const Cars: React.FC = () => {
         throw new Error('Failed to fetch cars');
       }
       const data = await response.json();
-      // Extract cars from the response (backend returns { cars: [...], pagination: {...} })
-      return data.cars || [];
+      return data || [];
     },
     enabled: !!token, // Only run query if token exists
   });
@@ -73,7 +72,7 @@ const Cars: React.FC = () => {
   const filteredCars = cars.filter(car =>
     car.make.toLowerCase().includes(searchTerm.toLowerCase()) ||
     car.model.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    car.licensePlate.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    car.license_plate.toLowerCase().includes(searchTerm.toLowerCase()) ||
     car.color.toLowerCase().includes(searchTerm.toLowerCase()) ||
     (car.vin && car.vin.toLowerCase().includes(searchTerm.toLowerCase()))
   );
@@ -158,7 +157,7 @@ const Cars: React.FC = () => {
             <div className="ml-4">
               <p className="text-sm font-medium text-gray-600">Unique Customers</p>
               <p className="text-2xl font-bold text-gray-900">
-                {new Set(cars.map(car => car.customerId)).size}
+                {new Set(cars.map(car => car.customer_id)).size}
               </p>
             </div>
           </div>
@@ -205,9 +204,9 @@ const Cars: React.FC = () => {
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                       Color
                     </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    {/* <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                       Mileage
-                    </th>
+                    </th> */}
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                       Actions
                     </th>
@@ -221,12 +220,12 @@ const Cars: React.FC = () => {
                           <div className="text-sm font-medium text-gray-900">
                             {car.year} {car.make} {car.model}
                           </div>
-                          <div className="text-sm text-gray-500">ID: {car.id}</div>
+                          {/* <div className="text-sm text-gray-500">ID: {car.id}</div> */}
                         </div>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
                         <div className="text-sm font-mono text-gray-900">
-                          {car.licensePlate}
+                          {car.license_plate}
                         </div>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
@@ -237,11 +236,11 @@ const Cars: React.FC = () => {
                           <span className="text-sm text-gray-900 capitalize">{car.color}</span>
                         </div>
                       </td>
-                      <td className="px-6 py-4 whitespace-nowrap">
+                      {/* <td className="px-6 py-4 whitespace-nowrap">
                         <div className="text-sm text-gray-900">
                           {car.mileage ? `${car.mileage.toLocaleString()} km` : 'N/A'}
                         </div>
-                      </td>
+                      </td> */}
                       <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
                         <div className="flex items-center gap-2">
                           <button

@@ -2,10 +2,11 @@
 
 from django.urls import path, include
 from rest_framework.routers import DefaultRouter
-from .views import LoginView, ProfileView, CustomerView
+from .views import LoginView, ProfileView, CustomerView, CarView
 
 router = DefaultRouter()
 router.register(r'customers', CustomerView, basename='customer')
+router.register(r'cars', CarView, basename='car')
 
 urlpatterns = [
     path('auth/login/', LoginView.as_view(), name = 'login'),

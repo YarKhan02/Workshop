@@ -14,18 +14,13 @@ export interface Customer {
 
 export interface Car {
   id: number;
-  customerId: number;
+  customer_id: number;
   make: string;
   model: string;
   year: number;
+  vin: string;
   color: string;
-  licensePlate: string;
-  vin?: string;
-  mileage?: number;
-  notes?: string;
-  isActive: boolean;
-  createdAt: string;
-  updatedAt: string;
+  license_plate: string;
 }
 
 export interface Job {

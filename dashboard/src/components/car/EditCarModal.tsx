@@ -16,8 +16,6 @@ const carSchema = z.object({
   color: z.string().min(1, 'Color is required'),
   licensePlate: z.string().min(1, 'License plate is required'),
   vin: z.string().optional(),
-  mileage: z.number().optional(),
-  notes: z.string().optional(),
 });
 
 type CarFormData = z.infer<typeof carSchema>;
@@ -53,10 +51,8 @@ const EditCarModal: React.FC<EditCarModalProps> = ({
         model: car.model,
         year: car.year,
         color: car.color,
-        licensePlate: car.licensePlate,
+        licensePlate: car.license_plate,
         vin: car.vin || '',
-        mileage: car.mileage || undefined,
-        notes: car.notes || '',
       });
     }
   }, [car, reset]);
@@ -203,7 +199,7 @@ const EditCarModal: React.FC<EditCarModalProps> = ({
                   />
                 </div>
 
-                <div>
+                {/* <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">
                     Mileage (Optional)
                   </label>
@@ -213,11 +209,11 @@ const EditCarModal: React.FC<EditCarModalProps> = ({
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                     placeholder="e.g., 50000"
                   />
-                </div>
+                </div> */}
               </div>
             </div>
 
-            <div className="mt-6">
+            {/* <div className="mt-6">
               <label className="block text-sm font-medium text-gray-700 mb-1">
                 Notes (Optional)
               </label>
@@ -227,7 +223,7 @@ const EditCarModal: React.FC<EditCarModalProps> = ({
                 className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                 placeholder="Any additional notes about the car"
               />
-            </div>
+            </div> */}
 
             <div className="flex justify-end gap-3 mt-8 pt-6 border-t">
               <button

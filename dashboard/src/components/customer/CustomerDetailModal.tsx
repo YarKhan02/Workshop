@@ -119,7 +119,7 @@ const CustomerDetailModal: React.FC<CustomerDetailModalProps> = ({
                           {car.year} {car.make} {car.model}
                         </p>
                         <p className="text-sm text-gray-600">
-                          {car.color} • {car.licensePlate}
+                          {car.color} • {car.license_plate}
                         </p>
                       </div>
                     </div>

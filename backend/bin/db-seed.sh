@@ -12,3 +12,6 @@ python manage.py seed_user
 
 echo -e "${CYAN}== Seeding Customers...${NO_COLOR}"
 python manage.py seed_customer
+
+echo -e "${CYAN}== Seeding Cars...${NO_COLOR}"
+python manage.py seed_car

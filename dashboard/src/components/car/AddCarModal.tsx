@@ -141,7 +141,7 @@ const AddCarModal: React.FC<AddCarModalProps> = ({
                     <option value="">Select a customer</option>
                     {customers.map((customer) => (
                       <option key={customer.id} value={customer.id}>
-                        {customer.firstName} {customer.lastName} ({customer.email})
+                        {customer.first_name} {customer.last_name} ({customer.email})
                       </option>
                     ))}
                   </select>
