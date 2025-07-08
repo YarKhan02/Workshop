@@ -5,4 +5,5 @@ NO_COLOR='\033[0m'
 LABEL="db-migrate"
 printf "${CYAN}== ${LABEL}${NO_COLOR}\n"
 
+python manage.py makemigrations
 python manage.py migrate

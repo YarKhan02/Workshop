@@ -66,7 +66,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     };
 
     initializeAuth();
-  }, [token, user]);
+  }, [token]);
 
   const login = async (username: string, password: string) => {
     try {

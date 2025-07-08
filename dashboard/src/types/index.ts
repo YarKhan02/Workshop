@@ -1,25 +1,15 @@
 // Customer Management Types
 export interface Customer {
   id: number;
-  firstName: string;
-  lastName: string;
+  first_name: string;
+  last_name: string;
   email: string;
-  phone: string;
+  phone_number: string;
   address: string;
   city?: string;
   state?: string;
-  zipCode?: string;
-  dateOfBirth?: string;
-  gender?: string;
-  emergencyContact?: string;
-  emergencyPhone?: string;
-  notes?: string;
-  isActive: boolean;
-  totalSpent: number;
-  lastVisit?: string;
   cars?: Car[];
-  createdAt: string;
-  updatedAt: string;
+  date_joined: string;
 }
 
 export interface Car {

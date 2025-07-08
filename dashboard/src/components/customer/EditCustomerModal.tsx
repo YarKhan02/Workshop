@@ -7,19 +7,13 @@ import { X, Save } from 'lucide-react';
 import Portal from '../ui/Portal';
 
 const customerSchema = z.object({
-  firstName: z.string().min(1, 'First name is required'),
-  lastName: z.string().min(1, 'Last name is required'),
+  first_name: z.string().min(1, 'First name is required'),
+  last_name: z.string().min(1, 'Last name is required'),
   email: z.string().email('Invalid email address'),
-  phone: z.string().min(1, 'Phone number is required'),
+  phone_number: z.string().min(1, 'Phone number is required'),
   address: z.string().min(1, 'Address is required'),
   city: z.string().optional(),
   state: z.string().optional(),
-  zipCode: z.string().optional(),
-  dateOfBirth: z.string().optional(),
-  gender: z.enum(['male', 'female', 'other']).optional(),
-  emergencyContact: z.string().optional(),
-  emergencyPhone: z.string().optional(),
-  notes: z.string().optional(),
 });
 
 type CustomerFormData = z.infer<typeof customerSchema>;
@@ -50,19 +44,13 @@ const EditCustomerModal: React.FC<EditCustomerModalProps> = ({
   useEffect(() => {
     if (customer) {
       reset({
-        firstName: customer.firstName,
-        lastName: customer.lastName,
+        first_name: customer.first_name,
+        last_name: customer.last_name,
         email: customer.email,
-        phone: customer.phone,
+        phone_number: customer.phone_number,
         address: customer.address || '',
         city: customer.city || '',
         state: customer.state || '',
-        zipCode: customer.zipCode || '',
-        dateOfBirth: customer.dateOfBirth ? new Date(customer.dateOfBirth).toISOString().split('T')[0] : '',
-        gender: (customer.gender as 'male' | 'female' | 'other') || undefined,
-        emergencyContact: customer.emergencyContact || '',
-        emergencyPhone: customer.emergencyPhone || '',
-        notes: customer.notes || '',
       });
     }
   }, [customer, reset]);
@@ -104,12 +92,12 @@ const EditCustomerModal: React.FC<EditCustomerModalProps> = ({
                   </label>
                   <input
                     type="text"
-                    {...register('firstName')}
+                    {...register('first_name')}
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                     placeholder="Enter first name"
                   />
-                  {errors.firstName && (
-                    <p className="text-red-500 text-sm mt-1">{errors.firstName.message}</p>
+                  {errors.first_name && (
+                    <p className="text-red-500 text-sm mt-1">{errors.first_name.message}</p>
                   )}
                 </div>
 
@@ -119,12 +107,12 @@ const EditCustomerModal: React.FC<EditCustomerModalProps> = ({
                   </label>
                   <input
                     type="text"
-                    {...register('lastName')}
+                    {...register('last_name')}
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                     placeholder="Enter last name"
                   />
-                  {errors.lastName && (
-                    <p className="text-red-500 text-sm mt-1">{errors.lastName.message}</p>
+                  {errors.last_name && (
+                    <p className="text-red-500 text-sm mt-1">{errors.last_name.message}</p>
                   )}
                 </div>
 
@@ -149,12 +137,12 @@ const EditCustomerModal: React.FC<EditCustomerModalProps> = ({
                   </label>
                   <input
                     type="tel"
-                    {...register('phone')}
+                    {...register('phone_number')}
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                     placeholder="Enter phone number"
                   />
-                  {errors.phone && (
-                    <p className="text-red-500 text-sm mt-1">{errors.phone.message}</p>
+                  {errors.phone_number && (
+                    <p className="text-red-500 text-sm mt-1">{errors.phone_number.message}</p>
                   )}
                 </div>
               </div>
@@ -198,7 +186,7 @@ const EditCustomerModal: React.FC<EditCustomerModalProps> = ({
                       placeholder="State"
                     />
                   </div>
-                  <div>
+                  {/* <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">
                       ZIP Code
                     </label>
@@ -208,10 +196,10 @@ const EditCustomerModal: React.FC<EditCustomerModalProps> = ({
                       className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                       placeholder="ZIP"
                     />
-                  </div>
+                  </div> */}
                 </div>
 
-                <div>
+                {/* <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">
                     Date of Birth
                   </label>
@@ -235,9 +223,9 @@ const EditCustomerModal: React.FC<EditCustomerModalProps> = ({
                     <option value="female">Female</option>
                     <option value="other">Other</option>
                   </select>
-                </div>
+                </div> */}
 
-                <div>
+                {/* <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">
                     Emergency Contact
                   </label>
@@ -259,11 +247,11 @@ const EditCustomerModal: React.FC<EditCustomerModalProps> = ({
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                     placeholder="Emergency phone number"
                   />
-                </div>
+                </div> */}
               </div>
             </div>
 
-            <div className="mt-6">
+            {/* <div className="mt-6">
               <label className="block text-sm font-medium text-gray-700 mb-1">
                 Notes
               </label>
@@ -273,7 +261,7 @@ const EditCustomerModal: React.FC<EditCustomerModalProps> = ({
                 className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                 placeholder="Enter any additional notes"
               />
-            </div>
+            </div> */}
 
             <div className="flex justify-end gap-3 mt-8 pt-6 border-t">
               <button

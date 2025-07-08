@@ -38,9 +38,9 @@ const CustomerDetailModal: React.FC<CustomerDetailModalProps> = ({
             <div className="flex items-center justify-between mb-6">
               <div>
                 <h3 className="text-xl font-semibold text-gray-900">
-                  {customer.firstName} {customer.lastName}
+                  {customer.first_name} {customer.last_name}
                 </h3>
-                <p className="text-gray-600">Customer ID: {customer.id}</p>
+                {/* <p className="text-gray-600">Customer ID: {customer.id}</p> */}
               </div>
               <div className="flex gap-2">
                 <button
@@ -68,7 +68,7 @@ const CustomerDetailModal: React.FC<CustomerDetailModalProps> = ({
                   <Phone className="text-gray-400" size={20} />
                   <div>
                     <p className="text-sm text-gray-500">Phone</p>
-                    <p className="text-gray-900">{customer.phone}</p>
+                    <p className="text-gray-900">{customer.phone_number}</p>
                   </div>
                 </div>
 
@@ -93,21 +93,17 @@ const CustomerDetailModal: React.FC<CustomerDetailModalProps> = ({
                 <h4 className="text-lg font-semibold text-gray-900">Additional Information</h4>
                 
                 <div>
-                  <p className="text-sm text-gray-500">Date of Birth</p>
+                  <p className="text-sm text-gray-500">City</p>
                   <p className="text-gray-900">
-                    {customer.dateOfBirth ? new Date(customer.dateOfBirth).toLocaleDateString() : 'Not provided'}
+                    {customer.city || 'Not provided'}
                   </p>
                 </div>
 
                 <div>
-                  <p className="text-sm text-gray-500">Emergency Contact</p>
-                  <p className="text-gray-900">{customer.emergencyContact || 'Not provided'}</p>
+                  <p className="text-sm text-gray-500">State</p>
+                  <p className="text-gray-900">{customer.state || 'Not provided'}</p>
                 </div>
 
-                <div>
-                  <p className="text-sm text-gray-500">Notes</p>
-                  <p className="text-gray-900">{customer.notes || 'No notes available'}</p>
-                </div>
               </div>
             </div>
 
@@ -134,8 +130,8 @@ const CustomerDetailModal: React.FC<CustomerDetailModalProps> = ({
 
             <div className="mt-8 pt-6 border-t">
               <div className="flex items-center justify-between text-sm text-gray-500">
-                <span>Created: {new Date(customer.createdAt).toLocaleDateString()}</span>
-                <span>Updated: {new Date(customer.updatedAt).toLocaleDateString()}</span>
+                <span>Created: {new Date(customer.date_joined).toLocaleDateString()}</span>
+                {/* <span>Updated: {new Date(customer.updatedAt).toLocaleDateString()}</span> */}
               </div>
             </div>
           </div>

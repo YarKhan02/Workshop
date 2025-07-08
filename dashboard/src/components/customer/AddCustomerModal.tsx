@@ -9,19 +9,13 @@ import { useAuth } from '../../contexts/AuthContext';
 import Portal from '../ui/Portal';
 
 const customerSchema = z.object({
-  firstName: z.string().min(1, 'First name is required'),
-  lastName: z.string().min(1, 'Last name is required'),
+  first_name: z.string().min(1, 'First name is required'),
+  last_name: z.string().min(1, 'Last name is required'),
   email: z.string().email('Invalid email address'),
-  phone: z.string().min(1, 'Phone number is required'),
+  phone_number: z.string().min(1, 'Phone number is required'),
   address: z.string().min(1, 'Address is required'),
   city: z.string().optional(),
   state: z.string().optional(),
-  zipCode: z.string().optional(),
-  dateOfBirth: z.string().optional(),
-  gender: z.enum(['male', 'female', 'other']).optional(),
-  emergencyContact: z.string().optional(),
-  emergencyPhone: z.string().optional(),
-  notes: z.string().optional(),
 });
 
 type CustomerFormData = z.infer<typeof customerSchema>;
@@ -46,19 +40,13 @@ const AddCustomerModal: React.FC<AddCustomerModalProps> = ({
   } = useForm<CustomerFormData>({
     resolver: zodResolver(customerSchema),
     defaultValues: {
-      firstName: '',
-      lastName: '',
+      first_name: '',
+      last_name: '',
       email: '',
-      phone: '',
+      phone_number: '',
       address: '',
       city: '',
       state: '',
-      zipCode: '',
-      dateOfBirth: '',
-      gender: undefined,
-      emergencyContact: '',
-      emergencyPhone: '',
-      notes: '',
     }
   });
 
@@ -68,15 +56,9 @@ const AddCustomerModal: React.FC<AddCustomerModalProps> = ({
         ...data,
         city: data.city || undefined,
         state: data.state || undefined,
-        zipCode: data.zipCode || undefined,
-        dateOfBirth: data.dateOfBirth || undefined,
-        gender: data.gender || undefined,
-        emergencyContact: data.emergencyContact || undefined,
-        emergencyPhone: data.emergencyPhone || undefined,
-        notes: data.notes || undefined,
       };
 
-      const response = await fetch('http://localhost:5000/api/customers', {
+      const response = await fetch('http://localhost:8000/customers/add-customer/', {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${token}`,
@@ -131,12 +113,12 @@ const AddCustomerModal: React.FC<AddCustomerModalProps> = ({
                   </label>
                   <input
                     type="text"
-                    {...register('firstName')}
+                    {...register('first_name')}
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                     placeholder="Enter first name"
                   />
-                  {errors.firstName && (
-                    <p className="text-red-500 text-sm mt-1">{errors.firstName.message}</p>
+                  {errors.first_name && (
+                    <p className="text-red-500 text-sm mt-1">{errors.first_name.message}</p>
                   )}
                 </div>
 
@@ -146,12 +128,12 @@ const AddCustomerModal: React.FC<AddCustomerModalProps> = ({
                   </label>
                   <input
                     type="text"
-                    {...register('lastName')}
+                    {...register('last_name')}
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                     placeholder="Enter last name"
                   />
-                  {errors.lastName && (
-                    <p className="text-red-500 text-sm mt-1">{errors.lastName.message}</p>
+                  {errors.last_name && (
+                    <p className="text-red-500 text-sm mt-1">{errors.last_name.message}</p>
                   )}
                 </div>
 
@@ -176,12 +158,12 @@ const AddCustomerModal: React.FC<AddCustomerModalProps> = ({
                   </label>
                   <input
                     type="tel"
-                    {...register('phone')}
+                    {...register('phone_number')}
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                     placeholder="Enter phone number"
                   />
-                  {errors.phone && (
-                    <p className="text-red-500 text-sm mt-1">{errors.phone.message}</p>
+                  {errors.phone_number && (
+                    <p className="text-red-500 text-sm mt-1">{errors.phone_number.message}</p>
                   )}
                 </div>
               </div>
@@ -202,7 +184,7 @@ const AddCustomerModal: React.FC<AddCustomerModalProps> = ({
                   )}
                 </div>
 
-                <div className="grid grid-cols-3 gap-3">
+                <div className="grid grid-cols-2 gap-2">
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">
                       City
@@ -225,7 +207,7 @@ const AddCustomerModal: React.FC<AddCustomerModalProps> = ({
                       placeholder="State"
                     />
                   </div>
-                  <div>
+                  {/* <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">
                       ZIP Code
                     </label>
@@ -235,14 +217,14 @@ const AddCustomerModal: React.FC<AddCustomerModalProps> = ({
                       className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                       placeholder="ZIP"
                     />
-                  </div>
+                  </div> */}
                 </div>
               </div>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
               <div className="space-y-4">
-                <div>
+                {/* <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">
                     Date of Birth
                   </label>
@@ -251,9 +233,9 @@ const AddCustomerModal: React.FC<AddCustomerModalProps> = ({
                     {...register('dateOfBirth')}
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                   />
-                </div>
+                </div> */}
 
-                <div>
+                {/* <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">
                     Gender
                   </label>
@@ -266,10 +248,10 @@ const AddCustomerModal: React.FC<AddCustomerModalProps> = ({
                     <option value="female">Female</option>
                     <option value="other">Other</option>
                   </select>
-                </div>
+                </div> */}
               </div>
 
-              <div className="space-y-4">
+              {/* <div className="space-y-4">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">
                     Emergency Contact
@@ -293,10 +275,10 @@ const AddCustomerModal: React.FC<AddCustomerModalProps> = ({
                     placeholder="Emergency phone number"
                   />
                 </div>
-              </div>
+              </div> */}
             </div>
 
-            <div className="mt-6">
+            {/* <div className="mt-6">
               <label className="block text-sm font-medium text-gray-700 mb-1">
                 Notes
               </label>
@@ -306,7 +288,7 @@ const AddCustomerModal: React.FC<AddCustomerModalProps> = ({
                 className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                 placeholder="Any additional notes about the customer"
               />
-            </div>
+            </div> */}
 
             <div className="flex justify-end gap-3 mt-8 pt-6 border-t">
               <button
