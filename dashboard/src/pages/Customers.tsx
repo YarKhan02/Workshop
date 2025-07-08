@@ -4,6 +4,7 @@ import { Plus, Search, Eye, Edit, Trash2, Users, Filter } from 'lucide-react';
 import toast from 'react-hot-toast';
 import type { Customer } from '../types';
 import { useAuth } from '../contexts/AuthContext';
+
 import CustomerDetailModal from '../components/customer/CustomerDetailModal';
 import AddCustomerModal from '../components/customer/AddCustomerModal';
 import EditCustomerModal from '../components/customer/EditCustomerModal';
@@ -24,7 +25,7 @@ const Customers: React.FC = () => {
   const { data: customersData, isLoading, error } = useQuery({
     queryKey: ['customers'],
     queryFn: async (): Promise<Customer[]> => {
-      const response = await fetch('http://localhost:5000/api/customers', {
+      const response = await fetch('http://localhost:8000/customers/details/', {
         headers: {
           'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json',
@@ -34,8 +35,7 @@ const Customers: React.FC = () => {
         throw new Error('Failed to fetch customers');
       }
       const data = await response.json();
-      // Extract customers from the response (backend returns { customers: [...], pagination: {...} })
-      return data.customers || [];
+      return data || [];
     },
     enabled: !!token, // Only run query if token exists
   });
@@ -46,7 +46,7 @@ const Customers: React.FC = () => {
   // Update customer mutation
   const updateCustomerMutation = useMutation({
     mutationFn: async ({ customerId, data }: { customerId: number; data: any }) => {
-      const response = await fetch(`http://localhost:5000/api/customers/${customerId}`, {
+      const response = await fetch(`http://localhost:8000/customers/${customerId}/update-customer/`, {
         method: 'PUT',
         headers: {
           'Authorization': `Bearer ${token}`,
@@ -72,7 +72,7 @@ const Customers: React.FC = () => {
   // Delete customer mutation
   const deleteCustomerMutation = useMutation({
     mutationFn: async (customerId: number) => {
-      const response = await fetch(`http://localhost:5000/api/customers/${customerId}`, {
+      const response = await fetch(`http://localhost:8000/customers/${customerId}/delete-customer/`, {
         method: 'DELETE',
         headers: {
           'Authorization': `Bearer ${token}`,
@@ -96,10 +96,10 @@ const Customers: React.FC = () => {
 
   // Filter customers based on search term
   const filteredCustomers = customers.filter(customer =>
-    customer.firstName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    customer.lastName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    customer.first_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    customer.last_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
     customer.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    customer.phone.includes(searchTerm)
+    customer.phone_number.includes(searchTerm)
   );
 
   // Pagination
@@ -245,15 +245,15 @@ const Customers: React.FC = () => {
                       <td className="px-6 py-4 whitespace-nowrap">
                         <div>
                           <div className="text-sm font-medium text-gray-900">
-                            {customer.firstName} {customer.lastName}
+                            {customer.first_name} {customer.last_name}
                           </div>
-                          <div className="text-sm text-gray-500">ID: {customer.id}</div>
+                          {/* <div className="text-sm text-gray-500">ID: {customer.id}</div> */}
                         </div>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
                         <div>
                           <div className="text-sm text-gray-900">{customer.email}</div>
-                          <div className="text-sm text-gray-500">{customer.phone}</div>
+                          <div className="text-sm text-gray-500">{customer.phone_number}</div>
                         </div>
                       </td>
                       <td className="px-6 py-4">

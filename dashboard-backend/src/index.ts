@@ -19,7 +19,7 @@ import { runSeeders } from './utils/seeder';
 dotenv.config();
 
 const app = express();
-const PORT = process.env.PORT || 5000;
+const PORT = process.env.PORT || 3002;
 
 // Middleware
 app.use(helmet());
@@ -88,13 +88,13 @@ const startServer = async () => {
   try {
     // Test database connection
     await sequelize.authenticate();
-    console.log('✅ Database connection established successfully.');
+    console.log('Database connection established successfully.');
     
     // Sync database (in development)
     if (process.env.NODE_ENV === 'development') {
       // Sync without alter first
       await sequelize.sync({ force: false, alter: false });
-      console.log('✅ Database synced successfully.');
+      console.log('Database synced successfully.');
       
       // Manually add missing columns if they don't exist
       try {
@@ -109,20 +109,20 @@ const startServer = async () => {
         
         if (!hasScheduledTime) {
           await sequelize.query('ALTER TABLE jobs ADD COLUMN scheduledTime VARCHAR DEFAULT "09:00"');
-          console.log('✅ Added scheduledTime column to jobs table');
+          console.log('Added scheduledTime column to jobs table');
         }
         
         if (!hasTotalAmount) {
           await sequelize.query('ALTER TABLE jobs ADD COLUMN totalAmount DECIMAL(10,2) DEFAULT 0');
-          console.log('✅ Added totalAmount column to jobs table');
+          console.log('Added totalAmount column to jobs table');
         }
         
         // Update existing records to have default values
         await sequelize.query('UPDATE jobs SET totalAmount = totalPrice WHERE totalAmount IS NULL OR totalAmount = 0');
-        console.log('✅ Updated existing jobs with totalAmount values');
+        console.log('Updated existing jobs with totalAmount values');
         
       } catch (columnError: any) {
-        console.log('⚠️ Column addition skipped (may already exist):', columnError.message);
+        console.log('Column addition skipped (may already exist):', columnError.message);
       }
       
       // Run seeders
@@ -130,14 +130,14 @@ const startServer = async () => {
     }
     
     app.listen(PORT, () => {
-      console.log(`🚀 Server running on port ${PORT}`);
-      console.log(`📊 Dashboard API: http://localhost:${PORT}`);
-      console.log(`🔍 Health check: http://localhost:${PORT}/health`);
+      console.log(`Server running on port ${PORT}`);
+      console.log(`Dashboard API: http://localhost:${PORT}`);
+      console.log(`Health check: http://localhost:${PORT}/health`);
     });
   } catch (error) {
-    console.error('❌ Unable to start server:', error);
+    console.error('Unable to start server:', error);
     process.exit(1);
   }
 };
 
-startServer(); 
+startServer();
