@@ -1,3 +1,11 @@
+import os
+from dotenv import load_dotenv
+from pathlib import Path
+
+# Load from backend/config/.env
+dotenv_path = os.path.join(os.path.dirname(__file__), '.env')
+load_dotenv(dotenv_path)
+print("DEBUG: DB_NAME =", os.getenv("DB_NAME"))
 from decouple import config
 from pathlib import Path
 
@@ -10,7 +18,7 @@ SECRET_KEY = 'django-insecure-@9itwpwrzv6!o9n&7%c3j*72zvlq*bs)*g%94+#v4=&=!@djf$
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['*']
 
 
 # Application definition
