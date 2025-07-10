@@ -6,7 +6,7 @@ LABEL="db-create"
 printf "${CYAN}== ${LABEL}${NO_COLOR}\n"
 
 # Set your connection string
-CONNECTION_URL="postgresql://yarkhan:yarkhanworkshop@localhost:5432/postgres"
+CONNECTION_URL="postgresql://postgres:mypassword123@localhost:5432/postgres"
 
 # Create the new database
-psql $CONNECTION_URL -c "CREATE DATABASE workshop"
+psql $CONNECTION_URL -c "CREATE DATABASE Workshop"
