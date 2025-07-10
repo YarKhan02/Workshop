@@ -305,17 +305,25 @@ export interface User {
   updatedAt: string;
 }
 
-export interface Inventory {
-  id: number;
-  name: string;
+// Product Management Types
+export interface ProductVariant {
+  uuid: string;
+  variant_name: string;
+  sku: string;
   price: number;
   quantity: number;
-  description?: string;
-  sku?: string;
-  category?: string;
-  isActive: boolean;
-  createdAt: string;
-  updatedAt: string;
+  created_at: string;
 }
 
+export interface Product {
+  uuid: string;
+  name: string;
+  category: string;
+  created_at: string;
+  variants: ProductVariant[];
+}
 
+export interface FlattenedInventoryVariant extends ProductVariant {
+  productName: string;
+  category: string;
+}

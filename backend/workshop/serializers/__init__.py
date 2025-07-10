@@ -1,3 +1,5 @@
 # workshop/serializers/__init__.py
 from .user_serializer import UserSerializer
 from .customer_serializer import CustomerDetailSerializer
+from .car_serializer import CarSerializer
+from .product_serializer import ProductSerializer, ProductCreateSerializer, ProductVariantSerializer, ProductVariantCreateSerializer, VariantStockUpdateSerializer

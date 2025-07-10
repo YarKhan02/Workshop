@@ -15,3 +15,9 @@ python manage.py seed_customer
 
 echo -e "${CYAN}== Seeding Cars...${NO_COLOR}"
 python manage.py seed_car
+
+echo -e "${CYAN}== Seeding Product...${NO_COLOR}"
+python manage.py seed_product
+
+echo -e "${CYAN}== Seeding Product Variant...${NO_COLOR}"
+python manage.py seed_product_variant
