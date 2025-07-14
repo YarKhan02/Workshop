@@ -2,16 +2,16 @@ import React, { useState } from 'react';
 import { X, Plus, Trash2 } from 'lucide-react';
 import { createInvoice } from '../../api/billing';
 import type { InvoiceItem } from '../../api/billing';
-import type { Customer } from '../../api/customers';
-import type { Job } from '../../api/jobs';
+// import type { Job } from '../../api/jobs';
 import Portal from '../ui/Portal';
+import type { CustomerInvoice } from '../../types';
 
 interface AddInvoiceModalProps {
   isOpen: boolean;
   onClose: () => void;
   onSuccess: () => void;
-  customers: Customer[];
-  jobs: Job[];
+  customers: CustomerInvoice[];
+  jobs: null;
 }
 
 const AddInvoiceModal: React.FC<AddInvoiceModalProps> = ({
@@ -185,8 +185,8 @@ const AddInvoiceModal: React.FC<AddInvoiceModalProps> = ({
                 >
                   <option value="">Select Customer</option>
                   {customers.map((customer) => (
-                    <option key={customer.id} value={customer.id}>
-                      {customer.firstName} {customer.lastName} - {customer.email}
+                    <option key={customer.email} value={customer.email}>
+                      {customer.first_name} {customer.last_name} - {customer.email}
                     </option>
                   ))}
                 </select>
@@ -199,7 +199,7 @@ const AddInvoiceModal: React.FC<AddInvoiceModalProps> = ({
                 <label className="block text-sm font-medium text-gray-700 mb-2">
                   Job (Optional)
                 </label>
-                <select
+                {/* <select
                   value={formData.jobId}
                   onChange={(e) => setFormData({ ...formData, jobId: e.target.value })}
                   className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
@@ -210,7 +210,7 @@ const AddInvoiceModal: React.FC<AddInvoiceModalProps> = ({
                       Job #{job.id} - {job.jobType.replace('_', ' ')}
                     </option>
                   ))}
-                </select>
+                </select> */}
               </div>
 
               <div>

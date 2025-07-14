@@ -37,3 +37,14 @@ class ProductVariantView(viewsets.ViewSet):
             return Response({"message": "Product variant updated successfully"}, status=status.HTTP_200_OK)
 
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    
+    # Delete a product variant
+    @action(detail=True, methods=['delete'], url_path='del-variant')
+    def delete_variant(self, request, pk=None):
+        try:
+            variant = ProductVariant.objects.get(uuid=pk)
+        except ProductVariant.DoesNotExist:
+            return Response({"error": "Product variant not found"}, status=status.HTTP_404_NOT_FOUND)
+
+        variant.delete()
+        return Response({"message": "Product variant deleted successfully"}, status=status.HTTP_204_NO_CONTENT) 

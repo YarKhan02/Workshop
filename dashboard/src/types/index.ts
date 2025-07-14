@@ -154,17 +154,6 @@ export interface InvoiceItem {
   updatedAt: string;
 }
 
-export interface BillingStats {
-  totalInvoices: number;
-  paidInvoices: number;
-  pendingInvoices: number;
-  overdueInvoices: number;
-  totalRevenue: number;
-  monthlyRevenue: number;
-  yearlyRevenue: number;
-  outstandingAmount: number;
-}
-
 export enum PaymentStatus {
   PENDING = 'Pending',
   PAID = 'Paid',
@@ -180,6 +169,39 @@ export enum PaymentMethod {
   UPI = 'UPI',
   WALLET = 'Wallet',
   CHECK = 'Check'
+}
+
+export interface CustomerInvoice {
+  email: string
+  first_name: string
+  last_name: string
+  phone_number: string
+}
+
+export interface OrderItem {
+  id: string
+  quantity: number
+  unit_price: string
+  total_price: string
+  product_name: string
+}
+
+export interface Order {
+  id: string
+  total_amount: string
+  discount: string
+  tax: string
+  created_at: string
+  status: string
+  customer: Customer
+  items: OrderItem[]
+}
+
+export interface BillingStats {
+  totalRevenue: number
+  totalOrders: number
+  outstandingAmount: number
+  monthlyRevenue: number
 }
 
 // Staff Management Types

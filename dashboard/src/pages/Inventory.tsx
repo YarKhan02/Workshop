@@ -1,11 +1,12 @@
 "use client"
 
 import React, { useState } from "react"
-import { useQuery } from "@tanstack/react-query"
+import { useQuery, useQueryClient } from "@tanstack/react-query"
 import { ChevronDown, ChevronRight, Plus, Trash2, Edit, Package, Tag, Hash, Search } from "lucide-react"
 import toast from "react-hot-toast"
 import AddInventoryModal from "../components/inventory/AddInventoryModal"
 import EditInventoryModal from "../components/inventory/EditInventoryModal"
+import AddVariantModal from "../components/inventory/AddVariantModal"
 import type { Product, ProductVariant } from "../types"
 
 const InventoryPage: React.FC = () => {
@@ -15,6 +16,14 @@ const InventoryPage: React.FC = () => {
   const [isEditModalOpen, setIsEditModalOpen] = useState(false)
   const [expandedProducts, setExpandedProducts] = useState<Set<string>>(new Set())
   const [searchTerm, setSearchTerm] = useState("")
+  const queryClient = useQueryClient()
+
+  // Add Variant Modal State
+  const [isAddVariantModalOpen, setIsAddVariantModalOpen] = useState(false)
+  const [selectedProductForVariant, setSelectedProductForVariant] = useState<{
+    uuid: string
+    name: string
+  } | null>(null)
 
   const { data: products, isLoading } = useQuery({
     queryKey: ["inventories"],
@@ -59,12 +68,14 @@ const InventoryPage: React.FC = () => {
   const handleDelete = async (variantUuid: string) => {
     if (!window.confirm("Delete this variant?")) return
     try {
-      const res = await fetch(`http://localhost:8000/variants/${variantUuid}/del-product/`, {
+      const res = await fetch(`http://localhost:8000/variants/${variantUuid}/del-variant/`, {
         method: "DELETE",
         headers: { Authorization: `Bearer ${token}` },
       })
       if (!res.ok) throw new Error()
       toast.success("Variant deleted")
+
+      await queryClient.invalidateQueries({ queryKey: ["inventories"] })
     } catch {
       toast.error("Delete failed")
     }
@@ -73,6 +84,14 @@ const InventoryPage: React.FC = () => {
   const handleEdit = (variant: ProductVariant) => {
     setSelectedVariant(variant)
     setIsEditModalOpen(true)
+  }
+
+  const handleAddVariant = (product: Product) => {
+    setSelectedProductForVariant({
+      uuid: product.uuid,
+      name: product.name,
+    })
+    setIsAddVariantModalOpen(true)
   }
 
   return (
@@ -252,10 +271,21 @@ const InventoryPage: React.FC = () => {
                         <div className="px-6 py-4">
                           <div className="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
                             {/* Variants Header */}
-                            <div className="bg-slate-50 px-4 py-3 border-b border-slate-200">
+                            <div className="bg-slate-50 px-4 py-3 border-b border-slate-200 flex items-center justify-between">
                               <h4 className="text-sm font-semibold text-slate-700 uppercase tracking-wider">
                                 Product Variants
                               </h4>
+                              <button
+                                onClick={(e) => {
+                                  e.stopPropagation()
+                                  handleAddVariant(product)
+                                }}
+                                className="flex items-center space-x-2 px-3 py-1.5 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors text-sm font-medium"
+                                title="Add new variant"
+                              >
+                                <Plus className="h-4 w-4" />
+                                <span>Add Variant</span>
+                              </button>
                             </div>
 
                             {/* Variants List */}
@@ -279,7 +309,13 @@ const InventoryPage: React.FC = () => {
                                     <div className="col-span-2">
                                       <div className="flex items-center space-x-2">
                                         <div
-                                          className={`w-2 h-2 rounded-full ${variant.quantity > 10 ? "bg-green-400" : variant.quantity > 0 ? "bg-yellow-400" : "bg-red-400"}`}
+                                          className={`w-2 h-2 rounded-full ${
+                                            variant.quantity > 10
+                                              ? "bg-green-400"
+                                              : variant.quantity > 0
+                                                ? "bg-yellow-400"
+                                                : "bg-red-400"
+                                          }`}
                                         ></div>
                                         <span className="font-semibold text-slate-900">{variant.quantity}</span>
                                         <span className="text-sm text-slate-500">in stock</span>
@@ -287,14 +323,20 @@ const InventoryPage: React.FC = () => {
                                     </div>
                                     <div className="col-span-3 flex items-center justify-end space-x-2">
                                       <button
-                                        onClick={() => handleEdit(variant)}
+                                        onClick={(e) => {
+                                          e.stopPropagation()
+                                          handleEdit(variant)
+                                        }}
                                         className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
                                         title="Edit variant"
                                       >
                                         <Edit className="h-4 w-4" />
                                       </button>
                                       <button
-                                        onClick={() => handleDelete(variant.uuid)}
+                                        onClick={(e) => {
+                                          e.stopPropagation()
+                                          handleDelete(variant.uuid)
+                                        }}
                                         className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors"
                                         title="Delete variant"
                                       >
@@ -322,6 +364,15 @@ const InventoryPage: React.FC = () => {
         open={isEditModalOpen}
         onClose={() => setIsEditModalOpen(false)}
         inventory={selectedVariant}
+      />
+      <AddVariantModal
+        open={isAddVariantModalOpen}
+        onClose={() => {
+          setIsAddVariantModalOpen(false)
+          setSelectedProductForVariant(null)
+        }}
+        productUuid={selectedProductForVariant?.uuid || null}
+        productName={selectedProductForVariant?.name}
       />
     </div>
   )

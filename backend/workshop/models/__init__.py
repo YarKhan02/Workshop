@@ -4,3 +4,5 @@ from .customer import Customer
 from .car import Car
 from .product import Product
 from .product_variant import ProductVariant
+from .invoice import Invoice
+from .invoice_items import InvoiceItems

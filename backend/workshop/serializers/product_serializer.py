@@ -39,3 +39,8 @@ class VariantStockUpdateSerializer(serializers.ModelSerializer):
     class Meta:
         model = ProductVariant
         fields = ['price', 'quantity']
+
+class ProductInvoiceItemSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Product
+        fields = ['name']

@@ -29,6 +29,7 @@ class DetailSerializer(serializers.ModelSerializer):
             'vin',
             'customer_name',
         ]
+        
     def get_customer_name(self, obj):
         first_name = obj.customer.first_name
         last_name = obj.customer.last_name
