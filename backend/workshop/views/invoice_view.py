@@ -1,3 +1,4 @@
+import json
 from rest_framework import viewsets, status
 from rest_framework.response import Response
 from rest_framework.decorators import action
@@ -32,6 +33,7 @@ class InvoiceView(viewsets.ViewSet):
     # Add a new invoice
     @action(detail=False, methods=['post'], url_path='add-invoice')
     def add_invoice(self, request):
+        print("Request data:", json.dumps(request.data, indent=2)) # Debugging line to check request data
         serializer = InvoiceSerializer(data=request.data)
         if serializer.is_valid():
             serializer.save()

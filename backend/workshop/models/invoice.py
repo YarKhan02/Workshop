@@ -9,6 +9,7 @@ class Invoice(models.Model):
     total_amount = models.DecimalField(max_digits=10, decimal_places=2)
     discount = models.DecimalField(max_digits=5, decimal_places=2, default=0.00)
     tax = models.DecimalField(max_digits=5, decimal_places=2, default=0.00)
+    grand_total = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
 
     status = models.CharField(max_length=20, choices=[
         ('pending', 'Pending'),
@@ -25,7 +26,7 @@ class Invoice(models.Model):
         ('paypal', 'PayPal'),
         ('bank_transfer', 'Bank Transfer'),
         ('cash', 'Cash'),
-    ], default='credit_card')
+    ], default='cash')
     
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)

@@ -2,9 +2,10 @@
 from rest_framework import viewsets, status
 from rest_framework.decorators import action
 from rest_framework.response import Response
+from django.db.models import Q
 
 from workshop.models.customer import Customer
-from workshop.serializers.customer_serializer import CustomerDetailSerializer, CustomerCreateSerializer, CustomerUpdateSerializer
+from workshop.serializers.customer_serializer import CustomerDetailSerializer, CustomerCreateSerializer, CustomerInvoiceSerializer, CustomerUpdateSerializer
 
 class CustomerView(viewsets.ViewSet):
 
@@ -16,6 +17,24 @@ class CustomerView(viewsets.ViewSet):
         serializer = CustomerDetailSerializer(queryset, many=True)
         return Response(serializer.data)
     
+    # Fetch customer for invoices
+    @action(detail=False, methods=['get'], url_path='customer-invoices')
+    def customer_for_invoices(self, request):
+        search = request.query_params.get('search', None)
+        queryset = Customer.objects.all()
+
+        if search:
+            queryset = queryset.filter(
+                Q(first_name__icontains=search) |
+                Q(last_name__icontains=search) |
+                Q(email__icontains=search) |
+                Q(phone_number__icontains=search)
+            )
+
+        serializer = CustomerInvoiceSerializer(queryset, many=True)
+        return Response(serializer.data)
+    
+    # Add a new customer
     @action(detail = False, methods = ['post'], url_path = 'add-customer')
     def add_customer(self, request):
         serializer = CustomerCreateSerializer(data = request.data)
@@ -26,6 +45,7 @@ class CustomerView(viewsets.ViewSet):
         
         return Response(serializer.errors, status = status.HTTP_400_BAD_REQUEST)
     
+    # Update an existing customer
     @action(detail = True, methods = ['put'], url_path = 'update-customer')
     def update_customer(self, request, pk = None):
         try:
@@ -41,6 +61,7 @@ class CustomerView(viewsets.ViewSet):
         
         return Response(serializer.errors, status = status.HTTP_400_BAD_REQUEST)
     
+    # Delete a customer
     @action(detail = True, methods = ['delete'], url_path = 'delete-customer')
     def delete_customer(self, request, pk = None):
         print(request.data)
