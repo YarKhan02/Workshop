@@ -9,10 +9,9 @@ export function transformToSnakeCase(data: CreateInvoicePayload): any {
     grand_total: data.totalAmount,
     status: data.status,
     due_date: data.dueDate,
-    invoice_number: data.invoiceNumber,
     is_active: data.isActive,
-    items: data.items.map(item => ({
-        product: item.variantUuid,
+    items: data.items.map((item: { variantId: any; quantity: any; unitPrice: any; totalPrice: any }) => ({
+        product_variant: item.variantId,
         quantity: item.quantity,
         unit_price: item.unitPrice,
         total_price: item.totalPrice,

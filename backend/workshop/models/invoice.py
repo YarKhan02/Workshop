@@ -28,10 +28,11 @@ class Invoice(models.Model):
         ('cash', 'Cash'),
     ], default='cash')
     
+    due_date = models.DateField(null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
-    customer = models.ForeignKey(Customer, on_delete=models.CASCADE, related_name='invoices')
+    customer = models.ForeignKey(Customer, on_delete=models.CASCADE, related_name='invoices')  # Renamed to 'customer'
 
     class Meta:
         db_table = 'invoice'

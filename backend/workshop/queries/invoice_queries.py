@@ -3,7 +3,7 @@
 from workshop.models.invoice import Invoice
 
 def get_optimized_invoices():
-    return Invoice.objects.select_related('customer').prefetch_related('items__product').only(
+    return Invoice.objects.select_related('customer').prefetch_related('items__product_variant').only(
         'id',
         'total_amount',
         'discount',
@@ -18,5 +18,5 @@ def get_optimized_invoices():
         'items__quantity',
         'items__unit_price',
         'items__total_price',
-        'items__product__name',
+        'items__product_variant__variant_name',  # Updated to use product_variant
     )

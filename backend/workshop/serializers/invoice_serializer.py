@@ -1,5 +1,6 @@
 from rest_framework import serializers
 
+from workshop.models.product import Product
 from workshop.models.customer import Customer
 from workshop.models.invoice_items import InvoiceItems
 from workshop.models.product_variant import ProductVariant
@@ -27,37 +28,39 @@ class InvoiceSerializer(serializers.ModelSerializer):
 
 # This serializer is used for creating an invoice with items
 class InvoiceCreateSerializer(serializers.ModelSerializer):
-    customer = serializers.UUIDField(write_only=True)
+    customer_id = serializers.UUIDField(write_only=True)
     items = InvoiceItemCreateSerializer(many=True)
 
     class Meta:
         model = Invoice
         fields = [
-            'customer',
+            'customer_id',
             'total_amount',
             'tax',
             'discount',
             'grand_total',
             'status',
-            'invoice_number',
+            'due_date',
             'items',
         ]
 
     def create(self, validated_data):
         items_data = validated_data.pop('items')
-        customer = validated_data.pop('customer')
+        customer_id = validated_data.pop('customer_id')
 
-        customer = Customer.objects.get(id=customer)
+        # Resolve the customer UUID to a Customer object
+        try:
+            customer = Customer.objects.get(id=customer_id)
+        except Customer.DoesNotExist:
+            raise serializers.ValidationError({"customer_id": "Customer not found."})
+
+        # Create the invoice
         invoice = Invoice.objects.create(customer=customer, **validated_data)
 
+        # Create invoice items
         for item_data in items_data:
-            product_variant_id = item_data.pop('product_variant_uuid')
-            product_variant = ProductVariant.objects.get(id=product_variant_id)
-
-            InvoiceItems.objects.create(
-                invoice=invoice,
-                product_variant_uuid=product_variant,
-                **item_data
-            )
+            item_serializer = InvoiceItemCreateSerializer(data=item_data, context={'invoice': invoice})
+            item_serializer.is_valid(raise_exception=True)
+            item_serializer.save()
 
         return invoice

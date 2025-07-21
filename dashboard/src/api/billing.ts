@@ -2,12 +2,6 @@ import toast from "react-hot-toast"
 import type { CreateInvoicePayload } from "../types"
 import { transformToSnakeCase } from "../helper/transformInvoicePayload"
 
-/**
- * Sends a POST request to create a new invoice in the backend.
- * @param invoiceData The data for the new invoice.
- * @returns The response data from the backend.
- * @throws Error if the request fails.
- */
 export async function createInvoice(invoiceData: CreateInvoicePayload): Promise<any> {
   const payload = transformToSnakeCase(invoiceData)
   const token = localStorage.getItem("token")

@@ -11,7 +11,7 @@ interface EditInventoryModalProps {
   open: boolean
   onClose: () => void
   inventory: {
-    uuid: string
+    id: string
     price: number
     quantity: number
   } | null
@@ -35,7 +35,7 @@ const EditInventoryModal: React.FC<EditInventoryModalProps> = ({ open, onClose, 
 
   const mutation = useMutation({
     mutationFn: async (data: { price: number; quantity: number }) => {
-      const res = await fetch(`http://localhost:8000/variants/${inventory!.uuid}/update-variant/`, {
+      const res = await fetch(`http://localhost:8000/variants/${inventory!.id}/update-variant/`, {
         method: "PATCH",
         headers: {
           "Content-Type": "application/json",

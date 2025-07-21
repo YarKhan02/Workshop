@@ -10,11 +10,11 @@ import Portal from "../ui/Portal"
 interface AddVariantModalProps {
   open: boolean
   onClose: () => void
-  productUuid: string | null
+  productId: string | null
   productName?: string
 }
 
-const AddVariantModal: React.FC<AddVariantModalProps> = ({ open, onClose, productUuid, productName }) => {
+const AddVariantModal: React.FC<AddVariantModalProps> = ({ open, onClose, productId, productName }) => {
   const queryClient = useQueryClient()
   const [formData, setFormData] = useState({
     variant_name: "",
@@ -25,7 +25,7 @@ const AddVariantModal: React.FC<AddVariantModalProps> = ({ open, onClose, produc
   const mutation = useMutation({
     mutationFn: async (data: { variant_name: string; price: number; quantity: number }) => {
       const token = localStorage.getItem("token")
-      const res = await fetch(`http://localhost:8000/variants/${productUuid}/add-variant/`, {
+      const res = await fetch(`http://localhost:8000/variants/${productId}/add-variant/`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -71,7 +71,7 @@ const AddVariantModal: React.FC<AddVariantModalProps> = ({ open, onClose, produc
     onClose()
   }
 
-  if (!open || !productUuid) return null
+  if (!open || !productId) return null
 
   return (
     <Portal>

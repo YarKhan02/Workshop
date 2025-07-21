@@ -6,7 +6,7 @@ from django.db.models import Q
 
 from workshop.queries.invoice_queries import get_optimized_invoices
 from workshop.models.invoice import Invoice
-from workshop.serializers.invoice_serializer import InvoiceSerializer
+from workshop.serializers.invoice_serializer import InvoiceCreateSerializer, InvoiceSerializer
 
 class InvoiceView(viewsets.ViewSet):
 
@@ -16,7 +16,8 @@ class InvoiceView(viewsets.ViewSet):
         search = request.query_params.get('search')
         status_filter = request.query_params.get('status')
 
-        invoices = get_optimized_invoices()
+        # Ensure get_optimized_invoices does not reference 'product'
+        invoices = get_optimized_invoices().prefetch_related('items__product_variant')
 
         if search:
             invoices = invoices.filter(
@@ -33,8 +34,8 @@ class InvoiceView(viewsets.ViewSet):
     # Add a new invoice
     @action(detail=False, methods=['post'], url_path='add-invoice')
     def add_invoice(self, request):
-        print("Request data:", json.dumps(request.data, indent=2)) # Debugging line to check request data
-        serializer = InvoiceSerializer(data=request.data)
+        print("Request data:", json.dumps(request.data, indent=2))  # Debugging line to check request data
+        serializer = InvoiceCreateSerializer(data=request.data)
         if serializer.is_valid():
             serializer.save()
             return Response({"message": "Invoice created successfully"}, status=status.HTTP_201_CREATED)
@@ -44,7 +45,7 @@ class InvoiceView(viewsets.ViewSet):
     @action(detail=True, methods=['patch'], url_path='update-invoice')
     def update_invoice(self, request, pk=None):
         try:
-            invoice = Invoice.objects.get(uuid=pk)
+            invoice = Invoice.objects.get(id=pk)
         except Invoice.DoesNotExist:
             return Response({"error": "Invoice not found"}, status=status.HTTP_404_NOT_FOUND)
 
@@ -59,7 +60,7 @@ class InvoiceView(viewsets.ViewSet):
     @action(detail=True, methods=['delete'], url_path='delete-invoice')
     def delete_invoice(self, request, pk=None):
         try:
-            invoice = Invoice.objects.get(uuid=pk)
+            invoice = Invoice.objects.get(id=pk)
         except Invoice.DoesNotExist:
             return Response({"error": "Invoice not found"}, status=status.HTTP_404_NOT_FOUND)
 

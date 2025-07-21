@@ -6,7 +6,7 @@ from workshop.models.product_variant import ProductVariant
 class ProductVariantSerializer(serializers.ModelSerializer):
     class Meta:
         model = ProductVariant
-        fields = ['uuid', 'variant_name', 'sku', 'price', 'quantity', 'created_at']
+        fields = ['id', 'variant_name', 'sku', 'price', 'quantity', 'created_at']
         read_only_fields = ['sku', 'created_at']
 
 class ProductSerializer(serializers.ModelSerializer):
@@ -14,7 +14,7 @@ class ProductSerializer(serializers.ModelSerializer):
     
     class Meta:
         model = Product
-        fields = ['uuid', 'name', 'category', 'created_at', 'variants']
+        fields = ['id', 'name', 'category', 'created_at', 'variants']
 
 class ProductVariantCreateSerializer(serializers.ModelSerializer):
     class Meta:
@@ -26,8 +26,8 @@ class ProductCreateSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Product
-        fields = ['uuid', 'name', 'category', 'variant']
-        read_only_fields = ['uuid']
+        fields = ['id', 'name', 'category', 'variant']
+        read_only_fields = ['id']
 
     def create(self, validated_data):
         variant_data = validated_data.pop('variant')

@@ -21,7 +21,7 @@ const InventoryPage: React.FC = () => {
   // Add Variant Modal State
   const [isAddVariantModalOpen, setIsAddVariantModalOpen] = useState(false)
   const [selectedProductForVariant, setSelectedProductForVariant] = useState<{
-    uuid: string
+    id: string
     name: string
   } | null>(null)
 
@@ -57,18 +57,18 @@ const InventoryPage: React.FC = () => {
     )
   }, [products, searchTerm])
 
-  const toggleExpand = (uuid: string) => {
+  const toggleExpand = (id: string) => {
     setExpandedProducts((prev) => {
       const newSet = new Set(prev)
-      newSet.has(uuid) ? newSet.delete(uuid) : newSet.add(uuid)
+      newSet.has(id) ? newSet.delete(id) : newSet.add(id)
       return newSet
     })
   }
 
-  const handleDelete = async (variantUuid: string) => {
+  const handleDelete = async (variantId: string) => {
     if (!window.confirm("Delete this variant?")) return
     try {
-      const res = await fetch(`http://localhost:8000/variants/${variantUuid}/del-variant/`, {
+      const res = await fetch(`http://localhost:8000/variants/${variantId}/del-variant/`, {
         method: "DELETE",
         headers: { Authorization: `Bearer ${token}` },
       })
@@ -88,7 +88,7 @@ const InventoryPage: React.FC = () => {
 
   const handleAddVariant = (product: Product) => {
     setSelectedProductForVariant({
-      uuid: product.uuid,
+      id: product.id,
       name: product.name,
     })
     setIsAddVariantModalOpen(true)
@@ -215,17 +215,17 @@ const InventoryPage: React.FC = () => {
               {/* Table Body */}
               <div className="divide-y divide-slate-200">
                 {filteredProducts.map((product) => (
-                  <React.Fragment key={product.uuid}>
+                  <React.Fragment key={product.id}>
                     {/* Product Row */}
                     <div
                       className="cursor-pointer hover:bg-slate-50 transition-colors duration-150"
-                      onClick={() => toggleExpand(product.uuid)}
+                      onClick={() => toggleExpand(product.id)}
                     >
                       <div className="px-6 py-4">
                         <div className="grid grid-cols-12 gap-4 items-center">
                           <div className="col-span-5 flex items-center space-x-3">
                             <div className="flex-shrink-0">
-                              {expandedProducts.has(product.uuid) ? (
+                              {expandedProducts.has(product.id) ? (
                                 <ChevronDown className="h-5 w-5 text-slate-400 transition-transform duration-200" />
                               ) : (
                                 <ChevronRight className="h-5 w-5 text-slate-400 transition-transform duration-200" />
@@ -237,7 +237,7 @@ const InventoryPage: React.FC = () => {
                               </div>
                               <div>
                                 <h3 className="text-lg font-semibold text-slate-900">{product.name}</h3>
-                                <p className="text-sm text-slate-500">Product ID: {product.uuid.slice(0, 8)}</p>
+                                <p className="text-sm text-slate-500">Product ID: {product.id.slice(0, 8)}</p>
                               </div>
                             </div>
                           </div>
@@ -266,7 +266,7 @@ const InventoryPage: React.FC = () => {
                     </div>
 
                     {/* Expanded Variants */}
-                    {expandedProducts.has(product.uuid) && (
+                    {expandedProducts.has(product.id) && (
                       <div className="bg-slate-50 border-t border-slate-200">
                         <div className="px-6 py-4">
                           <div className="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
@@ -291,7 +291,7 @@ const InventoryPage: React.FC = () => {
                             {/* Variants List */}
                             <div className="divide-y divide-slate-200">
                               {product.variants.map((variant) => (
-                                <div key={variant.uuid} className="px-4 py-4 hover:bg-slate-50 transition-colors">
+                                <div key={variant.id} className="px-4 py-4 hover:bg-slate-50 transition-colors">
                                   <div className="grid grid-cols-12 gap-4 items-center">
                                     <div className="col-span-3">
                                       <div className="font-medium text-slate-900">{variant.variant_name}</div>
@@ -335,7 +335,7 @@ const InventoryPage: React.FC = () => {
                                       <button
                                         onClick={(e) => {
                                           e.stopPropagation()
-                                          handleDelete(variant.uuid)
+                                          handleDelete(variant.id)
                                         }}
                                         className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors"
                                         title="Delete variant"
@@ -371,7 +371,7 @@ const InventoryPage: React.FC = () => {
           setIsAddVariantModalOpen(false)
           setSelectedProductForVariant(null)
         }}
-        productUuid={selectedProductForVariant?.uuid || null}
+        productId={selectedProductForVariant?.id || null}
         productName={selectedProductForVariant?.name}
       />
     </div>
