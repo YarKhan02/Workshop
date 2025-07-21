@@ -203,6 +203,7 @@ export interface OrderItem {
   unit_price: string
   total_price: string
   product_name: string
+  product_variant: string
 }
 
 export interface Order {

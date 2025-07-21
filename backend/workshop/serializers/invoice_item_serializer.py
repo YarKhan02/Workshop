@@ -5,6 +5,7 @@ from workshop.models.product_variant import ProductVariant  # Import the Product
 
 class InvoiceItemSerializer(serializers.ModelSerializer):
     product_variant = serializers.CharField(source='product_variant.variant_name', read_only=True)
+    product_name = serializers.CharField(source='product_variant.product.name', read_only=True)  # Include product name
 
     class Meta:
         model = InvoiceItems
@@ -13,7 +14,8 @@ class InvoiceItemSerializer(serializers.ModelSerializer):
             'quantity',
             'unit_price',
             'total_price',
-            'product_variant'
+            'product_variant',
+            'product_name'
         ]
 
 class InvoiceItemCreateSerializer(serializers.ModelSerializer):

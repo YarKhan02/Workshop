@@ -558,7 +558,9 @@ const OrderDetailModal: React.FC<{
                       <Package className="h-4 w-4 text-slate-600" />
                     </div>
                     <div>
-                      <div className="font-medium text-slate-900">{item.product_name}</div>
+                      <div className="font-medium text-slate-900">
+                        {item.product_name} - {item.product_variant} {/* Display product and variant name */}
+                      </div>
                       <div className="text-sm text-slate-600">
                         {item.quantity} × {formatCurrency(item.unit_price)}
                       </div>

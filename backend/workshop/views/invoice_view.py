@@ -29,6 +29,7 @@ class InvoiceView(viewsets.ViewSet):
             invoices = invoices.filter(status=status_filter)
             
         serializer = InvoiceSerializer(invoices, many=True)
+        print("Serialized data:", json.dumps(serializer.data, indent=2))  # Debugging line to check serialized data
         return Response(serializer.data, status=status.HTTP_200_OK)
 
     # Add a new invoice
