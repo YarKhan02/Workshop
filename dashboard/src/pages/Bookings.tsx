@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { 
   Plus, 
@@ -12,27 +13,30 @@ import {
   CheckCircle,
 } from 'lucide-react';
 import toast from 'react-hot-toast';
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 import { useAuth } from '../contexts/AuthContext';
 import AddBookingModal from '../components/booking/AddBookingModal';
 import BookingDetailModal from '../components/booking/BookingDetailModal';
 import EditBookingModal from '../components/booking/EditBookingModal';
+import { bookingAPI, bookingQueries, type BookingFilters } from '../api/booking';
 
 interface Booking {
-  id: number;
-  customerId: number;
+  id: string;
+  customerId: string;
   customerName: string;
   customerPhone: string;
   customerEmail: string;
-  carId: number;
+  carId: string;
   carMake: string;
   carModel: string;
   carLicensePlate: string;
   serviceType: string;
+  serviceName?: string;
   scheduledDate: string;
   scheduledTime: string;
   estimatedDuration: number;
   status: 'pending' | 'confirmed' | 'in_progress' | 'completed' | 'cancelled';
-  notes: string;
+  customer_notes?: string;
   totalAmount: number;
   createdAt: string;
 }
@@ -41,7 +45,7 @@ const Bookings: React.FC = () => {
   const { token } = useAuth();
   const queryClient = useQueryClient();
   
-  // State
+  // State for filters and pagination
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState('');
   const [dateFilter, setDateFilter] = useState('');
@@ -53,85 +57,60 @@ const Bookings: React.FC = () => {
 
   const itemsPerPage = 10;
 
-  // Fetch bookings
-  const { data: bookingsData, isLoading } = useQuery({
-    queryKey: ['bookings', currentPage, searchTerm, statusFilter, dateFilter],
-    queryFn: async (): Promise<{ bookings: Booking[]; pagination: any }> => {
-      const params = new URLSearchParams({
-        page: currentPage.toString(),
-        limit: itemsPerPage.toString(),
-        ...(searchTerm && { search: searchTerm }),
-        ...(statusFilter && { status: statusFilter }),
-        ...(dateFilter && { date: dateFilter }),
-      });
+  // Prepare filters for API
+  const filters: BookingFilters = {
+    page: currentPage,
+    page_size: itemsPerPage,
+    ...(searchTerm && { search: searchTerm }),
+    ...(statusFilter && { status: statusFilter }),
+    ...(dateFilter && { date_from: dateFilter, date_to: dateFilter }),
+  };
 
-      const response = await fetch(`http://localhost:5000/api/bookings?${params}`, {
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json',
-        },
-      });
+  // Fetch bookings from API
+  const { data: bookingsData, isLoading, error: bookingsError } = useQuery(
+    bookingQueries.list(filters)
+  );
 
-      if (!response.ok) {
-        throw new Error('Failed to fetch bookings');
-      }
+  // Fetch booking statistics from API
+  const { data: statsData, isLoading: statsLoading, error: statsError } = useQuery(
+    bookingQueries.stats()
+  );
 
-      return response.json();
-    },
-    enabled: !!token,
-  });
-
-  // Fetch booking statistics
-  const { data: statsData } = useQuery({
-    queryKey: ['bookingStats'],
-    queryFn: async (): Promise<any> => {
-      const response = await fetch('http://localhost:5000/api/bookings/stats', {
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json',
-        },
-      });
-
-      if (!response.ok) {
-        throw new Error('Failed to fetch booking statistics');
-      }
-
-      return response.json();
-    },
-    enabled: !!token,
-  });
-
-  const bookings = bookingsData?.bookings || [];
-  const stats = statsData?.stats;
-  const pagination = bookingsData?.pagination;
+  // Handle API errors
+  if (bookingsError || statsError) {
+    return (
+      <div className="p-6">
+        <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded">
+          <h3 className="font-bold">Error loading bookings</h3>
+          <p>Please check if your backend server is running on port 5000.</p>
+          <p className="text-sm mt-1">Error: {(bookingsError as Error)?.message || (statsError as Error)?.message}</p>
+        </div>
+      </div>
+    );
+  }
 
   // Delete booking mutation
   const deleteBookingMutation = useMutation({
-    mutationFn: async (bookingId: number) => {
-      const response = await fetch(`http://localhost:5000/api/bookings/${bookingId}`, {
-        method: 'DELETE',
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json',
-        },
-      });
-      if (!response.ok) {
-        throw new Error('Failed to delete booking');
-      }
-    },
+    mutationFn: (bookingId: string) => bookingAPI.cancelBooking(bookingId, 'Deleted by user'),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['bookings'] });
-      queryClient.invalidateQueries({ queryKey: ['bookingStats'] });
+      queryClient.invalidateQueries({ queryKey: bookingQueries.keys.all });
       toast.success('Booking deleted successfully');
       setIsDetailModalOpen(false);
     },
-    onError: (error) => {
+    onError: () => {
       toast.error('Failed to delete booking');
-      console.error('Error deleting booking:', error);
     },
   });
 
-
+  // Extract data from API responses
+  const bookings = bookingsData?.bookings || [];
+  const pagination = bookingsData?.pagination;
+  const stats = statsData || {
+    totalBookings: 0,
+    completedBookings: 0,
+    pendingBookings: 0,
+    todayBookings: 0
+  };
 
   const handleViewBooking = (booking: Booking) => {
     setSelectedBooking(booking);
@@ -143,7 +122,7 @@ const Bookings: React.FC = () => {
     setIsEditModalOpen(true);
   };
 
-  const handleDeleteBooking = (bookingId: number) => {
+  const handleDeleteBooking = (bookingId: string) => {
     if (window.confirm('Are you sure you want to delete this booking? This action cannot be undone.')) {
       deleteBookingMutation.mutate(bookingId);
     }
@@ -357,7 +336,7 @@ const Bookings: React.FC = () => {
                   </tr>
                 </thead>
                 <tbody className="bg-white divide-y divide-gray-200">
-                  {bookings.map((booking) => (
+                  {bookings.map((booking: Booking) => (
                     <tr key={booking.id} className="hover:bg-gray-50">
                       <td className="px-6 py-4">
                         <div>
@@ -415,20 +394,20 @@ const Bookings: React.FC = () => {
             </div>
 
             {/* Pagination */}
-            {pagination && pagination.totalPages > 1 && (
+            {pagination && pagination.total_pages > 1 && (
               <div className="bg-white px-4 py-3 border-t border-gray-200 sm:px-6">
                 <div className="flex items-center justify-between">
                   <div className="flex-1 flex justify-between sm:hidden">
                     <button
                       onClick={() => setCurrentPage(Math.max(1, currentPage - 1))}
-                      disabled={currentPage === 1}
+                      disabled={!pagination.has_previous}
                       className="relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 disabled:opacity-50"
                     >
                       Previous
                     </button>
                     <button
-                      onClick={() => setCurrentPage(Math.min(pagination.totalPages, currentPage + 1))}
-                      disabled={currentPage === pagination.totalPages}
+                      onClick={() => setCurrentPage(Math.min(pagination.total_pages, currentPage + 1))}
+                      disabled={!pagination.has_next}
                       className="ml-3 relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 disabled:opacity-50"
                     >
                       Next
@@ -439,14 +418,14 @@ const Bookings: React.FC = () => {
                       <p className="text-sm text-gray-700">
                         Showing <span className="font-medium">{((currentPage - 1) * itemsPerPage) + 1}</span> to{' '}
                         <span className="font-medium">
-                          {Math.min(currentPage * itemsPerPage, pagination.totalItems)}
+                          {Math.min(currentPage * itemsPerPage, pagination.total_count)}
                         </span>{' '}
-                        of <span className="font-medium">{pagination.totalItems}</span> results
+                        of <span className="font-medium">{pagination.total_count}</span> results
                       </p>
                     </div>
                     <div>
                       <nav className="relative z-0 inline-flex rounded-md shadow-sm -space-x-px">
-                        {Array.from({ length: pagination.totalPages }, (_, i) => i + 1).map((page) => (
+                        {Array.from({ length: pagination.total_pages }, (_, i) => i + 1).map((page) => (
                           <button
                             key={page}
                             onClick={() => setCurrentPage(page)}

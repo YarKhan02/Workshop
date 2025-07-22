@@ -24,3 +24,12 @@ python manage.py seed_product_variant
 
 echo -e "${CYAN}== Seeding Invoice...${NO_COLOR}"
 python manage.py seed_invoice
+
+echo -e "${CYAN}== Seeding Services...${NO_COLOR}"
+python manage.py seed_service
+
+echo -e "${CYAN}== Seeding Time Slots...${NO_COLOR}"
+python manage.py seed_time_slots
+
+echo -e "${CYAN}== Seeding Booking...${NO_COLOR}"
+python manage.py seed_booking

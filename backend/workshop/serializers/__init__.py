@@ -5,3 +5,9 @@ from .invoice_item_serializer import InvoiceItemSerializer
 from .invoice_serializer import InvoiceSerializer
 from .car_serializer import CarSerializer
 from .product_serializer import ProductSerializer, ProductCreateSerializer, ProductVariantSerializer, ProductVariantCreateSerializer, VariantStockUpdateSerializer
+from .booking_serializer import (
+    ServiceSerializer, ServiceListSerializer,
+    BookingListSerializer, BookingDetailSerializer,
+    BookingCreateSerializer, BookingUpdateSerializer,
+    BookingStatsSerializer
+)
