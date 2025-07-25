@@ -72,7 +72,7 @@ class BookingAdmin(admin.ModelAdmin):
         'assigned_staff', 'created_at'
     ]
     list_filter = [
-        'status', 'service__category', 'scheduled_date', 
+        'status', 'service__category', 'time_slot__date', 
         'assigned_staff', 'created_at'
     ]
     search_fields = [
@@ -80,8 +80,8 @@ class BookingAdmin(admin.ModelAdmin):
         'customer__email', 'customer_phone',
         'car__make', 'car__model', 'car_license_plate'
     ]
-    date_hierarchy = 'scheduled_date'
-    ordering = ['-scheduled_date', '-scheduled_time']
+    date_hierarchy = 'time_slot__date'
+    ordering = ['-time_slot__date', '-time_slot__start_time']
     
     readonly_fields = [
         'id', 'created_at', 'updated_at', 'confirmed_at', 
@@ -105,7 +105,7 @@ class BookingAdmin(admin.ModelAdmin):
         }),
         ('Scheduling', {
             'fields': (
-                ('scheduled_date', 'scheduled_time'),
+                'time_slot',
                 ('actual_start_time', 'actual_end_time'),
                 'actual_duration_display'
             )

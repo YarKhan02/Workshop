@@ -1,24 +1,20 @@
 import React, { useState } from 'react';
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useQuery } from '@tanstack/react-query';
 import { 
   Plus, 
   Search, 
   Eye, 
   Edit, 
-  Trash2, 
   Calendar,
   Clock,
   User,
   CheckCircle,
 } from 'lucide-react';
-import toast from 'react-hot-toast';
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
 import { useAuth } from '../contexts/AuthContext';
 import AddBookingModal from '../components/booking/AddBookingModal';
 import BookingDetailModal from '../components/booking/BookingDetailModal';
 import EditBookingModal from '../components/booking/EditBookingModal';
-import { bookingAPI, bookingQueries, type BookingFilters } from '../api/booking';
+import { bookingQueries, type BookingFilters } from '../api/booking';
 
 interface Booking {
   id: string;
@@ -43,7 +39,6 @@ interface Booking {
 
 const Bookings: React.FC = () => {
   const { token } = useAuth();
-  const queryClient = useQueryClient();
   
   // State for filters and pagination
   const [searchTerm, setSearchTerm] = useState('');
@@ -72,7 +67,7 @@ const Bookings: React.FC = () => {
   );
 
   // Fetch booking statistics from API
-  const { data: statsData, isLoading: statsLoading, error: statsError } = useQuery(
+  const { data: statsData, error: statsError } = useQuery(
     bookingQueries.stats()
   );
 
@@ -88,19 +83,6 @@ const Bookings: React.FC = () => {
       </div>
     );
   }
-
-  // Delete booking mutation
-  const deleteBookingMutation = useMutation({
-    mutationFn: (bookingId: string) => bookingAPI.cancelBooking(bookingId, 'Deleted by user'),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: bookingQueries.keys.all });
-      toast.success('Booking deleted successfully');
-      setIsDetailModalOpen(false);
-    },
-    onError: () => {
-      toast.error('Failed to delete booking');
-    },
-  });
 
   // Extract data from API responses
   const bookings = bookingsData?.bookings || [];
@@ -120,12 +102,6 @@ const Bookings: React.FC = () => {
   const handleEditBooking = (booking: Booking) => {
     setSelectedBooking(booking);
     setIsEditModalOpen(true);
-  };
-
-  const handleDeleteBooking = (bookingId: string) => {
-    if (window.confirm('Are you sure you want to delete this booking? This action cannot be undone.')) {
-      deleteBookingMutation.mutate(bookingId);
-    }
   };
 
 
@@ -378,12 +354,6 @@ const Bookings: React.FC = () => {
                             className="text-green-600 hover:text-green-900"
                           >
                             <Edit size={16} />
-                          </button>
-                          <button
-                            onClick={() => handleDeleteBooking(booking.id)}
-                            className="text-red-600 hover:text-red-900"
-                          >
-                            <Trash2 size={16} />
                           </button>
                         </div>
                       </td>

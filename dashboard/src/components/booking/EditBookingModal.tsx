@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { X, Calendar, Clock, User, Car, FileText, DollarSign } from 'lucide-react';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { X, Calendar, Clock, User, FileText, DollarSign } from 'lucide-react';
 import toast from 'react-hot-toast';
-import { useAuth } from '../../contexts/AuthContext';
+import { bookingAPI, serviceAPI } from '../../api/booking';
 import Portal from '../ui/Portal';
 
 interface EditBookingModalProps {
@@ -11,125 +11,84 @@ interface EditBookingModalProps {
   booking: any;
 }
 
-interface Customer {
-  id: number;
-  firstName: string;
-  lastName: string;
-  phone: string;
-  email: string;
-}
-
-interface Car {
-  id: number;
-  make: string;
-  model: string;
-  licensePlate: string;
-  year: number;
+interface TimeSlot {
+  id: string;
+  date: string;
+  start_time: string;
+  end_time: string;
+  is_available: boolean;
 }
 
 const EditBookingModal: React.FC<EditBookingModalProps> = ({ isOpen, onClose, booking }) => {
-  const { token } = useAuth();
   const queryClient = useQueryClient();
 
   const [formData, setFormData] = useState({
-    customerId: '',
-    carId: '',
-    jobType: 'basic_wash',
-    scheduledDate: '',
-    scheduledTime: '',
-    estimatedDuration: 60,
+    service: '',
+    scheduled_date: '',
+    scheduled_time: '',
+    time_slot: '',
+    estimated_duration_minutes: 60,
     status: 'pending',
-    notes: '',
-    totalAmount: 0
+    customer_notes: '',
+    staff_notes: '',
+    quoted_price: 0,
+    discount_amount: 0
   });
 
-  const [customers, setCustomers] = useState<Customer[]>([]);
-  const [cars, setCars] = useState<Car[]>([]);
-  const [isLoadingCustomers, setIsLoadingCustomers] = useState(false);
-  const [isLoadingCars, setIsLoadingCars] = useState(false);
+  const [availableTimeSlots, setAvailableTimeSlots] = useState<TimeSlot[]>([]);
+  const [isLoadingTimeSlots, setIsLoadingTimeSlots] = useState(false);
 
   // Initialize form data when booking changes
   useEffect(() => {
     if (booking) {
       setFormData({
-        customerId: booking.customerId?.toString() || '',
-        carId: booking.carId?.toString() || '',
-        jobType: booking.serviceType || 'basic_wash',
-        scheduledDate: booking.scheduledDate || '',
-        scheduledTime: booking.scheduledTime || '',
-        estimatedDuration: booking.estimatedDuration || 60,
+        service: booking.serviceType || booking.service || '',
+        scheduled_date: booking.scheduledDate || booking.scheduled_date || '',
+        scheduled_time: booking.scheduledTime || booking.scheduled_time || '',
+        time_slot: booking.time_slot || '',
+        estimated_duration_minutes: booking.estimatedDuration || booking.estimated_duration_minutes || 60,
         status: booking.status || 'pending',
-        notes: booking.notes || '',
-        totalAmount: booking.totalAmount || 0
+        customer_notes: booking.customerNotes || booking.customer_notes || '',
+        staff_notes: booking.staffNotes || booking.staff_notes || '',
+        quoted_price: booking.totalAmount || booking.quoted_price || booking.final_price || 0,
+        discount_amount: booking.discountAmount || booking.discount_amount || 0
       });
+      
+      // Fetch time slots for the current booking date
+      if (booking.scheduledDate || booking.scheduled_date) {
+        fetchTimeSlots(booking.scheduledDate || booking.scheduled_date);
+      }
     }
   }, [booking]);
 
-  // Fetch customers
-  const fetchCustomers = async () => {
-    if (customers.length > 0) return;
-    
-    setIsLoadingCustomers(true);
-    try {
-      const response = await fetch('http://localhost:5000/api/customers', {
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json',
-        },
-      });
-      
-      if (response.ok) {
-        const data = await response.json();
-        setCustomers(data.customers || []);
-      }
-    } catch (error) {
-      console.error('Error fetching customers:', error);
-    } finally {
-      setIsLoadingCustomers(false);
-    }
-  };
+  // Fetch services
+  const { data: servicesData = [] } = useQuery({
+    queryKey: ['services'],
+    queryFn: () => serviceAPI.getServices(),
+    staleTime: 1000 * 60 * 10,
+  });
 
-  // Fetch cars
-  const fetchCars = async () => {
-    if (cars.length > 0) return;
+  // Fetch available time slots when date changes
+  const fetchTimeSlots = async (date: string) => {
+    if (!date) return;
     
-    setIsLoadingCars(true);
+    setIsLoadingTimeSlots(true);
     try {
-      const response = await fetch('http://localhost:5000/api/cars', {
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json',
-        },
-      });
-      
-      if (response.ok) {
-        const data = await response.json();
-        setCars(data.cars || []);
-      }
+      // Pass the current booking ID to exclude it from availability check
+      const data = await bookingAPI.getAvailableTimeSlots(date, booking?.id);
+      setAvailableTimeSlots(data || []);
     } catch (error) {
-      console.error('Error fetching cars:', error);
+      console.error('Error fetching time slots:', error);
+      toast.error('Failed to load available time slots');
     } finally {
-      setIsLoadingCars(false);
+      setIsLoadingTimeSlots(false);
     }
   };
 
   // Update booking mutation
   const updateBookingMutation = useMutation({
     mutationFn: async (bookingData: any) => {
-      const response = await fetch(`http://localhost:5000/api/bookings/${booking.id}`, {
-        method: 'PUT',
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(bookingData),
-      });
-
-      if (!response.ok) {
-        throw new Error('Failed to update booking');
-      }
-
-      return response.json();
+      return await bookingAPI.updateBooking(booking.id, bookingData);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['bookings'] });
@@ -137,8 +96,8 @@ const EditBookingModal: React.FC<EditBookingModalProps> = ({ isOpen, onClose, bo
       toast.success('Booking updated successfully');
       handleClose();
     },
-    onError: (error) => {
-      toast.error('Failed to update booking');
+    onError: (error: any) => {
+      toast.error(error?.response?.data?.message || 'Failed to update booking');
       console.error('Error updating booking:', error);
     },
   });
@@ -146,41 +105,35 @@ const EditBookingModal: React.FC<EditBookingModalProps> = ({ isOpen, onClose, bo
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     
-    if (!formData.customerId || !formData.carId || !formData.scheduledDate || !formData.scheduledTime) {
+    if (!formData.scheduled_date || !formData.scheduled_time) {
       toast.error('Please fill in all required fields');
       return;
     }
 
-    updateBookingMutation.mutate({
-      ...formData,
-      customerId: parseInt(formData.customerId),
-      carId: parseInt(formData.carId),
-      estimatedDuration: parseInt(formData.estimatedDuration.toString()),
-      totalAmount: parseFloat(formData.totalAmount.toString())
-    });
+    // Only send fields that have changed or are not empty
+    const updateData: any = {};
+    
+    // Only include service if it's actually selected and different from original
+    if (formData.service && formData.service !== booking?.serviceType) {
+      updateData.service = formData.service;
+    }
+    
+    if (formData.scheduled_date) updateData.scheduled_date = formData.scheduled_date;
+    if (formData.scheduled_time) updateData.scheduled_time = formData.scheduled_time;
+    if (formData.time_slot) updateData.time_slot = formData.time_slot;
+    if (formData.estimated_duration_minutes) updateData.estimated_duration_minutes = formData.estimated_duration_minutes;
+    if (formData.status) updateData.status = formData.status;
+    updateData.customer_notes = formData.customer_notes;
+    updateData.staff_notes = formData.staff_notes;
+    updateData.quoted_price = formData.quoted_price;
+    updateData.discount_amount = formData.discount_amount;
+
+    console.log('Sending update data:', updateData);
+    updateBookingMutation.mutate(updateData);
   };
 
   const handleClose = () => {
     onClose();
-  };
-
-  const getServiceTypePrice = (serviceType: string) => {
-    switch (serviceType) {
-      case 'basic_wash': return 500;
-      case 'full_detail': return 2000;
-      case 'interior_detail': return 1200;
-      case 'exterior_detail': return 800;
-      case 'premium_detail': return 3000;
-      default: return 500;
-    }
-  };
-
-  const handleServiceTypeChange = (serviceType: string) => {
-    setFormData(prev => ({
-      ...prev,
-      jobType: serviceType,
-      totalAmount: getServiceTypePrice(serviceType)
-    }));
   };
 
   if (!isOpen || !booking) return null;
@@ -200,56 +153,26 @@ const EditBookingModal: React.FC<EditBookingModalProps> = ({ isOpen, onClose, bo
         </div>
 
         <form onSubmit={handleSubmit} className="p-6 space-y-6">
-          {/* Customer Selection */}
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              <User className="inline w-4 h-4 mr-1" />
-              Customer *
-            </label>
-            <select
-              value={formData.customerId}
-              onChange={(e) => setFormData(prev => ({ ...prev, customerId: e.target.value }))}
-              onFocus={fetchCustomers}
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-              required
-            >
-              <option value="">Select Customer</option>
-              {isLoadingCustomers ? (
-                <option disabled>Loading customers...</option>
-              ) : (
-                customers.map((customer) => (
-                  <option key={customer.id} value={customer.id}>
-                    {customer.firstName} {customer.lastName} - {customer.phone}
-                  </option>
-                ))
-              )}
-            </select>
-          </div>
-
-          {/* Car Selection */}
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              <Car className="inline w-4 h-4 mr-1" />
-              Car *
-            </label>
-            <select
-              value={formData.carId}
-              onChange={(e) => setFormData(prev => ({ ...prev, carId: e.target.value }))}
-              onFocus={fetchCars}
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-              required
-            >
-              <option value="">Select Car</option>
-              {isLoadingCars ? (
-                <option disabled>Loading cars...</option>
-              ) : (
-                cars.map((car) => (
-                  <option key={car.id} value={car.id}>
-                    {car.make} {car.model} ({car.year}) - {car.licensePlate}
-                  </option>
-                ))
-              )}
-            </select>
+          {/* Customer Information (Read Only) */}
+          <div className="bg-gray-50 p-4 rounded-lg">
+            <h4 className="text-lg font-medium text-gray-900 mb-4 flex items-center">
+              <User className="w-5 h-5 mr-2" />
+              Customer & Vehicle Information
+            </h4>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Customer</label>
+                <p className="text-gray-900 bg-white border border-gray-300 rounded-lg px-3 py-2">
+                  {booking?.customerName || 'N/A'}
+                </p>
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Vehicle</label>
+                <p className="text-gray-900 bg-white border border-gray-300 rounded-lg px-3 py-2">
+                  {booking?.carMake} {booking?.carModel} - {booking?.carLicensePlate}
+                </p>
+              </div>
+            </div>
           </div>
 
           {/* Service Type */}
@@ -259,16 +182,25 @@ const EditBookingModal: React.FC<EditBookingModalProps> = ({ isOpen, onClose, bo
               Service Type *
             </label>
             <select
-              value={formData.jobType}
-              onChange={(e) => handleServiceTypeChange(e.target.value)}
+              value={formData.service}
+              onChange={(e) => {
+                const selectedService = servicesData.find((s: any) => s.code === e.target.value);
+                setFormData(prev => ({
+                  ...prev,
+                  service: e.target.value,
+                  quoted_price: selectedService?.base_price || 0,
+                  estimated_duration_minutes: selectedService?.estimated_duration_minutes || 60
+                }));
+              }}
               className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
               required
             >
-              <option value="basic_wash">Basic Wash - ₹500</option>
-              <option value="exterior_detail">Exterior Detail - ₹800</option>
-              <option value="interior_detail">Interior Detail - ₹1,200</option>
-              <option value="full_detail">Full Detail - ₹2,000</option>
-              <option value="premium_detail">Premium Detail - ₹3,000</option>
+              <option value="">Select Service</option>
+              {servicesData.map((service: any) => (
+                <option key={service.id} value={service.code}>
+                  {service.name} - ₹{service.base_price}
+                </option>
+              ))}
             </select>
           </div>
 
@@ -281,8 +213,13 @@ const EditBookingModal: React.FC<EditBookingModalProps> = ({ isOpen, onClose, bo
               </label>
               <input
                 type="date"
-                value={formData.scheduledDate}
-                onChange={(e) => setFormData(prev => ({ ...prev, scheduledDate: e.target.value }))}
+                value={formData.scheduled_date}
+                onChange={(e) => {
+                  setFormData(prev => ({ ...prev, scheduled_date: e.target.value }));
+                  if (e.target.value) {
+                    fetchTimeSlots(e.target.value);
+                  }
+                }}
                 className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                 required
               />
@@ -292,13 +229,51 @@ const EditBookingModal: React.FC<EditBookingModalProps> = ({ isOpen, onClose, bo
                 <Clock className="inline w-4 h-4 mr-1" />
                 Time *
               </label>
-              <input
-                type="time"
-                value={formData.scheduledTime}
-                onChange={(e) => setFormData(prev => ({ ...prev, scheduledTime: e.target.value }))}
+              <select
+                value={formData.time_slot}
+                onChange={(e) => {
+                  const selectedSlot = availableTimeSlots.find(slot => slot.id === e.target.value);
+                  setFormData(prev => ({
+                    ...prev,
+                    time_slot: e.target.value,
+                    scheduled_time: selectedSlot?.start_time || ''
+                  }));
+                }}
                 className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                 required
-              />
+              >
+                <option value="">Select Time Slot</option>
+                {/* Show current booking's time slot even if not available */}
+                {booking?.time_slot && !availableTimeSlots.find(slot => slot.id === booking.time_slot) && (
+                  <option key={booking.time_slot} value={booking.time_slot}>
+                    {formData.scheduled_time ? 
+                      new Date(`2000-01-01T${formData.scheduled_time}`).toLocaleTimeString('en-US', {
+                        hour: '2-digit',
+                        minute: '2-digit',
+                        hour12: true
+                      }) + ' (Current)'
+                      : 'Current Time Slot'
+                    }
+                  </option>
+                )}
+                {/* Show all available time slots */}
+                {availableTimeSlots.map((slot) => (
+                  <option key={slot.id} value={slot.id}>
+                    {new Date(`2000-01-01T${slot.start_time}`).toLocaleTimeString('en-US', {
+                      hour: '2-digit',
+                      minute: '2-digit',
+                      hour12: true
+                    })}
+                    {slot.id === booking?.time_slot ? ' (Current)' : ''}
+                  </option>
+                ))}
+              </select>
+              {isLoadingTimeSlots && (
+                <p className="text-sm text-gray-500 mt-1">Loading available time slots...</p>
+              )}
+              {!isLoadingTimeSlots && availableTimeSlots.length === 0 && formData.scheduled_date && (
+                <p className="text-sm text-amber-600 mt-1">No available time slots for this date. Creating new slot.</p>
+              )}
             </div>
           </div>
 
@@ -327,8 +302,8 @@ const EditBookingModal: React.FC<EditBookingModalProps> = ({ isOpen, onClose, bo
               </label>
               <input
                 type="number"
-                value={formData.estimatedDuration}
-                onChange={(e) => setFormData(prev => ({ ...prev, estimatedDuration: parseInt(e.target.value) || 60 }))}
+                value={formData.estimated_duration_minutes}
+                onChange={(e) => setFormData(prev => ({ ...prev, estimated_duration_minutes: parseInt(e.target.value) || 60 }))}
                 min="30"
                 max="480"
                 className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
@@ -337,12 +312,12 @@ const EditBookingModal: React.FC<EditBookingModalProps> = ({ isOpen, onClose, bo
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
                 <DollarSign className="inline w-4 h-4 mr-1" />
-                Amount (₹)
+                Quoted Price (₹)
               </label>
               <input
                 type="number"
-                value={formData.totalAmount}
-                onChange={(e) => setFormData(prev => ({ ...prev, totalAmount: parseFloat(e.target.value) || 0 }))}
+                value={formData.quoted_price}
+                onChange={(e) => setFormData(prev => ({ ...prev, quoted_price: parseFloat(e.target.value) || 0 }))}
                 min="0"
                 step="0.01"
                 className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
@@ -350,18 +325,49 @@ const EditBookingModal: React.FC<EditBookingModalProps> = ({ isOpen, onClose, bo
             </div>
           </div>
 
-          {/* Notes */}
+          {/* Discount Amount */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              <DollarSign className="inline w-4 h-4 mr-1" />
+              Discount Amount (₹)
+            </label>
+            <input
+              type="number"
+              value={formData.discount_amount}
+              onChange={(e) => setFormData(prev => ({ ...prev, discount_amount: parseFloat(e.target.value) || 0 }))}
+              min="0"
+              step="0.01"
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            />
+          </div>
+
+          {/* Customer Notes */}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
               <FileText className="inline w-4 h-4 mr-1" />
-              Notes
+              Customer Notes
             </label>
             <textarea
-              value={formData.notes}
-              onChange={(e) => setFormData(prev => ({ ...prev, notes: e.target.value }))}
-              rows={3}
+              value={formData.customer_notes}
+              onChange={(e) => setFormData(prev => ({ ...prev, customer_notes: e.target.value }))}
+              rows={2}
               className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-              placeholder="Any special instructions or notes..."
+              placeholder="Customer requirements or special instructions..."
+            />
+          </div>
+
+          {/* Staff Notes */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              <FileText className="inline w-4 h-4 mr-1" />
+              Staff Notes
+            </label>
+            <textarea
+              value={formData.staff_notes}
+              onChange={(e) => setFormData(prev => ({ ...prev, staff_notes: e.target.value }))}
+              rows={2}
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              placeholder="Internal notes, observations, or instructions..."
             />
           </div>
 

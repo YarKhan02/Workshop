@@ -2,6 +2,7 @@ import uuid
 from django.db import models
 from django.core.validators import MinValueValidator, MaxValueValidator
 from decimal import Decimal
+from datetime import datetime
 
 from workshop.models.customer import Customer
 from workshop.models.car import Car
@@ -37,6 +38,117 @@ class Service(models.Model):
         return f"{self.name} ({self.category})"
 
 
+class BookingTimeSlot(models.Model):
+    """
+    Available time slots for booking scheduling
+    """
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    date = models.DateField()
+    start_time = models.TimeField()
+    end_time = models.TimeField()
+    max_concurrent_bookings = models.PositiveIntegerField(default=1)
+    is_available = models.BooleanField(default=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    
+    class Meta:
+        db_table = 'booking_time_slot'
+        unique_together = ['date', 'start_time']
+        ordering = ['date', 'start_time']
+
+    def __str__(self):
+        return f"{self.date} {self.start_time}-{self.end_time}"
+    
+    def get_available_slots(self):
+        """Get number of available slots"""
+        booked_count = self.bookings.filter(
+            status__in=['confirmed', 'in_progress']
+        ).count()
+        return max(0, self.max_concurrent_bookings - booked_count)
+    
+    def is_slot_available(self):
+        """Check if slot has availability"""
+        return self.is_available and self.get_available_slots() > 0
+    
+    @classmethod
+    def create_daily_slots(cls, date, start_hour=9, end_hour=17, slot_duration_minutes=60, max_concurrent=1):
+        """
+        Create time slots for a specific date
+        
+        Args:
+            date: Date to create slots for
+            start_hour: Starting hour (default 9 AM)
+            end_hour: Ending hour (default 5 PM)
+            slot_duration_minutes: Duration of each slot in minutes (default 60)
+            max_concurrent: Maximum concurrent bookings per slot (default 1)
+        """
+        from datetime import time, timedelta
+        
+        slots_created = []
+        current_time = time(start_hour, 0)
+        end_time = time(end_hour, 0)
+        
+        while current_time < end_time:
+            # Calculate end time for this slot
+            current_datetime = datetime.combine(date, current_time)
+            slot_end_datetime = current_datetime + timedelta(minutes=slot_duration_minutes)
+            slot_end_time = slot_end_datetime.time()
+            
+            # Don't create slot if it goes beyond the end hour
+            if slot_end_time > end_time:
+                break
+                
+            # Create the slot if it doesn't exist
+            slot, created = cls.objects.get_or_create(
+                date=date,
+                start_time=current_time,
+                defaults={
+                    'end_time': slot_end_time,
+                    'max_concurrent_bookings': max_concurrent,
+                    'is_available': True
+                }
+            )
+            
+            if created:
+                slots_created.append(slot)
+            
+            # Move to next slot
+            current_datetime += timedelta(minutes=slot_duration_minutes)
+            current_time = current_datetime.time()
+        
+        return slots_created
+    
+    @classmethod
+    def get_available_slots_for_date(cls, date, exclude_booking=None):
+        """
+        Get all available time slots for a specific date
+        
+        Args:
+            date: Date to check for available slots
+            exclude_booking: Booking to exclude from availability check (for rescheduling)
+        """
+        slots = cls.objects.filter(date=date, is_available=True)
+        available_slots = []
+        
+        for slot in slots:
+            booked_count = slot.bookings.filter(
+                status__in=['confirmed', 'in_progress']
+            )
+            
+            if exclude_booking:
+                booked_count = booked_count.exclude(id=exclude_booking.id)
+            
+            booked_count = booked_count.count()
+            available_count = max(0, slot.max_concurrent_bookings - booked_count)
+            
+            if available_count > 0:
+                available_slots.append({
+                    'slot': slot,
+                    'available_count': available_count
+                })
+        
+        return available_slots
+
+
 class Booking(models.Model):
     """
     Main booking model for customer appointments
@@ -47,12 +159,11 @@ class Booking(models.Model):
     customer = models.ForeignKey(Customer, on_delete=models.CASCADE, related_name='bookings')
     car = models.ForeignKey(Car, on_delete=models.CASCADE, related_name='bookings')
     service = models.ForeignKey(Service, on_delete=models.CASCADE, related_name='bookings')
+    time_slot = models.ForeignKey('BookingTimeSlot', on_delete=models.CASCADE, related_name='bookings')
     assigned_staff = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True, related_name='assigned_bookings')
     created_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True, related_name='created_bookings')
     
-    # Scheduling
-    scheduled_date = models.DateField()
-    scheduled_time = models.TimeField()
+    # Scheduling (derived from time_slot but can be overridden for flexibility)
     estimated_duration_minutes = models.PositiveIntegerField()  # Can be different from service default
     actual_start_time = models.DateTimeField(null=True, blank=True)
     actual_end_time = models.DateTimeField(null=True, blank=True)
@@ -106,9 +217,9 @@ class Booking(models.Model):
     
     class Meta:
         db_table = 'booking'
-        ordering = ['-scheduled_date', '-scheduled_time']
+        ordering = ['-time_slot__date', '-time_slot__start_time']
         indexes = [
-            models.Index(fields=['scheduled_date', 'scheduled_time']),
+            models.Index(fields=['time_slot']),
             models.Index(fields=['status']),
             models.Index(fields=['customer']),
             models.Index(fields=['car']),
@@ -116,7 +227,22 @@ class Booking(models.Model):
         ]
 
     def __str__(self):
-        return f"Booking {self.id} - {self.customer.first_name} {self.customer.last_name} - {self.scheduled_date}"
+        return f"Booking {self.id} - {self.customer.first_name} {self.customer.last_name} - {self.time_slot.date}"
+    
+    @property
+    def scheduled_date(self):
+        """Get scheduled date from time slot"""
+        return self.time_slot.date
+    
+    @property
+    def scheduled_time(self):
+        """Get scheduled time from time slot"""
+        return self.time_slot.start_time
+    
+    @property
+    def scheduled_end_time(self):
+        """Get scheduled end time from time slot"""
+        return self.time_slot.end_time
     
     def get_total_amount(self):
         """Calculate total amount after discount"""
@@ -135,7 +261,7 @@ class Booking(models.Model):
         """Check if booking is overdue"""
         from django.utils import timezone
         if self.status in ['pending', 'confirmed']:
-            scheduled_datetime = timezone.datetime.combine(self.scheduled_date, self.scheduled_time)
+            scheduled_datetime = timezone.datetime.combine(self.time_slot.date, self.time_slot.start_time)
             if timezone.is_naive(scheduled_datetime):
                 scheduled_datetime = timezone.make_aware(scheduled_datetime)
             return timezone.now() > scheduled_datetime
@@ -187,38 +313,6 @@ class BookingAdditionalService(models.Model):
         # Auto-calculate total price
         self.total_price = self.quantity * self.unit_price
         super().save(*args, **kwargs)
-
-
-class BookingTimeSlot(models.Model):
-    """
-    Available time slots for booking scheduling
-    """
-    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    date = models.DateField()
-    start_time = models.TimeField()
-    end_time = models.TimeField()
-    max_concurrent_bookings = models.PositiveIntegerField(default=1)
-    is_available = models.BooleanField(default=True)
-    created_at = models.DateTimeField(auto_now_add=True)
-    
-    class Meta:
-        db_table = 'booking_time_slot'
-        unique_together = ['date', 'start_time']
-        ordering = ['date', 'start_time']
-
-    def __str__(self):
-        return f"{self.date} {self.start_time}-{self.end_time}"
-    
-    def get_available_slots(self):
-        """Get number of available slots"""
-        booked_count = self.bookings.filter(
-            status__in=['confirmed', 'in_progress']
-        ).count()
-        return max(0, self.max_concurrent_bookings - booked_count)
-    
-    def is_slot_available(self):
-        """Check if slot has availability"""
-        return self.is_available and self.get_available_slots() > 0
 
 
 class BookingReminder(models.Model):

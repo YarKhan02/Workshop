@@ -2,7 +2,7 @@ import React from 'react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { X, Calendar, Clock, User, Car, FileText, DollarSign, Phone, Mail } from 'lucide-react';
 import toast from 'react-hot-toast';
-import { useAuth } from '../../contexts/AuthContext';
+import { bookingAPI } from '../../api/booking';
 import Portal from '../ui/Portal';
 
 interface BookingDetailModalProps {
@@ -12,69 +12,43 @@ interface BookingDetailModalProps {
 }
 
 const BookingDetailModal: React.FC<BookingDetailModalProps> = ({ isOpen, onClose, booking }) => {
-  const { token } = useAuth();
   const queryClient = useQueryClient();
 
   // Update booking status mutation
   const updateStatusMutation = useMutation({
-    mutationFn: async ({ bookingId, status }: { bookingId: number; status: string }) => {
-      const response = await fetch(`http://localhost:5000/api/bookings/${bookingId}`, {
-        method: 'PUT',
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ status }),
-      });
-      if (!response.ok) {
-        throw new Error('Failed to update booking status');
-      }
-      return response.json();
+    mutationFn: async ({ bookingId, status }: { bookingId: string; status: string }) => {
+      const response = await bookingAPI.updateBookingStatus(bookingId, { status });
+      return response;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['bookings'] });
       queryClient.invalidateQueries({ queryKey: ['bookingStats'] });
       toast.success('Booking status updated successfully');
     },
-    onError: (error) => {
-      toast.error('Failed to update booking status');
+    onError: (error: any) => {
+      toast.error(error?.response?.data?.message || 'Failed to update booking status');
       console.error('Error updating booking status:', error);
     },
   });
 
-  // Delete booking mutation
-  const deleteBookingMutation = useMutation({
-    mutationFn: async (bookingId: number) => {
-      const response = await fetch(`http://localhost:5000/api/bookings/${bookingId}`, {
-        method: 'DELETE',
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json',
-        },
-      });
-      if (!response.ok) {
-        throw new Error('Failed to delete booking');
-      }
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['bookings'] });
-      queryClient.invalidateQueries({ queryKey: ['bookingStats'] });
-      toast.success('Booking deleted successfully');
-      onClose();
-    },
-    onError: (error) => {
-      toast.error('Failed to delete booking');
-      console.error('Error deleting booking:', error);
-    },
-  });
-
   const handleStatusChange = (newStatus: string) => {
-    updateStatusMutation.mutate({ bookingId: booking.id, status: newStatus });
-  };
+    if (newStatus === booking.status) {
+      return; // No change needed
+    }
 
-  const handleDelete = () => {
-    if (window.confirm('Are you sure you want to delete this booking? This action cannot be undone.')) {
-      deleteBookingMutation.mutate(booking.id);
+    const statusLabels: { [key: string]: string } = {
+      'pending': 'Pending',
+      'confirmed': 'Confirmed', 
+      'in_progress': 'In Progress',
+      'completed': 'Completed',
+      'cancelled': 'Cancelled'
+    };
+
+    const currentStatusLabel = statusLabels[booking.status] || booking.status;
+    const newStatusLabel = statusLabels[newStatus] || newStatus;
+
+    if (window.confirm(`Are you sure you want to change the booking status from "${currentStatusLabel}" to "${newStatusLabel}"?`)) {
+      updateStatusMutation.mutate({ bookingId: booking.id, status: newStatus });
     }
   };
 
@@ -288,14 +262,7 @@ const BookingDetailModal: React.FC<BookingDetailModalProps> = ({ isOpen, onClose
             </div>
 
             {/* Actions */}
-            <div className="flex items-center justify-between pt-4 border-t">
-              <button
-                onClick={handleDelete}
-                disabled={deleteBookingMutation.isPending}
-                className="px-4 py-2 text-red-700 bg-red-100 rounded-lg hover:bg-red-200 transition-colors disabled:opacity-50"
-              >
-                {deleteBookingMutation.isPending ? 'Deleting...' : 'Delete Booking'}
-              </button>
+            <div className="flex items-center justify-end pt-4 border-t">
               <button
                 onClick={onClose}
                 className="px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition-colors"

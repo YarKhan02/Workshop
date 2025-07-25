@@ -17,8 +17,9 @@ export interface BookingCreateData {
   car: string;
   service?: string;
   service_code?: string;
-  scheduled_date: string;
-  scheduled_time: string;
+  time_slot?: string;
+  scheduled_date?: string; // For backward compatibility
+  scheduled_time?: string; // For backward compatibility
   estimated_duration_minutes?: number;
   status?: string;
   customer_notes?: string;
@@ -28,8 +29,9 @@ export interface BookingCreateData {
 }
 
 export interface BookingUpdateData {
-  scheduled_date?: string;
-  scheduled_time?: string;
+  time_slot?: string;
+  scheduled_date?: string; // For backward compatibility
+  scheduled_time?: string; // For backward compatibility
   estimated_duration_minutes?: number;
   status?: string;
   customer_notes?: string;
@@ -121,6 +123,18 @@ export const bookingAPI = {
       params: { customer_id: customerId }
     });
     return response.data;
+  },
+
+  // Get available time slots for a specific date
+  getAvailableTimeSlots: async (date: string, excludeBookingId?: string) => {
+    const params: any = { date };
+    if (excludeBookingId) {
+      params.exclude_booking = excludeBookingId;
+    }
+    const response = await apiClient.get('/bookings/available-slots/', {
+      params
+    });
+    return response.data;
   }
 };
 
@@ -137,6 +151,7 @@ export const bookingQueries = {
     services: () => ['services'] as const,
     servicesList: () => [...bookingQueries.keys.services(), 'list'] as const,
     customerCars: (customerId: string) => ['customer-cars', customerId] as const,
+    availableTimeSlots: (date: string) => ['available-time-slots', date] as const,
   },
 
   // Query functions for use with React Query
@@ -169,6 +184,13 @@ export const bookingQueries = {
     queryFn: () => bookingAPI.getCustomerCars(customerId),
     enabled: !!customerId,
     staleTime: 1000 * 60 * 5, // 5 minutes
+  }),
+
+  availableTimeSlots: (date: string, excludeBookingId?: string) => ({
+    queryKey: bookingQueries.keys.availableTimeSlots(date),
+    queryFn: () => bookingAPI.getAvailableTimeSlots(date, excludeBookingId),
+    enabled: !!date,
+    staleTime: 1000 * 60 * 2, // 2 minutes
   }),
 };
 

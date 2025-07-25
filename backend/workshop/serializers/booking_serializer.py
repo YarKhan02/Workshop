@@ -29,6 +29,22 @@ class ServiceListSerializer(serializers.ModelSerializer):
         fields = ['id', 'name', 'code', 'category', 'base_price', 'estimated_duration_minutes']
 
 
+class BookingTimeSlotSerializer(serializers.ModelSerializer):
+    """
+    Serializer for BookingTimeSlot model
+    """
+    available_slots = serializers.ReadOnlyField(source='get_available_slots')
+    is_available = serializers.ReadOnlyField(source='is_slot_available')
+    
+    class Meta:
+        model = BookingTimeSlot
+        fields = [
+            'id', 'date', 'start_time', 'end_time',
+            'max_concurrent_bookings', 'is_available',
+            'available_slots', 'created_at'
+        ]
+
+
 class BookingAdditionalServiceSerializer(serializers.ModelSerializer):
     """
     Serializer for additional services in a booking
@@ -49,7 +65,7 @@ class BookingStatusHistorySerializer(serializers.ModelSerializer):
     
     class Meta:
         model = BookingStatusHistory
-        fields = ['id', 'old_status', 'new_status', 'changed_by', 'changed_by_name', 'changed_at', 'notes']
+        fields = ['id', 'old_status', 'new_status', 'changed_by', 'changed_by_name', 'changed_at', 'change_reason']
 
 
 class BookingListSerializer(serializers.ModelSerializer):
@@ -105,6 +121,9 @@ class BookingDetailSerializer(serializers.ModelSerializer):
     # Service information
     service_details = ServiceSerializer(source='service', read_only=True)
     
+    # Time slot information
+    time_slot_details = BookingTimeSlotSerializer(source='time_slot', read_only=True)
+    
     # Additional services
     additional_services = BookingAdditionalServiceSerializer(many=True, read_only=True)
     
@@ -113,12 +132,16 @@ class BookingDetailSerializer(serializers.ModelSerializer):
     
     # Staff information
     assigned_staff_name = serializers.SerializerMethodField()
+    
+    # For backward compatibility
+    scheduled_date = serializers.DateField(source='time_slot.date', read_only=True)
+    scheduled_time = serializers.TimeField(source='time_slot.start_time', read_only=True)
 
     class Meta:
         model = Booking
         fields = [
             'id', 'customer', 'customer_details', 'car', 'car_details',
-            'service', 'service_details', 'additional_services',
+            'service', 'service_details', 'additional_services', 'time_slot', 'time_slot_details',
             'scheduled_date', 'scheduled_time', 'estimated_duration_minutes',
             'actual_start_time', 'actual_end_time', 'status',
             'customer_notes', 'staff_notes', 'quoted_price', 'discount_amount',
@@ -153,21 +176,26 @@ class BookingDetailSerializer(serializers.ModelSerializer):
 
 class BookingCreateSerializer(serializers.ModelSerializer):
     """
-    Serializer for creating new bookings
+    Serializer for creating new bookings with time slot support
     """
     # Allow passing service code instead of UUID for easier frontend integration
     service_code = serializers.CharField(write_only=True, required=False)
     
+    # For backward compatibility - accept scheduled_date/time and create time_slot automatically
+    scheduled_date = serializers.DateField(write_only=True, required=False)
+    scheduled_time = serializers.TimeField(write_only=True, required=False)
+    
     class Meta:
         model = Booking
         fields = [
-            'customer', 'car', 'service', 'service_code',
+            'customer', 'car', 'service', 'service_code', 'time_slot',
             'scheduled_date', 'scheduled_time', 'estimated_duration_minutes',
             'status', 'customer_notes', 'quoted_price',
             'discount_amount', 'assigned_staff'
         ]
         extra_kwargs = {
             'service': {'required': False},
+            'time_slot': {'required': False},
             'status': {'default': 'pending'},
             'estimated_duration_minutes': {'required': False}
         }
@@ -190,6 +218,40 @@ class BookingCreateSerializer(serializers.ModelSerializer):
         elif not data.get('service'):
             raise serializers.ValidationError("Either service or service_code must be provided")
 
+        # Handle time slot creation/selection
+        if not data.get('time_slot'):
+            # If no time_slot provided, try to create one from scheduled_date/time
+            if data.get('scheduled_date') and data.get('scheduled_time'):
+                from datetime import datetime, timedelta
+                
+                # Calculate end time based on service duration
+                duration_minutes = data.get('estimated_duration_minutes', 60)
+                start_datetime = datetime.combine(data['scheduled_date'], data['scheduled_time'])
+                end_datetime = start_datetime + timedelta(minutes=duration_minutes)
+                
+                # Try to find existing time slot or create one
+                time_slot, created = BookingTimeSlot.objects.get_or_create(
+                    date=data['scheduled_date'],
+                    start_time=data['scheduled_time'],
+                    defaults={
+                        'end_time': end_datetime.time(),
+                        'max_concurrent_bookings': 1,
+                        'is_available': True
+                    }
+                )
+                data['time_slot'] = time_slot
+            else:
+                raise serializers.ValidationError("Either time_slot or both scheduled_date and scheduled_time must be provided")
+        
+        # Remove scheduled_date/time as they're not model fields anymore
+        data.pop('scheduled_date', None)
+        data.pop('scheduled_time', None)
+        
+        # Validate time slot availability
+        if data.get('time_slot'):
+            if not data['time_slot'].is_slot_available():
+                raise serializers.ValidationError("Selected time slot is not available")
+
         # Validate car belongs to customer
         if data.get('car') and data.get('customer'):
             if data['car'].customer_id != data['customer'].id:
@@ -198,6 +260,22 @@ class BookingCreateSerializer(serializers.ModelSerializer):
         return data
 
     def create(self, validated_data):
+        # Get customer and car objects to populate snapshot fields
+        customer = validated_data['customer']
+        car = validated_data['car']
+        
+        # Add snapshot fields that are required by the model
+        validated_data.update({
+            'customer_phone': customer.phone_number,
+            'customer_email': customer.email,
+            'car_make': car.make,
+            'car_model': car.model,
+            'car_year': str(car.year),
+            'car_license_plate': car.license_plate,
+            'car_color': car.color,
+            'created_by': self.context.get('request').user if self.context.get('request') else None,
+        })
+        
         booking = super().create(validated_data)
         
         # Calculate final amount
@@ -210,10 +288,10 @@ class BookingCreateSerializer(serializers.ModelSerializer):
         # Create initial status history
         BookingStatusHistory.objects.create(
             booking=booking,
-            old_status=None,
+            old_status='',  # Empty string for initial creation
             new_status=booking.status,
             changed_by=self.context.get('request').user if self.context.get('request') else None,
-            notes=f"Booking created with status: {booking.status}"
+            change_reason=f"Booking created with status: {booking.status}"
         )
 
         return booking
@@ -223,13 +301,73 @@ class BookingUpdateSerializer(serializers.ModelSerializer):
     """
     Serializer for updating existing bookings
     """
+    # For backward compatibility - accept scheduled_date/time and update time_slot
+    scheduled_date = serializers.DateField(write_only=True, required=False)
+    scheduled_time = serializers.TimeField(write_only=True, required=False)
+    service = serializers.CharField(write_only=True, required=False)  # Accept service code
+    
     class Meta:
         model = Booking
         fields = [
-            'scheduled_date', 'scheduled_time', 'estimated_duration_minutes',
+            'service', 'time_slot', 'scheduled_date', 'scheduled_time', 'estimated_duration_minutes',
             'status', 'customer_notes', 'staff_notes',
             'quoted_price', 'discount_amount', 'assigned_staff'
         ]
+        extra_kwargs = {
+            'time_slot': {'required': False},
+        }
+
+    def validate(self, data):
+        # Handle service code to service instance conversion
+        if data.get('service'):
+            service_code = data.pop('service')
+            try:
+                from workshop.models.booking import Service
+                service = Service.objects.get(code=service_code, is_active=True)
+                data['service'] = service
+            except Service.DoesNotExist:
+                raise serializers.ValidationError(f"Service with code '{service_code}' not found or inactive")
+        
+        # Handle time slot updates from scheduled_date/time
+        if data.get('scheduled_date') or data.get('scheduled_time'):
+            instance = self.instance
+            new_date = data.get('scheduled_date', instance.time_slot.date)
+            new_time = data.get('scheduled_time', instance.time_slot.start_time)
+            
+            # Always find or create appropriate time slot when date/time is provided
+            from datetime import datetime, timedelta
+            
+            duration_minutes = data.get('estimated_duration_minutes', instance.estimated_duration_minutes)
+            start_datetime = datetime.combine(new_date, new_time)
+            end_datetime = start_datetime + timedelta(minutes=duration_minutes)
+            
+            # Try to find existing time slot or create one
+            time_slot, created = BookingTimeSlot.objects.get_or_create(
+                date=new_date,
+                start_time=new_time,
+                defaults={
+                    'end_time': end_datetime.time(),
+                    'max_concurrent_bookings': 1,
+                    'is_available': True
+                }
+            )
+            
+            # Check availability (excluding current booking)
+            current_bookings = time_slot.bookings.filter(
+                status__in=['confirmed', 'in_progress']
+            ).exclude(id=instance.id)
+            
+            available_count = max(0, time_slot.max_concurrent_bookings - current_bookings.count())
+            if available_count <= 0 and time_slot != instance.time_slot:
+                raise serializers.ValidationError("Selected time slot is not available")
+            
+            data['time_slot'] = time_slot
+        
+        # Remove scheduled_date/time as they're not model fields
+        data.pop('scheduled_date', None)
+        data.pop('scheduled_time', None)
+        
+        return data
 
     def update(self, instance, validated_data):
         # Track status changes
@@ -254,9 +392,9 @@ class BookingUpdateSerializer(serializers.ModelSerializer):
                 old_status=old_status,
                 new_status=new_status,
                 changed_by=self.context.get('request').user if self.context.get('request') else None,
-                notes=f"Status changed from {old_status} to {new_status}"
+                change_reason=f"Status changed from {old_status} to {new_status}"
             )
-        
+
         return booking
 
 

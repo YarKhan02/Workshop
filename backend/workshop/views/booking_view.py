@@ -56,7 +56,7 @@ class BookingView(viewsets.ViewSet):
         if date_from:
             try:
                 date_from = datetime.strptime(date_from, '%Y-%m-%d').date()
-                queryset = queryset.filter(scheduled_date__gte=date_from)
+                queryset = queryset.filter(time_slot__date__gte=date_from)
             except ValueError:
                 pass
         
@@ -64,7 +64,7 @@ class BookingView(viewsets.ViewSet):
         if date_to:
             try:
                 date_to = datetime.strptime(date_to, '%Y-%m-%d').date()
-                queryset = queryset.filter(scheduled_date__lte=date_to)
+                queryset = queryset.filter(time_slot__date__lte=date_to)
             except ValueError:
                 pass
         
@@ -83,7 +83,7 @@ class BookingView(viewsets.ViewSet):
             )
         
         # Ordering
-        queryset = queryset.order_by('-scheduled_date', '-scheduled_time')
+        queryset = queryset.order_by('-time_slot__date', '-time_slot__start_time')
         
         # Pagination
         page = int(request.query_params.get('page', 1))
@@ -153,6 +153,7 @@ class BookingView(viewsets.ViewSet):
         """
         try:
             booking = Booking.objects.get(pk=pk)
+            print(f"Updating booking {pk} with data: {request.data}")
             serializer = BookingUpdateSerializer(booking, data=request.data, context={'request': request})
             
             if serializer.is_valid():
@@ -165,6 +166,7 @@ class BookingView(viewsets.ViewSet):
                     }
                 )
             
+            print(f"Serializer errors: {serializer.errors}")
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
             
         except Booking.DoesNotExist:
@@ -208,7 +210,7 @@ class BookingView(viewsets.ViewSet):
                 old_status=old_status,
                 new_status=new_status,
                 changed_by=request.user if request.user.is_authenticated else None,
-                notes=notes or f"Status changed from {old_status} to {new_status}"
+                change_reason=notes or f"Status changed from {old_status} to {new_status}"
             )
             
             serializer = BookingDetailSerializer(booking)
@@ -273,7 +275,7 @@ class BookingView(viewsets.ViewSet):
         total_bookings = Booking.objects.count()
         completed_bookings = Booking.objects.filter(status='completed').count()
         pending_bookings = Booking.objects.filter(status__in=['pending', 'confirmed']).count()
-        today_bookings = Booking.objects.filter(scheduled_date=today).count()
+        today_bookings = Booking.objects.filter(time_slot__date=today).count()
         
         stats_data = {
             'totalBookings': total_bookings,
@@ -320,4 +322,77 @@ class BookingView(viewsets.ViewSet):
             return Response(
                 {"error": "Customer not found"}, 
                 status=status.HTTP_404_NOT_FOUND
+            )
+
+    @action(detail=False, methods=['get'], url_path='available-slots')
+    def get_available_time_slots(self, request):
+        """
+        Get available time slots for a specific date
+        GET: /bookings/available-slots/?date=YYYY-MM-DD&exclude_booking=booking_id
+        """
+        from workshop.models.booking import BookingTimeSlot
+        from workshop.serializers.booking_serializer import BookingTimeSlotSerializer
+        
+        date_param = request.query_params.get('date')
+        exclude_booking_id = request.query_params.get('exclude_booking')
+        
+        if not date_param:
+            return Response(
+                {"error": "Date parameter is required (format: YYYY-MM-DD)"}, 
+                status=status.HTTP_400_BAD_REQUEST
+            )
+        
+        try:
+            # Parse the date
+            selected_date = datetime.strptime(date_param, '%Y-%m-%d').date()
+            
+            # Get booking to exclude if provided
+            exclude_booking = None
+            if exclude_booking_id:
+                try:
+                    exclude_booking = Booking.objects.get(id=exclude_booking_id)
+                except Booking.DoesNotExist:
+                    pass  # Continue without excluding any booking
+            
+            # Check if time slots exist for this date, if not create them
+            existing_slots = BookingTimeSlot.objects.filter(date=selected_date).exists()
+            if not existing_slots:
+                # Create default time slots for this date (9 AM to 5 PM, 1-hour slots)
+                BookingTimeSlot.create_daily_slots(
+                    date=selected_date,
+                    start_hour=9,
+                    end_hour=17,
+                    slot_duration_minutes=60,
+                    max_concurrent=1
+                )
+            
+            # Get available time slots for the date (excluding current booking if provided)
+            available_slots = BookingTimeSlot.get_available_slots_for_date(selected_date, exclude_booking)
+            
+            # Serialize the time slots
+            slots_data = []
+            for slot_info in available_slots:
+                slot = slot_info['slot']
+                available_count = slot_info['available_count']
+                
+                slots_data.append({
+                    'id': str(slot.id),
+                    'date': str(slot.date),
+                    'start_time': slot.start_time.strftime('%H:%M'),
+                    'end_time': slot.end_time.strftime('%H:%M'),
+                    'available_slots': available_count,
+                    'is_available': available_count > 0
+                })
+            
+            return Response(slots_data)
+            
+        except ValueError:
+            return Response(
+                {"error": "Invalid date format. Use YYYY-MM-DD"}, 
+                status=status.HTTP_400_BAD_REQUEST
+            )
+        except Exception as e:
+            return Response(
+                {"error": f"Error fetching time slots: {str(e)}"}, 
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR
             )

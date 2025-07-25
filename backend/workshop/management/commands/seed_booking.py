@@ -1,15 +1,15 @@
 from django.core.management.base import BaseCommand
-from workshop.models.booking import Booking, Service
+from workshop.models.booking import Booking, Service, BookingTimeSlot
 from workshop.models.customer import Customer
 from workshop.models.car import Car
 from workshop.models.user import User
 from django.utils import timezone
 from decimal import Decimal
 import random
-from datetime import date, time, timedelta
+from datetime import date, time, timedelta, datetime
 
 class Command(BaseCommand):
-    help = 'Seeds the database with demo bookings'
+    help = 'Seeds the database with demo bookings and time slots'
 
     def handle(self, *args, **kwargs):
         # Check if required data exists
@@ -32,6 +32,10 @@ class Command(BaseCommand):
         customers = list(Customer.objects.all())
         cars = list(Car.objects.all())
         services = list(Service.objects.all())
+
+        # First, create time slots for the next 30 days
+        self.stdout.write("Creating time slots...")
+        self.create_time_slots()
 
         # Sample booking data matching your frontend test data
         bookings_data = [
@@ -141,13 +145,34 @@ class Command(BaseCommand):
                     self.stdout.write(self.style.WARNING(f"Service not found: {data['service_code']}"))
                     continue
                 
-                # Create booking
+                # Get or create time slot for this booking
+                scheduled_date = data['scheduled_date']
+                scheduled_time = data['scheduled_time']
+                
+                # Calculate end time based on service duration
+                duration_minutes = service.estimated_duration_minutes
+                start_datetime = datetime.combine(scheduled_date, scheduled_time)
+                end_datetime = start_datetime + timedelta(minutes=duration_minutes)
+                
+                time_slot, slot_created = BookingTimeSlot.objects.get_or_create(
+                    date=scheduled_date,
+                    start_time=scheduled_time,
+                    defaults={
+                        'end_time': end_datetime.time(),
+                        'max_concurrent_bookings': 1,
+                        'is_available': True
+                    }
+                )
+                
+                if slot_created:
+                    self.stdout.write(f"Created time slot: {scheduled_date} {scheduled_time}-{end_datetime.time()}")
+                
+                # Create booking with time_slot instead of scheduled_date/time
                 booking_defaults = {
                     'customer': customer,
                     'car': car,
                     'service': service,
-                    'scheduled_date': data['scheduled_date'],
-                    'scheduled_time': data['scheduled_time'],
+                    'time_slot': time_slot,
                     'estimated_duration_minutes': service.estimated_duration_minutes,
                     'status': data['status'],
                     'quoted_price': data['quoted_price'],
@@ -187,8 +212,7 @@ class Command(BaseCommand):
                     customer=customer,
                     car=car,
                     service=service,
-                    scheduled_date=data['scheduled_date'],
-                    scheduled_time=data['scheduled_time'],
+                    time_slot=time_slot,
                     defaults=booking_defaults
                 )
                 
@@ -206,3 +230,31 @@ class Command(BaseCommand):
                 self.stdout.write(self.style.ERROR(f"Error creating booking: {str(e)}"))
         
         self.stdout.write(self.style.SUCCESS(f"\nCreated {created_count} new bookings out of {len(bookings_data)} total bookings."))
+
+    def create_time_slots(self):
+        """Create time slots for the next 30 days (9 AM to 5 PM, 1-hour slots)"""
+        today = date.today()
+        slots_created = 0
+        
+        for days_ahead in range(-7, 31):  # 7 days in past, 30 days in future
+            target_date = today + timedelta(days=days_ahead)
+            
+            # Skip weekends for this demo (optional)
+            if target_date.weekday() >= 5:  # 5=Saturday, 6=Sunday
+                continue
+            
+            # Create slots using the model's class method
+            created_slots = BookingTimeSlot.create_daily_slots(
+                date=target_date,
+                start_hour=9,
+                end_hour=17,
+                slot_duration_minutes=60,
+                max_concurrent=1
+            )
+            
+            slots_created += len(created_slots)
+            
+            if created_slots:
+                self.stdout.write(f"Created {len(created_slots)} slots for {target_date}")
+        
+        self.stdout.write(self.style.SUCCESS(f"Total time slots created: {slots_created}"))
