@@ -217,20 +217,22 @@ const Billing: React.FC = () => {
         <div className="bg-white rounded-2xl shadow-sm border border-slate-200 p-6">
           <div className="flex justify-between items-center">
             <div className="flex items-center space-x-3">
-              <div className="p-2 bg-blue-100 rounded-xl">
-                <FileText className="h-6 w-6 text-blue-600" />
+              <div className="p-3 bg-gradient-to-br from-orange-500 to-red-600 rounded-xl shadow-lg">
+                <FileText className="h-6 w-6 text-white" />
               </div>
               <div>
-                <h1 className="text-3xl font-bold text-slate-900">Orders & Billing</h1>
-                <p className="text-slate-600 mt-1">Manage orders, payments, and billing</p>
+                <h1 className="text-3xl font-bold bg-gradient-to-r from-orange-400 to-red-500 bg-clip-text text-transparent">
+                  Finance HQ
+                </h1>
+                <p className="text-gray-400 mt-1">Manage orders, payments, and elite billing</p>
               </div>
             </div>
             <button
               onClick={() => setShowAddModal(true)}
-              className="flex items-center px-6 py-3 bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded-xl hover:from-blue-700 hover:to-blue-800 transition-all duration-200 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5"
+              className="flex items-center px-6 py-3 bg-gradient-to-r from-orange-500 to-red-600 text-white rounded-xl hover:from-orange-600 hover:to-red-700 transition-all duration-300 shadow-lg hover:shadow-xl transform hover:scale-105"
             >
               <Plus className="mr-2 h-5 w-5" />
-              New Order
+              Create Order
             </button>
 
             <AddInvoiceModal

@@ -69,6 +69,15 @@ export const serviceAPI = {
   }
 };
 
+// Customer API (for booking-related operations)
+export const customerAPI = {
+  // Get customer details for booking dropdown
+  getCustomerDetails: async () => {
+    const response = await apiClient.get('/customers/details/');
+    return response.data;
+  }
+};
+
 // Booking API
 export const bookingAPI = {
   // Get list of bookings with filters
@@ -150,6 +159,8 @@ export const bookingQueries = {
     stats: () => [...bookingQueries.keys.all, 'stats'] as const,
     services: () => ['services'] as const,
     servicesList: () => [...bookingQueries.keys.services(), 'list'] as const,
+    customers: () => ['customers'] as const,
+    customerDetails: () => [...bookingQueries.keys.customers(), 'details'] as const,
     customerCars: (customerId: string) => ['customer-cars', customerId] as const,
     availableTimeSlots: (date: string) => ['available-time-slots', date] as const,
   },
@@ -176,6 +187,12 @@ export const bookingQueries = {
   services: (category?: string) => ({
     queryKey: [...bookingQueries.keys.servicesList(), category],
     queryFn: () => serviceAPI.getServices(category),
+    staleTime: 1000 * 60 * 10, // 10 minutes
+  }),
+
+  customerDetails: () => ({
+    queryKey: bookingQueries.keys.customerDetails(),
+    queryFn: () => customerAPI.getCustomerDetails(),
     staleTime: 1000 * 60 * 10, // 10 minutes
   }),
 

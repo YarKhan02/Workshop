@@ -1,10 +1,11 @@
-import React, { useEffect } from 'react';
+import React from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-import type { Customer } from '../../types';
 import { X, Save } from 'lucide-react';
-import Portal from '../ui/Portal';
+import toast from 'react-hot-toast';
+import { useCreateCustomer } from '../../../hooks/useCustomers';
+import Portal from '../../ui/Portal';
 
 const customerSchema = z.object({
   first_name: z.string().min(1, 'First name is required'),
@@ -18,19 +19,17 @@ const customerSchema = z.object({
 
 type CustomerFormData = z.infer<typeof customerSchema>;
 
-interface EditCustomerModalProps {
-  customer: Customer | null;
+interface AddCustomerModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onSave: (customerId: number, data: CustomerFormData) => Promise<void>;
 }
 
-const EditCustomerModal: React.FC<EditCustomerModalProps> = ({
-  customer,
+const AddCustomerModal: React.FC<AddCustomerModalProps> = ({
   isOpen,
-  onClose,
-  onSave
+  onClose
 }) => {
+  const createCustomerMutation = useCreateCustomer();
+  
   const {
     register,
     handleSubmit,
@@ -38,46 +37,48 @@ const EditCustomerModal: React.FC<EditCustomerModalProps> = ({
     reset
   } = useForm<CustomerFormData>({
     resolver: zodResolver(customerSchema),
+    defaultValues: {
+      first_name: '',
+      last_name: '',
+      email: '',
+      phone_number: '',
+      address: '',
+      city: '',
+      state: '',
+    }
   });
 
-  // Reset form when customer changes
-  useEffect(() => {
-    if (customer) {
-      reset({
-        first_name: customer.first_name,
-        last_name: customer.last_name,
-        email: customer.email,
-        phone_number: customer.phone_number,
-        address: customer.address || '',
-        city: customer.city || '',
-        state: customer.state || '',
-      });
-    }
-  }, [customer, reset]);
-
   const onSubmit = async (data: CustomerFormData) => {
-    if (customer) {
-      try {
-        await onSave(customer.id, data);
-        onClose();
-        reset();
-      } catch (error) {
-        console.error('Error updating customer:', error);
-      }
+    try {
+      const cleanData = {
+        ...data,
+        city: data.city || undefined,
+        state: data.state || undefined,
+      };
+
+      await createCustomerMutation.mutateAsync(cleanData);
+      toast.success('Customer added successfully');
+      onClose();
+      reset();
+    } catch (error) {
+      toast.error('Failed to add customer');
+      console.error('Error adding customer:', error);
     }
   };
 
-  if (!isOpen || !customer) return null;
+  if (!isOpen) return null;
 
   return (
     <Portal>
-      <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-        <div className="bg-white rounded-lg shadow-xl max-w-2xl w-full mx-4 max-h-[90vh] overflow-y-auto">
-          <div className="flex items-center justify-between p-6 border-b">
-            <h2 className="text-2xl font-bold text-gray-900">Edit Customer</h2>
+      <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50">
+        <div className="bg-gradient-to-br from-gray-800/95 to-slate-800/95 rounded-xl shadow-2xl max-w-2xl w-full mx-4 max-h-[90vh] overflow-y-auto border border-gray-700/30 backdrop-blur-md">
+          <div className="flex items-center justify-between p-6 border-b border-gray-600/30">
+            <h2 className="text-2xl font-bold bg-gradient-to-r from-orange-400 to-red-500 bg-clip-text text-transparent">
+              Add New Elite Client
+            </h2>
             <button
               onClick={onClose}
-              className="text-gray-400 hover:text-gray-600 transition-colors"
+              className="text-gray-400 hover:text-orange-400 transition-colors duration-200"
             >
               <X size={24} />
             </button>
@@ -87,102 +88,102 @@ const EditCustomerModal: React.FC<EditCustomerModalProps> = ({
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div className="space-y-4">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                  <label className="block text-sm font-medium text-gray-300 mb-1">
                     First Name *
                   </label>
                   <input
                     type="text"
                     {...register('first_name')}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    className="w-full px-3 py-2 bg-gray-900/50 border border-gray-600/50 rounded-lg text-gray-100 placeholder-gray-400 focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-all duration-300"
                     placeholder="Enter first name"
                   />
                   {errors.first_name && (
-                    <p className="text-red-500 text-sm mt-1">{errors.first_name.message}</p>
+                    <p className="text-red-400 text-sm mt-1">{errors.first_name.message}</p>
                   )}
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                  <label className="block text-sm font-medium text-gray-300 mb-1">
                     Last Name *
                   </label>
                   <input
                     type="text"
                     {...register('last_name')}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    className="w-full px-3 py-2 bg-gray-900/50 border border-gray-600/50 rounded-lg text-gray-100 placeholder-gray-400 focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-all duration-300"
                     placeholder="Enter last name"
                   />
                   {errors.last_name && (
-                    <p className="text-red-500 text-sm mt-1">{errors.last_name.message}</p>
+                    <p className="text-red-400 text-sm mt-1">{errors.last_name.message}</p>
                   )}
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                  <label className="block text-sm font-medium text-gray-300 mb-1">
                     Email *
                   </label>
                   <input
                     type="email"
                     {...register('email')}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    className="w-full px-3 py-2 bg-gray-900/50 border border-gray-600/50 rounded-lg text-gray-100 placeholder-gray-400 focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-all duration-300"
                     placeholder="Enter email address"
                   />
                   {errors.email && (
-                    <p className="text-red-500 text-sm mt-1">{errors.email.message}</p>
+                    <p className="text-red-400 text-sm mt-1">{errors.email.message}</p>
                   )}
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                  <label className="block text-sm font-medium text-gray-300 mb-1">
                     Phone *
                   </label>
                   <input
                     type="tel"
                     {...register('phone_number')}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    className="w-full px-3 py-2 bg-gray-900/50 border border-gray-600/50 rounded-lg text-gray-100 placeholder-gray-400 focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-all duration-300"
                     placeholder="Enter phone number"
                   />
                   {errors.phone_number && (
-                    <p className="text-red-500 text-sm mt-1">{errors.phone_number.message}</p>
+                    <p className="text-red-400 text-sm mt-1">{errors.phone_number.message}</p>
                   )}
                 </div>
               </div>
 
               <div className="space-y-4">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                  <label className="block text-sm font-medium text-gray-300 mb-1">
                     Address *
                   </label>
                   <textarea
                     {...register('address')}
                     rows={3}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    className="w-full px-3 py-2 bg-gray-900/50 border border-gray-600/50 rounded-lg text-gray-100 placeholder-gray-400 focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-all duration-300"
                     placeholder="Enter address"
                   />
                   {errors.address && (
-                    <p className="text-red-500 text-sm mt-1">{errors.address.message}</p>
+                    <p className="text-red-400 text-sm mt-1">{errors.address.message}</p>
                   )}
                 </div>
 
-                <div className="grid grid-cols-3 gap-3">
+                <div className="grid grid-cols-2 gap-2">
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                    <label className="block text-sm font-medium text-gray-300 mb-1">
                       City
                     </label>
                     <input
                       type="text"
                       {...register('city')}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      className="w-full px-3 py-2 bg-gray-900/50 border border-gray-600/50 rounded-lg text-gray-100 placeholder-gray-400 focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-all duration-300"
                       placeholder="City"
                     />
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                    <label className="block text-sm font-medium text-gray-300 mb-1">
                       State
                     </label>
                     <input
                       type="text"
                       {...register('state')}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      className="w-full px-3 py-2 bg-gray-900/50 border border-gray-600/50 rounded-lg text-gray-100 placeholder-gray-400 focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-all duration-300"
                       placeholder="State"
                     />
                   </div>
@@ -198,7 +199,11 @@ const EditCustomerModal: React.FC<EditCustomerModalProps> = ({
                     />
                   </div> */}
                 </div>
+              </div>
+            </div>
 
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
+              <div className="space-y-4">
                 {/* <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">
                     Date of Birth
@@ -208,9 +213,9 @@ const EditCustomerModal: React.FC<EditCustomerModalProps> = ({
                     {...register('dateOfBirth')}
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                   />
-                </div>
+                </div> */}
 
-                <div>
+                {/* <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">
                     Gender
                   </label>
@@ -224,8 +229,10 @@ const EditCustomerModal: React.FC<EditCustomerModalProps> = ({
                     <option value="other">Other</option>
                   </select>
                 </div> */}
+              </div>
 
-                {/* <div>
+              {/* <div className="space-y-4">
+                <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">
                     Emergency Contact
                   </label>
@@ -247,8 +254,8 @@ const EditCustomerModal: React.FC<EditCustomerModalProps> = ({
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                     placeholder="Emergency phone number"
                   />
-                </div> */}
-              </div>
+                </div>
+              </div> */}
             </div>
 
             {/* <div className="mt-6">
@@ -259,25 +266,25 @@ const EditCustomerModal: React.FC<EditCustomerModalProps> = ({
                 {...register('notes')}
                 rows={3}
                 className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                placeholder="Enter any additional notes"
+                placeholder="Any additional notes about the customer"
               />
             </div> */}
 
-            <div className="flex justify-end gap-3 mt-8 pt-6 border-t">
+            <div className="flex justify-end gap-3 mt-8 pt-6 border-t border-gray-600/30">
               <button
                 type="button"
                 onClick={onClose}
-                className="px-6 py-2 text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors"
+                className="px-6 py-2 text-gray-300 bg-gray-700/50 rounded-lg hover:bg-gray-600/50 transition-colors duration-200"
               >
                 Cancel
               </button>
               <button
                 type="submit"
                 disabled={isSubmitting}
-                className="flex items-center gap-2 px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                className="flex items-center gap-2 px-6 py-2 bg-gradient-to-r from-orange-500 to-red-600 text-white rounded-lg hover:from-orange-600 hover:to-red-700 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed shadow-lg"
               >
                 <Save size={16} />
-                {isSubmitting ? 'Saving...' : 'Save Changes'}
+                {isSubmitting ? 'Adding...' : 'Add Client'}
               </button>
             </div>
           </form>
@@ -287,4 +294,4 @@ const EditCustomerModal: React.FC<EditCustomerModalProps> = ({
   );
 };
 
-export default EditCustomerModal; 
+export default AddCustomerModal; 

@@ -1,15 +1,7 @@
 import React from 'react';
-import { X, Edit, Trash2, Car, Calendar, Gauge } from 'lucide-react';
-import type { Car as CarType } from '../../types';
-import Portal from '../ui/Portal';
-
-interface CarDetailModalProps {
-  car: CarType | null;
-  isOpen: boolean;
-  onClose: () => void;
-  onEdit: (car: CarType) => void;
-  onDelete: (carId: number) => void;
-}
+import { X, Edit, Trash2, Car, Calendar } from 'lucide-react';
+import type { CarDetailModalProps } from '../../../types';
+import Portal from '../../ui/Portal';
 
 const CarDetailModal: React.FC<CarDetailModalProps> = ({
   car,
@@ -22,13 +14,15 @@ const CarDetailModal: React.FC<CarDetailModalProps> = ({
 
   return (
     <Portal>
-      <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-        <div className="bg-white rounded-lg shadow-xl max-w-2xl w-full mx-4 max-h-[90vh] overflow-y-auto">
-          <div className="flex items-center justify-between p-6 border-b">
-            <h2 className="text-2xl font-bold text-gray-900">Car Details</h2>
+      <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50">
+        <div className="bg-gradient-to-br from-gray-800/95 to-slate-800/95 rounded-xl shadow-2xl max-w-2xl w-full mx-4 max-h-[90vh] overflow-y-auto border border-gray-700/30 backdrop-blur-md">
+          <div className="flex items-center justify-between p-6 border-b border-gray-600/30">
+            <h2 className="text-2xl font-bold bg-gradient-to-r from-orange-400 to-red-500 bg-clip-text text-transparent">
+              Racing Machine Details
+            </h2>
             <button
               onClick={onClose}
-              className="text-gray-400 hover:text-gray-600 transition-colors"
+              className="text-gray-400 hover:text-orange-400 transition-colors duration-200"
             >
               <X size={24} />
             </button>
@@ -37,22 +31,22 @@ const CarDetailModal: React.FC<CarDetailModalProps> = ({
           <div className="p-6">
             <div className="flex items-center justify-between mb-6">
               <div>
-                <h3 className="text-xl font-semibold text-gray-900">
+                <h3 className="text-xl font-semibold text-gray-100">
                   {car.year} {car.make} {car.model}
                 </h3>
-                {/* <p className="text-gray-600">Car ID: {car.id}</p> */}
+                {/* <p className="text-gray-300">Car ID: {car.id}</p> */}
               </div>
               <div className="flex gap-2">
                 <button
                   onClick={() => onEdit(car)}
-                  className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+                  className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-orange-500 to-red-600 text-white rounded-lg hover:from-orange-600 hover:to-red-700 transition-colors"
                 >
                   <Edit size={16} />
                   Edit
                 </button>
                 <button
                   onClick={() => onDelete(car.id)}
-                  className="flex items-center gap-2 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors"
+                  className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-red-600 to-red-700 text-white rounded-lg hover:from-red-700 hover:to-red-800 transition-colors"
                 >
                   <Trash2 size={16} />
                   Delete
@@ -62,13 +56,13 @@ const CarDetailModal: React.FC<CarDetailModalProps> = ({
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div className="space-y-4">
-                <h4 className="text-lg font-semibold text-gray-900">Vehicle Information</h4>
+                <h4 className="text-lg font-semibold text-gray-100">Vehicle Information</h4>
                 
                 <div className="flex items-center gap-3">
                   <Car className="text-gray-400" size={20} />
                   <div>
                     <p className="text-sm text-gray-500">Make & Model</p>
-                    <p className="text-gray-900">{car.make} {car.model}</p>
+                    <p className="text-gray-100">{car.make} {car.model}</p>
                   </div>
                 </div>
 
@@ -76,7 +70,7 @@ const CarDetailModal: React.FC<CarDetailModalProps> = ({
                   <Calendar className="text-gray-400" size={20} />
                   <div>
                     <p className="text-sm text-gray-500">Year</p>
-                    <p className="text-gray-900">{car.year}</p>
+                    <p className="text-gray-100">{car.year}</p>
                   </div>
                 </div>
 
@@ -88,23 +82,23 @@ const CarDetailModal: React.FC<CarDetailModalProps> = ({
                   </div>
                   <div>
                     <p className="text-sm text-gray-500">Color</p>
-                    <p className="text-gray-900">{car.color}</p>
+                    <p className="text-gray-100">{car.color}</p>
                   </div>
                 </div>
 
                 <div>
                   <p className="text-sm text-gray-500">License Plate</p>
-                  <p className="text-gray-900 font-mono text-lg">{car.license_plate}</p>
+                  <p className="text-gray-100 font-mono text-lg">{car.license_plate}</p>
                 </div>
               </div>
 
               <div className="space-y-4">
-                <h4 className="text-lg font-semibold text-gray-900">Technical Details</h4>
+                <h4 className="text-lg font-semibold text-gray-100">Technical Details</h4>
                 
                 {car.vin && (
                   <div>
                     <p className="text-sm text-gray-500">VIN</p>
-                    <p className="text-gray-900 font-mono text-sm">{car.vin}</p>
+                    <p className="text-gray-100 font-mono text-sm">{car.vin}</p>
                   </div>
                 )}
 
@@ -113,7 +107,7 @@ const CarDetailModal: React.FC<CarDetailModalProps> = ({
                     <Gauge className="text-gray-400" size={20} />
                     <div>
                       <p className="text-sm text-gray-500">Mileage</p>
-                      <p className="text-gray-900">{car.mileage.toLocaleString()} km</p>
+                      <p className="text-gray-100">{car.mileage.toLocaleString()} km</p>
                     </div>
                   </div>
                 )} */}
@@ -122,9 +116,9 @@ const CarDetailModal: React.FC<CarDetailModalProps> = ({
 
             {/* {car.notes && (
               <div className="mt-6">
-                <h4 className="text-lg font-semibold text-gray-900 mb-2">Notes</h4>
-                <div className="bg-gray-50 p-4 rounded-lg">
-                  <p className="text-gray-900">{car.notes}</p>
+                <h4 className="text-lg font-semibold text-gray-100 mb-2">Notes</h4>
+                <div className="bg-gray-800/50 p-4 rounded-lg">
+                  <p className="text-gray-100">{car.notes}</p>
                 </div>
               </div>*/}
             {/* )} */}

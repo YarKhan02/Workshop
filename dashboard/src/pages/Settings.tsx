@@ -189,16 +189,18 @@ const Settings: React.FC = () => {
   ];
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-8">
       {/* Header */}
       <div className="mb-8">
-        <h1 className="text-3xl font-bold text-gray-900">Settings</h1>
-        <p className="text-gray-600 mt-1">Manage your business and system preferences</p>
+        <h1 className="text-3xl font-bold bg-gradient-to-r from-orange-400 to-red-500 bg-clip-text text-transparent">
+          Command Center
+        </h1>
+        <p className="text-gray-400 mt-1">Configure your racing garage operations</p>
       </div>
 
       {/* Tab Navigation */}
-      <div className="bg-white rounded-lg shadow-sm border border-gray-200">
-        <div className="border-b border-gray-200">
+      <div className="bg-gradient-to-br from-gray-800/50 to-slate-800/50 rounded-xl shadow-2xl border border-gray-700/30 backdrop-blur-md">
+        <div className="border-b border-gray-600/30">
           <nav className="flex space-x-8 px-6">
             {tabs.map((tab) => {
               const Icon = tab.icon;
@@ -206,10 +208,10 @@ const Settings: React.FC = () => {
                 <button
                   key={tab.id}
                   onClick={() => setActiveTab(tab.id)}
-                  className={`flex items-center gap-2 py-4 px-1 border-b-2 font-medium text-sm transition-colors ${
+                  className={`flex items-center gap-2 py-4 px-1 border-b-2 font-medium text-sm transition-all duration-300 ${
                     activeTab === tab.id
-                      ? 'border-blue-500 text-blue-600'
-                      : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                      ? 'border-orange-500 text-orange-400'
+                      : 'border-transparent text-gray-400 hover:text-gray-200 hover:border-orange-500/50'
                   }`}
                 >
                   <Icon className="h-4 w-4" />
@@ -225,8 +227,8 @@ const Settings: React.FC = () => {
           {activeTab === 'business' && (
             <div className="space-y-6">
               <div className="flex items-center gap-2 mb-6">
-                <Building className="h-5 w-5 text-blue-600" />
-                <h2 className="text-xl font-semibold text-gray-900">Business Information</h2>
+                <Building className="h-5 w-5 text-orange-400" />
+                <h2 className="text-xl font-semibold text-gray-100">Garage Information</h2>
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">

@@ -10,7 +10,6 @@ from workshop.serializers.customer_serializer import CustomerDetailSerializer, C
 class CustomerView(viewsets.ViewSet):
 
     # Fetch all customers details
-    # GET: /customers/ 
     @action(detail=False, methods=['get'], url_path='details')
     def get_details(self, request):
         queryset = Customer.objects.all()

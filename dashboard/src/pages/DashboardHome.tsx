@@ -95,11 +95,11 @@ const DashboardHome: React.FC = () => {
 
   const getStatusColor = (status: string) => {
     switch (status) {
-      case 'completed': return 'text-green-600 bg-green-100';
-      case 'in_progress': return 'text-blue-600 bg-blue-100';
-      case 'pending': return 'text-yellow-600 bg-yellow-100';
-      case 'cancelled': return 'text-red-600 bg-red-100';
-      default: return 'text-gray-600 bg-gray-100';
+      case 'completed': return 'text-emerald-400 bg-emerald-500/20';
+      case 'in_progress': return 'text-blue-400 bg-blue-500/20';
+      case 'pending': return 'text-amber-400 bg-amber-500/20';
+      case 'cancelled': return 'text-red-400 bg-red-500/20';
+      default: return 'text-gray-400 bg-gray-500/20';
     }
   };
 
@@ -146,34 +146,34 @@ const DashboardHome: React.FC = () => {
   if (isLoading) {
     return (
       <div className="flex items-center justify-center h-64">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-orange-400"></div>
       </div>
     );
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-8">
       {/* Header */}
       <div className="mb-8">
-        <h1 className="text-3xl font-bold text-gray-900">Dashboard</h1>
-        <p className="text-gray-600 mt-1">Welcome back! Here's what's happening today.</p>
+        <h1 className="text-4xl font-bold bg-gradient-to-r from-orange-400 to-red-500 bg-clip-text text-transparent">Command Center</h1>
+        <p className="text-gray-400 mt-2 text-lg">Peak performance dashboard • Real-time insights</p>
       </div>
 
       {/* Key Metrics */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {/* Today's Bookings */}
-        <div className="bg-white rounded-2xl shadow p-6 border-t-4 border-blue-500">
+        <div className="bg-gradient-to-br from-gray-800/50 to-slate-800/50 rounded-2xl shadow-2xl p-6 border border-gray-700/30 backdrop-blur-md hover:transform hover:scale-105 transition-all duration-300">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-4">
-              <div className="bg-blue-100 p-3 rounded-full">
-                <CalendarDays className="h-8 w-8 text-blue-600" />
+              <div className="bg-gradient-to-br from-blue-500/20 to-cyan-500/20 p-4 rounded-xl backdrop-blur-sm border border-blue-400/30">
+                <CalendarDays className="h-8 w-8 text-blue-400" />
               </div>
               <div>
-                <div className="text-2xl font-bold text-gray-900">{currentStats.todayBookings}</div>
-                <div className="text-gray-500 text-sm">Today's Bookings</div>
+                <div className="text-3xl font-bold text-gray-100">{currentStats.todayBookings}</div>
+                <div className="text-gray-400 text-sm font-medium">Today's Bookings</div>
               </div>
             </div>
-            <div className="flex items-center text-green-600 text-sm">
+            <div className="flex items-center text-emerald-400 text-sm font-medium">
               <TrendingUp className="h-4 w-4 mr-1" />
               +{currentStats.bookingsGrowth}%
             </div>
@@ -181,18 +181,18 @@ const DashboardHome: React.FC = () => {
         </div>
 
         {/* Today's Revenue */}
-        <div className="bg-white rounded-2xl shadow p-6 border-t-4 border-green-500">
+        <div className="bg-gradient-to-br from-gray-800/50 to-slate-800/50 rounded-2xl shadow-2xl p-6 border border-gray-700/30 backdrop-blur-md hover:transform hover:scale-105 transition-all duration-300">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-4">
-              <div className="bg-green-100 p-3 rounded-full">
-                <DollarSign className="h-8 w-8 text-green-600" />
+              <div className="bg-gradient-to-br from-emerald-500/20 to-green-500/20 p-4 rounded-xl backdrop-blur-sm border border-emerald-400/30">
+                <DollarSign className="h-8 w-8 text-emerald-400" />
               </div>
               <div>
-                <div className="text-2xl font-bold text-gray-900">{formatCurrency(currentStats.todayRevenue)}</div>
-                <div className="text-gray-500 text-sm">Revenue Today</div>
+                <div className="text-3xl font-bold text-gray-100">{formatCurrency(currentStats.todayRevenue)}</div>
+                <div className="text-gray-400 text-sm font-medium">Today's Revenue</div>
               </div>
             </div>
-            <div className="flex items-center text-green-600 text-sm">
+            <div className="flex items-center text-emerald-400 text-sm font-medium">
               <TrendingUp className="h-4 w-4 mr-1" />
               +{currentStats.revenueGrowth}%
             </div>
@@ -200,14 +200,14 @@ const DashboardHome: React.FC = () => {
         </div>
 
         {/* Total Customers */}
-        <div className="bg-white rounded-2xl shadow p-6 border-t-4 border-purple-500">
+        <div className="bg-gradient-to-br from-gray-800/50 to-slate-800/50 rounded-2xl shadow-2xl p-6 border border-gray-700/30 backdrop-blur-md hover:transform hover:scale-105 transition-all duration-300">
           <div className="flex items-center gap-4">
-            <div className="bg-purple-100 p-3 rounded-full">
-              <Users className="h-8 w-8 text-purple-600" />
+            <div className="bg-gradient-to-br from-purple-500/20 to-pink-500/20 p-4 rounded-xl backdrop-blur-sm border border-purple-400/30">
+              <Users className="h-8 w-8 text-purple-400" />
             </div>
             <div>
-              <div className="text-2xl font-bold text-gray-900">{currentStats.totalCustomers}</div>
-              <div className="text-gray-500 text-sm">Total Customers</div>
+              <div className="text-3xl font-bold text-gray-100">{currentStats.totalCustomers}</div>
+              <div className="text-gray-400 text-sm font-medium">Total Customers</div>
             </div>
           </div>
         </div>
@@ -216,47 +216,47 @@ const DashboardHome: React.FC = () => {
       {/* Secondary Metrics */}
       <div className="grid grid-cols-1 gap-6">
         {/* Total Jobs */}
-        <div className="bg-white rounded-2xl shadow p-6">
+        <div className="bg-gradient-to-br from-gray-800/50 to-slate-800/50 rounded-2xl shadow-2xl p-6 border border-gray-700/30 backdrop-blur-md">
           <div className="flex items-center gap-4">
-            <div className="bg-blue-100 p-3 rounded-full">
-              <Car className="h-8 w-8 text-blue-600" />
+            <div className="bg-gradient-to-br from-orange-500/20 to-red-500/20 p-4 rounded-xl backdrop-blur-sm border border-orange-400/30">
+              <Car className="h-8 w-8 text-orange-400" />
             </div>
             <div>
-              <div className="text-2xl font-bold text-gray-900">{currentStats.totalJobs}</div>
-              <div className="text-gray-500 text-sm">Total Jobs</div>
+              <div className="text-3xl font-bold text-gray-100">{currentStats.totalJobs}</div>
+              <div className="text-gray-400 text-sm font-medium">Service Queue</div>
             </div>
           </div>
         </div>
       </div>
 
       {/* Recent Activity */}
-      <div className="grid grid-cols-1 gap-6">
+      <div className="grid grid-cols-1 gap-8">
         {/* Recent Jobs */}
-        <div className="bg-white rounded-2xl shadow p-6">
-          <div className="flex items-center justify-between mb-6">
-            <h3 className="text-lg font-semibold text-gray-900">Recent Jobs</h3>
+        <div className="bg-gradient-to-br from-gray-800/50 to-slate-800/50 rounded-2xl shadow-2xl p-8 border border-gray-700/30 backdrop-blur-md">
+          <div className="flex items-center justify-between mb-8">
+            <h3 className="text-2xl font-bold text-gray-100">Recent Activity</h3>
             <button 
               onClick={() => navigate('/jobs')}
-              className="text-blue-600 hover:text-blue-700 text-sm font-medium"
+              className="text-orange-400 hover:text-orange-300 text-sm font-medium bg-gray-700/50 px-4 py-2 rounded-lg hover:bg-gray-600/50 transition-all backdrop-blur-sm"
             >
-              View All
+              View All →
             </button>
           </div>
           <div className="space-y-4">
             {currentStats.recentJobs.map((job) => (
-              <div key={job.id} className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
-                <div className="flex items-center gap-3">
-                  <div className={`p-2 rounded-full ${getStatusColor(job.status)}`}>
+              <div key={job.id} className="flex items-center justify-between p-6 bg-gray-900/50 rounded-xl border border-gray-700/30 backdrop-blur-sm hover:bg-gray-800/50 transition-all duration-300">
+                <div className="flex items-center gap-4">
+                  <div className={`p-3 rounded-xl ${getStatusColor(job.status)} backdrop-blur-sm`}>
                     {getStatusIcon(job.status)}
                   </div>
                   <div>
-                    <div className="font-medium text-gray-900">{job.customerName}</div>
-                    <div className="text-sm text-gray-500">{job.serviceType}</div>
+                    <div className="font-medium text-gray-100">{job.customerName}</div>
+                    <div className="text-sm text-gray-400">{job.serviceType}</div>
                   </div>
                 </div>
                 <div className="text-right">
-                  <div className="font-medium text-gray-900">{formatCurrency(job.amount)}</div>
-                  <div className="text-sm text-gray-500">{formatDate(job.createdAt)}</div>
+                  <div className="font-medium text-gray-100">{formatCurrency(job.amount)}</div>
+                  <div className="text-sm text-gray-400">{formatDate(job.createdAt)}</div>
                 </div>
               </div>
             ))}
@@ -265,29 +265,29 @@ const DashboardHome: React.FC = () => {
       </div>
 
       {/* Quick Actions */}
-      <div className="bg-white rounded-2xl shadow p-6">
-        <h3 className="text-lg font-semibold text-gray-900 mb-6">Quick Actions</h3>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+      <div className="bg-gradient-to-br from-gray-800/50 to-slate-800/50 rounded-2xl shadow-2xl p-8 border border-gray-700/30 backdrop-blur-md">
+        <h3 className="text-2xl font-bold text-gray-100 mb-8">Quick Actions</h3>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           <button 
             onClick={() => handleQuickAction('booking')}
-            className="flex flex-col items-center gap-2 p-4 bg-blue-50 rounded-lg hover:bg-blue-100 transition-colors"
+            className="flex flex-col items-center gap-3 p-6 bg-gradient-to-br from-blue-500/20 to-cyan-500/20 rounded-xl hover:from-blue-500/30 hover:to-cyan-500/30 transition-all duration-300 backdrop-blur-sm border border-blue-400/30 hover:transform hover:scale-105"
           >
-            <CalendarDays className="h-6 w-6 text-blue-600" />
-            <span className="text-sm font-medium text-gray-900">New Booking</span>
+            <CalendarDays className="h-8 w-8 text-blue-400" />
+            <span className="text-sm font-medium text-gray-100">New Appointment</span>
           </button>
           <button 
             onClick={() => handleQuickAction('job')}
-            className="flex flex-col items-center gap-2 p-4 bg-green-50 rounded-lg hover:bg-green-100 transition-colors"
+            className="flex flex-col items-center gap-3 p-6 bg-gradient-to-br from-orange-500/20 to-red-500/20 rounded-xl hover:from-orange-500/30 hover:to-red-500/30 transition-all duration-300 backdrop-blur-sm border border-orange-400/30 hover:transform hover:scale-105"
           >
-            <Car className="h-6 w-6 text-green-600" />
-            <span className="text-sm font-medium text-gray-900">New Job</span>
+            <Car className="h-8 w-8 text-orange-400" />
+            <span className="text-sm font-medium text-gray-100">Service Queue</span>
           </button>
           <button 
             onClick={() => handleQuickAction('customer')}
-            className="flex flex-col items-center gap-2 p-4 bg-purple-50 rounded-lg hover:bg-purple-100 transition-colors"
+            className="flex flex-col items-center gap-3 p-6 bg-gradient-to-br from-purple-500/20 to-pink-500/20 rounded-xl hover:from-purple-500/30 hover:to-pink-500/30 transition-all duration-300 backdrop-blur-sm border border-purple-400/30 hover:transform hover:scale-105"
           >
-            <Users className="h-6 w-6 text-purple-600" />
-            <span className="text-sm font-medium text-gray-900">Add Customer</span>
+            <Users className="h-8 w-8 text-purple-400" />
+            <span className="text-sm font-medium text-gray-100">Customer Directory</span>
           </button>
         </div>
       </div>

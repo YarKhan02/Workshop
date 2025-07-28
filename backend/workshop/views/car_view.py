@@ -26,4 +26,28 @@ class CarView(viewsets.ViewSet):
         serializer = DetailSerializer(queryset, many=True)
         return Response(serializer.data)
 
+    @action(detail=False, methods=['get'], url_path='by-customer')
+    def cars_by_customer(self, request):
+        """
+        Get cars filtered by customer ID.
+        Requires customer_id query parameter.
+        """
+        customer_id = request.query_params.get('customer_id')
+        
+        if not customer_id:
+            return Response(
+                {'error': 'customer_id query parameter is required'}, 
+                status=status.HTTP_400_BAD_REQUEST
+            )
+        
+        try:
+            queryset = Car.objects.filter(customer_id=customer_id)
+            serializer = CarSerializer(queryset, many=True)
+            return Response(serializer.data)
+        except Exception as e:
+            return Response(
+                {'error': f'Failed to fetch cars for customer: {str(e)}'}, 
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR
+            )
+
 

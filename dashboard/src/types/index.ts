@@ -1,33 +1,70 @@
-// Customer Management Types
-export interface Customer {
-  id: number;
-  first_name: string;
-  last_name: string;
-  email: string;
-  phone_number: string;
-  address: string;
-  city?: string;
-  state?: string;
-  cars?: Car[];
-  date_joined: string;
-}
+// Customer Management Types - Re-exported from dedicated file
+export type {
+  Customer,
+  CustomerCar,
+  CustomerFormData,
+  CustomerCreateData,
+  CustomerUpdateData,
+  EditCustomerModalProps,
+  CustomerDetailModalProps,
+  AddCustomerModalProps,
+  CustomerTableProps,
+  CustomerFilters,
+  CustomerResponse,
+  CustomerApiResponse,
+  CustomerMutationVariables,
+  CustomerSearchFields,
+} from './customer';
 
-export interface Car {
-  id: number;
-  customer_id: number;
-  make: string;
-  model: string;
-  year: number;
-  vin: string;
-  color: string;
-  license_plate: string;
-}
+// Car Management Types - Re-exported from dedicated file
+export type {
+  Car,
+  CarCustomer,
+  CarFormData,
+  CarCreateData,
+  CarUpdateData,
+  AddCarModalProps,
+  EditCarModalProps,
+  CarDetailModalProps,
+  CarTableProps,
+  CarFilters,
+  CarsResponse,
+  CarStatsData,
+} from './car';
+
+// Booking Management Types - Re-exported from dedicated file
+export type {
+  Booking,
+  BookingTableProps,
+  BookingFiltersProps,
+  BookingStatsData,
+  BookingStatsProps,
+  AddBookingModalProps,
+  BookingDetailModalProps,
+  EditBookingModalProps,
+} from './booking';
+
+// Service Management Types - Re-exported from dedicated file
+export type {
+  Service,
+  ServiceFormData,
+  ServiceUpdateData,
+  ServiceFilters,
+  ServicesResponse,
+  ServiceStatsData,
+  ServiceCategory,
+  ServiceCategoryEnum,
+} from './service';
+
+// Import for internal use in this file (for other interfaces that reference Customer/Car)
+import type { Customer } from './customer';
+import type { Car } from './car';
 
 export interface Job {
-  id: number;
-  customerId: number;
-  carId: number;
-  assignedTo?: number;
+  id: string;
+  customerId: string;
+  carId: string;
+  assignedTo?: string;
   jobType: 'basic_wash' | 'full_detail' | 'interior_detail' | 'exterior_detail' | 'premium_detail' | 'custom';
   status: 'pending' | 'in_progress' | 'completed' | 'cancelled';
   priority: 'low' | 'medium' | 'high' | 'urgent';
@@ -309,31 +346,12 @@ export interface DashboardStats {
 // Booking Types
 export interface TimeSlot {
   id: string;
-  date: Date;
-  startTime: string;
-  endTime: string;
-  isAvailable: boolean;
+  date: string;
+  start_time: string;
+  end_time: string;
+  available_slots?: number;
+  is_available: boolean;
   jobId?: string;
-}
-
-export interface Booking {
-  id: string;
-  customerId: string;
-  carId: string;
-  serviceType: ServiceType;
-  preferredDate: Date;
-  preferredTime: string;
-  notes?: string;
-  status: BookingStatus;
-  createdAt: Date;
-  updatedAt: Date;
-}
-
-export enum BookingStatus {
-  PENDING = 'Pending',
-  CONFIRMED = 'Confirmed',
-  CANCELLED = 'Cancelled',
-  COMPLETED = 'Completed'
 }
 
 // User Types
