@@ -2,7 +2,8 @@ import React, { useState } from 'react';
 import { Plus } from 'lucide-react';
 
 // Components
-import { PageHeader, Pagination } from '../components/common';
+import PageHeader from '../components/common/PageHeader';
+import Pagination from '../components/common/Pagination';
 import {
   BookingTable,
   BookingFilters as BookingFiltersComponent,

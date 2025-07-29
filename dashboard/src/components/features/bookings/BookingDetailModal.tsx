@@ -104,10 +104,10 @@ const BookingDetailModal: React.FC<BookingDetailModalProps> = ({ isOpen, onClose
   return (
     <Portal>
       <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 z-50">
-        <div className="bg-gradient-to-br from-gray-800/95 to-slate-800/95 rounded-2xl shadow-2xl border border-gray-700/30 backdrop-blur-md w-full max-w-4xl max-h-[90vh] overflow-hidden">
+        <div className="bg-gradient-to-br from-gray-800/95 to-slate-800/95 rounded-2xl shadow-2xl border border-gray-700/30 backdrop-blur-md w-full max-w-4xl max-h-[90vh] overflow-hidden flex flex-col">
           
           {/* Header */}
-          <div className="flex items-center justify-between p-6 border-b border-gray-700/30">
+          <div className="flex items-center justify-between p-6 border-b border-gray-700/30 flex-shrink-0">
             <div>
               <h2 className="text-2xl font-bold bg-gradient-to-r from-orange-400 to-red-500 bg-clip-text text-transparent">
                 Appointment Details
@@ -122,10 +122,8 @@ const BookingDetailModal: React.FC<BookingDetailModalProps> = ({ isOpen, onClose
             </button>
           </div>
 
-          {/* Content */}
-          <div className="p-6 overflow-y-auto max-h-[calc(90vh-140px)]">
-            
-            {/* Status */}
+          {/* Content - Scrollable */}
+          <div className="flex-1 overflow-y-auto p-6">{/* Status */}
             <div className="mb-6">
               <label className="block text-sm font-medium text-gray-300 mb-3">Service Status</label>
               <div className="flex items-center gap-4">
@@ -249,8 +247,8 @@ const BookingDetailModal: React.FC<BookingDetailModalProps> = ({ isOpen, onClose
 
           </div>
 
-          {/* Footer */}
-          <div className="flex justify-end gap-4 p-6 border-t border-gray-700/30">
+          {/* Footer - Fixed at bottom */}
+          <div className="flex justify-end gap-4 p-6 border-t border-gray-700/30 flex-shrink-0 bg-gradient-to-br from-gray-800/95 to-slate-800/95">
             <button
               onClick={onClose}
               className="px-6 py-3 bg-gray-700/50 hover:bg-gray-600/50 text-gray-300 rounded-xl transition-all duration-300"

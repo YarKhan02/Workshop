@@ -32,10 +32,10 @@ const DataTable: React.FC<DataTableProps> = ({
 }) => {
   if (isLoading) {
     return (
-      <div className="bg-slate-800/50 backdrop-blur-md border border-gray-700/30 rounded-xl overflow-hidden">
-        <div className="p-8 text-center text-gray-400">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-orange-400 mx-auto mb-4"></div>
-          {loadingMessage}
+      <div className="bg-gradient-to-br from-gray-800/50 to-slate-800/50 rounded-xl shadow-2xl border border-gray-700/30 overflow-hidden backdrop-blur-md">
+        <div className="p-8 text-center">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-orange-500 mx-auto"></div>
+          <p className="mt-2 text-gray-400">{loadingMessage}</p>
         </div>
       </div>
     );
@@ -43,19 +43,22 @@ const DataTable: React.FC<DataTableProps> = ({
 
   if (data.length === 0) {
     return (
-      <div className="bg-slate-800/50 backdrop-blur-md border border-gray-700/30 rounded-xl overflow-hidden">
-        <div className="p-8 text-center text-gray-400">
-          <p className="text-lg font-medium mb-2">{emptyMessage}</p>
+      <div className="bg-gradient-to-br from-gray-800/50 to-slate-800/50 rounded-xl shadow-2xl border border-gray-700/30 overflow-hidden backdrop-blur-md">
+        <div className="p-8 text-center">
+          <div className="text-gray-400">
+            <p className="text-lg font-medium">{emptyMessage}</p>
+            <p className="mt-2">No items match your current filters</p>
+          </div>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="bg-slate-800/50 backdrop-blur-md border border-gray-700/30 rounded-xl overflow-hidden">
+    <div className="bg-gradient-to-br from-gray-800/50 to-slate-800/50 rounded-xl shadow-2xl border border-gray-700/30 overflow-hidden backdrop-blur-md">
       <div className="overflow-x-auto">
         <table className="w-full">
-          <thead className="bg-gray-700/30">
+          <thead className="bg-gradient-to-r from-gray-900/80 to-slate-900/80 border-b border-gray-600/30">
             <tr>
               {columns.map((column) => (
                 <th key={column.key} className="px-6 py-4 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">
@@ -69,25 +72,25 @@ const DataTable: React.FC<DataTableProps> = ({
               )}
             </tr>
           </thead>
-          <tbody className="divide-y divide-gray-700/50">
+          <tbody className="divide-y divide-gray-600/30">
             {data.map((item, index) => (
-              <tr key={index} className="hover:bg-gray-700/30 transition-colors">
+              <tr key={index} className="hover:bg-gray-700/30 transition-colors duration-200">
                 {columns.map((column) => (
                   <td key={column.key} className="px-6 py-4 whitespace-nowrap">
                     {column.render ? column.render(item) : item[column.key]}
                   </td>
                 ))}
                 {actions && actions.length > 0 && (
-                  <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                    <div className="flex items-center justify-end gap-2">
+                  <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                    <div className="flex items-center justify-end gap-3">
                       {actions.map((action, actionIndex) => (
                         <button
                           key={actionIndex}
                           onClick={() => action.onClick(item)}
-                          className={`p-2 rounded-lg transition-colors ${action.className || 'text-gray-400 hover:text-white hover:bg-gray-600/50'}`}
+                          className={action.className || 'text-gray-400 hover:text-gray-200 transition-colors duration-200 p-1 rounded-lg hover:bg-gray-600/50'}
                           title={action.label}
                         >
-                          {React.createElement(action.icon, { className: "h-4 w-4" })}
+                          {React.createElement(action.icon, { size: 16 })}
                         </button>
                       ))}
                     </div>

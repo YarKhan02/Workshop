@@ -1,5 +1,7 @@
 import React, { useState } from 'react';
 import { Plus, Car as CarIcon, Filter, Users } from 'lucide-react';
+
+// Types
 import type { Car } from '../types';
 
 // Common Components
@@ -90,19 +92,19 @@ const Cars: React.FC = () => {
     {
       label: 'Total Vehicles',
       value: stats.totalCars,
-      icon: CarIcon,
+      icon: <CarIcon className="h-8 w-8" />,
       color: 'red' as const,
     },
     {
-      label: 'Filtered Results',
+      label: 'Filtered Results', 
       value: stats.filteredCars,
-      icon: Filter,
+      icon: <Filter className="h-8 w-8" />,
       color: 'green' as const,
     },
     {
       label: 'Vehicle Owners',
       value: stats.uniqueOwners,
-      icon: Users,
+      icon: <Users className="h-8 w-8" />,
       color: 'purple' as const,
     },
   ];
@@ -133,7 +135,7 @@ const Cars: React.FC = () => {
       />
 
       {/* Stats */}
-      <StatsGrid stats={statsData} />
+      <StatsGrid stats={statsData} columns={3} />
 
       {/* Search */}
       <SearchBar

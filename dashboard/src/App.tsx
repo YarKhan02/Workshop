@@ -2,6 +2,7 @@ import React from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
 import { NotificationProvider } from './contexts/NotificationContext';
+import { ErrorBoundary } from './components/common';
 
 import Login from './pages/Login';
 import DashboardLayout from './components/layout/DashboardLayout';
@@ -14,6 +15,7 @@ import Billing from './pages/Billing';
 import Settings from './pages/Settings';
 import Users from './pages/Users';
 import Inventory from './pages/Inventory';
+import Notifications from './pages/Notifications';
 import { Toaster } from 'react-hot-toast';
 
 // ProtectedRoute component
@@ -35,17 +37,20 @@ const App: React.FC = () => (
             element={
               <ProtectedRoute>
                 <DashboardLayout>
-                  <Routes>
-                    <Route path="/" element={<DashboardHome />} />
-                    <Route path="/customers" element={<Customers />} />
-                    <Route path="/cars" element={<Cars />} />
-                    <Route path="/jobs" element={<Jobs />} />
-                    <Route path="/bookings" element={<Bookings />} />
-                    <Route path="/billing" element={<Billing />} />
-                    <Route path="/settings" element={<Settings />} />
-                    <Route path="/users" element={<Users />} />
-                    <Route path="/inventory" element={<Inventory />} />
-                  </Routes>
+                  <ErrorBoundary>
+                    <Routes>
+                      <Route path="/" element={<DashboardHome />} />
+                      <Route path="/customers" element={<Customers />} />
+                      <Route path="/cars" element={<Cars />} />
+                      {/* <Route path="/jobs" element={<Jobs />} /> */}
+                      <Route path="/bookings" element={<Bookings />} />
+                      <Route path="/billing" element={<Billing />} />
+                      <Route path="/notifications" element={<Notifications />} />
+                      <Route path="/settings" element={<Settings />} />
+                      <Route path="/users" element={<Users />} />
+                      <Route path="/inventory" element={<Inventory />} />
+                    </Routes>
+                  </ErrorBoundary>
                 </DashboardLayout>
               </ProtectedRoute>
             }

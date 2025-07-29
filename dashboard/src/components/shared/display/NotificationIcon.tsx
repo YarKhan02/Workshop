@@ -7,7 +7,7 @@ import {
   CalendarDaysIcon,
   CogIcon
 } from '@heroicons/react/24/outline';
-import type { Notification } from '../../types/notification';
+import type { Notification } from '../../../types/notification';
 
 interface NotificationIconProps {
   type: Notification['type'];

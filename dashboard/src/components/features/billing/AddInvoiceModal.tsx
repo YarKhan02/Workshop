@@ -1,34 +1,40 @@
-"use client"
+"use client";
 
-import type React from "react"
-import { useState, useEffect, useMemo } from "react"
-import { X, Trash2, Loader2, Package } from "lucide-react"
-import { createInvoice } from "../../api/billing"
-import Portal from "../ui/Portal"
-import type { CustomerInvoice, Product, ProductVariant, InvoiceItem } from "../../types"
-import { useQuery } from "@tanstack/react-query"
-import toast from "react-hot-toast"
-import { Search } from "lucide-react" // Declared Search variable
+import React, { useState, useEffect, useMemo } from 'react';
+import { X, Trash2, Loader2, Package, Search } from 'lucide-react';
+import { useQuery } from '@tanstack/react-query';
+import toast from 'react-hot-toast';
+import Portal from '../../shared/utility/Portal';
+import { useCreateInvoice } from '../../../hooks/useBilling';
+import type { 
+  CreateInvoicePayload, 
+  InvoiceStatus, 
+  InvoiceItem as BaseInvoiceItem 
+} from '../../../types/billing';
+import type { CustomerInvoice, Product, ProductVariant } from '../../../types';
 
 // Extended InvoiceItem to include product variant details
-interface InvoiceItemWithProduct
-  extends Omit<InvoiceItem, "id" | "invoiceId" | "isActive" | "createdAt" | "updatedAt"> {
-  variantId?: string // ID for the product variant, if applicable
-  productName?: string // Name of the product, if applicable
-  variantName?: string // Name of the variant, if applicable
-  sku?: string // SKU of the variant, if applicable
+interface InvoiceItemWithProduct extends Omit<BaseInvoiceItem, 'id' | 'invoiceId' | 'isActive' | 'createdAt' | 'updatedAt'> {
+  variantId?: string;
+  productName?: string;
+  variantName?: string;
+  sku?: string;
 }
 
 interface AddInvoiceModalProps {
-  isOpen: boolean
-  onClose: () => void
-  onSuccess: () => void
-  customers: CustomerInvoice[] // This prop is now unused as customers are fetched internally
-  jobs: null // Keeping this as null as per previous code
+  isOpen: boolean;
+  onClose: () => void;
+  onSuccess: () => void;
+  customers: CustomerInvoice[]; // This prop is now unused as customers are fetched internally
+  jobs: null; // Keeping this as null as per previous code
 }
 
-const AddInvoiceModal: React.FC<AddInvoiceModalProps> = ({ isOpen, onClose, onSuccess, jobs }) => {
-  const [token] = useState(localStorage.getItem("token") || "")
+const AddInvoiceModal: React.FC<AddInvoiceModalProps> = ({ 
+  isOpen, 
+  onClose, 
+  onSuccess
+}) => {
+  const [token] = useState(localStorage.getItem("token") || "");
   const [formData, setFormData] = useState({
     customerId: "",
     jobId: "",
@@ -36,18 +42,21 @@ const AddInvoiceModal: React.FC<AddInvoiceModalProps> = ({ isOpen, onClose, onSu
     taxAmount: 0,
     discountAmount: 0,
     totalAmount: 0,
-    status: "draft" as "draft" | "pending" | "paid" | "overdue" | "cancelled" | "partial",
+    status: "draft" as InvoiceStatus,
     dueDate: "",
     notes: "",
     terms: "",
-  })
-  // Start with an empty array for items, as custom items are no longer added by default
-  const [items, setItems] = useState<InvoiceItemWithProduct[]>([])
-  const [loading, setLoading] = useState(false)
-  const [errors, setErrors] = useState<Record<string, string>>({})
-  const [customerSearchTerm, setCustomerSearchTerm] = useState("")
-  const [productSearchTerm, setProductSearchTerm] = useState("")
-  const [showProductSelector, setShowProductSelector] = useState(false)
+  });
+
+  // Start with an empty array for items
+  const [items, setItems] = useState<InvoiceItemWithProduct[]>([]);
+  const [errors, setErrors] = useState<Record<string, string>>({});
+  const [customerSearchTerm, setCustomerSearchTerm] = useState("");
+  const [productSearchTerm, setProductSearchTerm] = useState("");
+  const [showProductSelector, setShowProductSelector] = useState(false);
+
+  // React Query hooks
+  const createInvoiceMutation = useCreateInvoice();
 
   // Fetch Customers
   const { data: customersData, isLoading: isLoadingCustomers } = useQuery<CustomerInvoice[]>({
@@ -58,23 +67,24 @@ const AddInvoiceModal: React.FC<AddInvoiceModalProps> = ({ isOpen, onClose, onSu
           Authorization: `Bearer ${token}`,
           "Content-Type": "application/json",
         },
-      })
-      if (!res.ok) throw new Error("Failed to fetch customers")
-      return res.json()
+      });
+      if (!res.ok) throw new Error("Failed to fetch customers");
+      return res.json();
     },
     enabled: !!token,
-  })
+  });
 
   // Effect to reset customerId if selected customer is no longer in filtered list
   useEffect(() => {
     if (customersData && formData.customerId) {
-      // Check if the currently selected customer ID exists in the new filtered list
-      const isSelectedCustomerStillAvailable = customersData.some((customer) => customer.id === formData.customerId)
+      const isSelectedCustomerStillAvailable = customersData.some(
+        (customer) => customer.id === formData.customerId
+      );
       if (!isSelectedCustomerStillAvailable) {
-        setFormData((prev) => ({ ...prev, customerId: "" }))
+        setFormData((prev) => ({ ...prev, customerId: "" }));
       }
     }
-  }, [customersData, formData.customerId])
+  }, [customersData, formData.customerId]);
 
   // Fetch Products and their Variants
   const { data: products, isLoading: isLoadingProducts } = useQuery<Product[]>({
@@ -85,181 +95,177 @@ const AddInvoiceModal: React.FC<AddInvoiceModalProps> = ({ isOpen, onClose, onSu
           Authorization: `Bearer ${token}`,
           "Content-Type": "application/json",
         },
-      })
-      if (!res.ok) throw new Error("Failed to fetch products")
-      return res.json()
+      });
+      if (!res.ok) throw new Error("Failed to fetch products");
+      return res.json();
     },
     enabled: !!token,
-  })
+  });
 
   // Flatten products into a list of variants for selection
   const availableVariants = useMemo(() => {
-    if (!products) return []
+    if (!products) return [];
     return products.flatMap((product) =>
       product.variants.map((variant) => ({
         ...variant,
         productName: product.name,
         productUuid: product.id,
-      })),
-    )
-  }, [products])
+      }))
+    );
+  }, [products]);
 
   // Effect to set due date to today when status is "paid"
   useEffect(() => {
     if (formData.status === "paid") {
-      const today = new Date()
-      const year = today.getFullYear()
-      const month = String(today.getMonth() + 1).padStart(2, "0")
-      const day = String(today.getDate()).padStart(2, "0")
-      setFormData((prev) => ({ ...prev, dueDate: `${year}-${month}-${day}` }))
+      const today = new Date();
+      const year = today.getFullYear();
+      const month = String(today.getMonth() + 1).padStart(2, "0");
+      const day = String(today.getDate()).padStart(2, "0");
+      setFormData((prev) => ({ ...prev, dueDate: `${year}-${month}-${day}` }));
     }
-  }, [formData.status])
+  }, [formData.status]);
 
   useEffect(() => {
-    calculateTotals()
-  }, [items, formData.discountAmount]) // Recalculate when items or discount changes
+    calculateTotals();
+  }, [items, formData.discountAmount]); // Recalculate when items or discount changes
 
   const validateForm = () => {
-    const newErrors: Record<string, string> = {}
+    const newErrors: Record<string, string> = {};
     if (!formData.customerId) {
-      newErrors.customerId = "Customer is required"
+      newErrors.customerId = "Customer is required";
     }
     if (!formData.dueDate) {
-      newErrors.dueDate = "Due date is required"
+      newErrors.dueDate = "Due date is required";
     }
     if (items.length === 0) {
-      newErrors.items = "At least one invoice item is required."
+      newErrors.items = "At least one invoice item is required.";
     }
     // Only validate total amount if there are items
     if (items.length > 0 && formData.totalAmount <= 0) {
-      newErrors.totalAmount = "Total amount must be greater than 0"
+      newErrors.totalAmount = "Total amount must be greater than 0";
     }
     // Validate items
     items.forEach((item, index) => {
       if (item.quantity <= 0) {
-        newErrors[`item${index}Quantity`] = "Quantity must be greater than 0"
+        newErrors[`item${index}Quantity`] = "Quantity must be greater than 0";
       }
-    })
-    setErrors(newErrors)
-    return Object.keys(newErrors).length === 0
-  }
+    });
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
 
   const calculateTotals = () => {
     const subtotal = items.reduce((sum, item) => {
-      // Ensure item.totalPrice is a finite number, default to 0 if not
-      const itemTotalPrice = Number.isFinite(item.totalPrice) ? item.totalPrice : 0
-      return sum + itemTotalPrice
-    }, 0)
-    const taxAmount = subtotal * 0.1 // 10% tax
-    const discountAmount = Number.isFinite(formData.discountAmount) ? formData.discountAmount : 0
-    const totalAmount = subtotal + taxAmount - discountAmount
+      const itemTotalPrice = Number.isFinite(item.totalPrice) ? item.totalPrice : 0;
+      return sum + itemTotalPrice;
+    }, 0);
+    const taxAmount = subtotal * 0.1; // 10% tax
+    const discountAmount = Number.isFinite(formData.discountAmount) ? formData.discountAmount : 0;
+    const totalAmount = subtotal + taxAmount - discountAmount;
     setFormData((prev) => ({
       ...prev,
       subtotal,
       taxAmount,
       totalAmount,
-    }))
-  }
+    }));
+  };
 
   const updateItem = (index: number, field: keyof InvoiceItemWithProduct, value: any) => {
-    const newItems = [...items]
-    newItems[index] = { ...newItems[index], [field]: value }
+    const newItems = [...items];
+    newItems[index] = { ...newItems[index], [field]: value };
     // Calculate total price for this item
     if (field === "quantity" || field === "unitPrice") {
-      const qty = Number(newItems[index].quantity) // Ensure it's a number
-      const price = Number(newItems[index].unitPrice) // Ensure it's a number
-      newItems[index].totalPrice = Number.isFinite(qty) && Number.isFinite(price) ? qty * price : 0
+      const qty = Number(newItems[index].quantity);
+      const price = Number(newItems[index].unitPrice);
+      newItems[index].totalPrice = Number.isFinite(qty) && Number.isFinite(price) ? qty * price : 0;
     }
-    setItems(newItems)
-  }
+    setItems(newItems);
+  };
 
   const addProductVariantToInvoice = (variant: ProductVariant & { productName: string }) => {
-    
     const newItem: InvoiceItemWithProduct = {
       description: `${variant.productName} - ${variant.variant_name}`,
       quantity: 1,
-      unitPrice: Number(variant.price), // Ensure price is a number
-      totalPrice: Number(variant.price), // quantity is 1 initially, ensure price is number
+      unitPrice: Number(variant.price),
+      totalPrice: Number(variant.price),
       variantId: variant.id,
       productName: variant.productName,
       variantName: variant.variant_name,
       sku: variant.sku,
-    }
+    };
+    
     setItems((prevItems) => {
-      // Check if this variant is already in the cart
-      const existingItemIndex = prevItems.findIndex((item) => item.variantId === newItem.variantId)
+      const existingItemIndex = prevItems.findIndex((item) => item.variantId === newItem.variantId);
 
       if (existingItemIndex > -1) {
-        // If it exists, update quantity
-        const updatedItems = [...prevItems]
-        updatedItems[existingItemIndex].quantity += 1
+        const updatedItems = [...prevItems];
+        updatedItems[existingItemIndex].quantity += 1;
         updatedItems[existingItemIndex].totalPrice =
-          updatedItems[existingItemIndex].quantity * updatedItems[existingItemIndex].unitPrice
-        toast.success(`Increased quantity for ${newItem.description}`)
-        return updatedItems
+          updatedItems[existingItemIndex].quantity * updatedItems[existingItemIndex].unitPrice;
+        toast.success(`Increased quantity for ${newItem.description}`);
+        return updatedItems;
       } else {
-        // Otherwise, add new item
-        toast.success(`Added ${newItem.description} to invoice`)
-        return [...prevItems, newItem]
+        toast.success(`Added ${newItem.description} to invoice`);
+        return [...prevItems, newItem];
       }
-    })
-    setShowProductSelector(false) // Close product selector after adding
-    setProductSearchTerm("") // Clear search term
-  }
+    });
+    setShowProductSelector(false);
+    setProductSearchTerm("");
+  };
 
   const removeItem = (index: number) => {
-    // Allow removing an item only if there's more than one item left
     if (items.length > 1) {
-      const newItems = items.filter((_, i) => i !== index)
-      setItems(newItems)
+      const newItems = items.filter((_, i) => i !== index);
+      setItems(newItems);
     } else {
-      toast.error("An invoice must have at least one item.")
+      toast.error("An invoice must have at least one item.");
     }
-  }
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
+    e.preventDefault();
     if (!validateForm()) {
-      toast.error("Please correct the errors in the form.")
-      return
+      toast.error("Please correct the errors in the form.");
+      return;
     }
-    setLoading(true)
+
     try {
-      const invoiceData = {
-        ...formData,
-        customerId: formData.customerId, // Already UUID string
-        jobId: formData.jobId || undefined, // Keep as string or convert if backend expects int
-        invoiceNumber: "", // Will be generated by backend
+      const invoiceData: CreateInvoicePayload = {
+        customerId: formData.customerId,
+        subtotal: formData.subtotal,
+        taxAmount: formData.taxAmount,
+        discountAmount: formData.discountAmount,
+        totalAmount: formData.totalAmount,
+        status: formData.status,
+        dueDate: formData.dueDate,
         isActive: true,
         items: items
-          .filter((item) => item.variantId) // Ensure variantId is not undefined
+          .filter((item) => item.variantId)
           .map((item) => ({
-            variantId: item.variantId as string, // Cast variantId to string
+            variantId: item.variantId as string,
             quantity: item.quantity,
             unitPrice: item.unitPrice,
             totalPrice: item.totalPrice,
           })),
-      }
-      const result = await createInvoice(invoiceData)
-      toast.success("Invoice created successfully!")
-      onSuccess()
-      handleClose()
+      };
+
+      await createInvoiceMutation.mutateAsync(invoiceData);
+      toast.success("Invoice created successfully!");
+      onSuccess();
+      handleClose();
     } catch (error) {
-      console.error("Error creating invoice:", error)
-      toast.error("Failed to create invoice. Please check the console for details.")
-    } finally {
-      setLoading(false)
+      console.error("Error creating invoice:", error);
+      toast.error("Failed to create invoice. Please check the console for details.");
     }
-  }
+  };
 
   const formatCurrency = (amount: number) => {
-    // Ensure amount is a finite number before formatting
-    const validAmount = Number.isFinite(amount) ? amount : 0
+    const validAmount = Number.isFinite(amount) ? amount : 0;
     return new Intl.NumberFormat("en-PK", {
       style: "currency",
       currency: "PKR",
-    }).format(validAmount)
-  }
+    }).format(validAmount);
+  };
 
   const handleClose = () => {
     setFormData({
@@ -273,20 +279,16 @@ const AddInvoiceModal: React.FC<AddInvoiceModalProps> = ({ isOpen, onClose, onSu
       dueDate: "",
       notes: "",
       terms: "",
-    })
-    setItems([]) // Reset items to empty
-    setErrors({})
-    setCustomerSearchTerm("")
-    setProductSearchTerm("")
-    setShowProductSelector(false)
-    onClose()
-  }
+    });
+    setItems([]);
+    setErrors({});
+    setCustomerSearchTerm("");
+    setProductSearchTerm("");
+    setShowProductSelector(false);
+    onClose();
+  };
 
-  const selectedCustomer = useMemo(() => {
-    return customersData?.find((customer) => customer.id === formData.customerId)
-  }, [customersData, formData.customerId])
-
-  if (!isOpen) return null
+  if (!isOpen) return null;
 
   return (
     <Portal>
@@ -298,6 +300,7 @@ const AddInvoiceModal: React.FC<AddInvoiceModalProps> = ({ isOpen, onClose, onSu
               <X className="w-6 h-6" />
             </button>
           </div>
+          
           <form onSubmit={handleSubmit} className="p-6 space-y-6">
             {/* Basic Information */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -337,14 +340,12 @@ const AddInvoiceModal: React.FC<AddInvoiceModalProps> = ({ isOpen, onClose, onSu
                 </div>
                 {errors.customerId && <p className="mt-1 text-sm text-red-600">{errors.customerId}</p>}
               </div>
-              {/* <div>                <label className="block text-sm font-medium text-gray-700 mb-2">Job (Optional)</label> */}
-              {/* <select                  value={formData.jobId}                  onChange={(e) => setFormData({ ...formData, jobId: e.target.value })}                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"                >                  <option value="">Select Job</option>                  {jobs.map((job) => (                    <option key={job.id} value={job.id}>                      Job #{job.id} - {job.jobType.replace('_', ' ')}                    </option>                  ))}                </select> */}
-              {/* </div> */}
+
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">Status</label>
                 <select
                   value={formData.status}
-                  onChange={(e) => setFormData({ ...formData, status: e.target.value as any })}
+                  onChange={(e) => setFormData({ ...formData, status: e.target.value as InvoiceStatus })}
                   className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                 >
                   <option value="draft">Draft</option>
@@ -355,6 +356,7 @@ const AddInvoiceModal: React.FC<AddInvoiceModalProps> = ({ isOpen, onClose, onSu
                   <option value="partial">Partial</option>
                 </select>
               </div>
+
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
                   Due Date <span className="text-red-500">*</span>
@@ -366,7 +368,7 @@ const AddInvoiceModal: React.FC<AddInvoiceModalProps> = ({ isOpen, onClose, onSu
                   className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent ${
                     errors.dueDate ? "border-red-500" : "border-gray-300"
                   }`}
-                  disabled={formData.status === "paid"} // Disable if status is 'paid'
+                  disabled={formData.status === "paid"}
                 />
                 {errors.dueDate && <p className="mt-1 text-sm text-red-600">{errors.dueDate}</p>}
               </div>
@@ -457,7 +459,7 @@ const AddInvoiceModal: React.FC<AddInvoiceModalProps> = ({ isOpen, onClose, onSu
                             errors[`item${index}Description`] ? "border-red-500" : "border-gray-300"
                           }`}
                           placeholder="Service description"
-                          readOnly={!!item.variantId} // Make read-only if it's a product variant
+                          readOnly={!!item.variantId}
                         />
                         {errors[`item${index}Description`] && (
                           <p className="mt-1 text-sm text-red-600">{errors[`item${index}Description`]}</p>
@@ -493,7 +495,7 @@ const AddInvoiceModal: React.FC<AddInvoiceModalProps> = ({ isOpen, onClose, onSu
                           className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent ${
                             errors[`item${index}UnitPrice`] ? "border-red-500" : "border-gray-300"
                           }`}
-                          readOnly={!!item.variantId} // Make read-only if it's a product variant
+                          readOnly={!!item.variantId}
                         />
                         {errors[`item${index}UnitPrice`] && (
                           <p className="mt-1 text-sm text-red-600">{errors[`item${index}UnitPrice`]}</p>
@@ -512,7 +514,7 @@ const AddInvoiceModal: React.FC<AddInvoiceModalProps> = ({ isOpen, onClose, onSu
                         <button
                           type="button"
                           onClick={() => removeItem(index)}
-                          disabled={items.length === 1} // Disable if only one item left
+                          disabled={items.length === 1}
                           className="p-2 text-red-600 hover:text-red-800 disabled:text-gray-400 disabled:cursor-not-allowed"
                           title="Remove Item"
                         >
@@ -546,11 +548,11 @@ const AddInvoiceModal: React.FC<AddInvoiceModalProps> = ({ isOpen, onClose, onSu
                       step="0.01"
                       value={formData.discountAmount}
                       onChange={(e) => {
-                        const discount = Number.parseFloat(e.target.value) || 0
+                        const discount = Number.parseFloat(e.target.value) || 0;
                         setFormData({
                           ...formData,
                           discountAmount: discount,
-                        })
+                        });
                       }}
                       className="w-20 px-2 py-1 border border-gray-300 rounded text-right"
                     />
@@ -565,53 +567,29 @@ const AddInvoiceModal: React.FC<AddInvoiceModalProps> = ({ isOpen, onClose, onSu
               </div>
             </div>
 
-            {/* Notes and Terms */}
-            {/* <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Notes</label>
-                <textarea
-                  value={formData.notes}
-                  onChange={(e) => setFormData({ ...formData, notes: e.target.value })}
-                  rows={3}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  placeholder="Additional notes..."
-                />
-              </div> */}
-              {/* <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Terms & Conditions</label>
-                <textarea
-                  value={formData.terms}
-                  onChange={(e) => setFormData({ ...formData, terms: e.target.value })}
-                  rows={3}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  placeholder="Payment terms and conditions..."
-                />
-              </div> */}
-            {/* </div> */}
-
             {/* Form Actions */}
             <div className="flex justify-end gap-4 pt-6 border-t">
               <button
                 type="button"
                 onClick={handleClose}
                 className="bg-gray-200 text-gray-800 hover:bg-gray-300 focus:ring-gray-500 px-4 py-2 rounded-lg font-medium transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2"
-                disabled={loading}
+                disabled={createInvoiceMutation.isPending}
               >
                 Cancel
               </button>
               <button
                 type="submit"
                 className="bg-blue-600 text-white hover:bg-blue-700 focus:ring-blue-500 px-4 py-2 rounded-lg font-medium transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2"
-                disabled={loading}
+                disabled={createInvoiceMutation.isPending}
               >
-                {loading ? "Creating..." : "Create Invoice"}
+                {createInvoiceMutation.isPending ? "Creating..." : "Create Invoice"}
               </button>
             </div>
           </form>
         </div>
       </div>
     </Portal>
-  )
-}
+  );
+};
 
-export default AddInvoiceModal
+export default AddInvoiceModal;

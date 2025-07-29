@@ -1,10 +1,14 @@
 import React, { useState, useEffect } from 'react';
 import { X, Plus, Trash2 } from 'lucide-react';
-import { updateInvoice } from '../../api/billing';
-import type { Invoice, InvoiceItem } from '../../api/billing';
-import type { Customer } from '../../api/customers';
-import type { Job } from '../../api/jobs';
-import Portal from '../shared/utility/Portal';
+import Portal from '../../shared/utility/Portal';
+import { useUpdateInvoice } from '../../../hooks/useBilling';
+import type { 
+  Invoice, 
+  InvoiceItem, 
+  InvoiceStatus, 
+  UpdateInvoicePayload 
+} from '../../../types/billing';
+import type { Customer } from '../../../types';
 
 interface EditInvoiceModalProps {
   isOpen: boolean;
@@ -12,7 +16,6 @@ interface EditInvoiceModalProps {
   onSuccess: () => void;
   invoice: Invoice;
   customers: Customer[];
-  jobs: Job[];
 }
 
 const EditInvoiceModal: React.FC<EditInvoiceModalProps> = ({
@@ -21,16 +24,14 @@ const EditInvoiceModal: React.FC<EditInvoiceModalProps> = ({
   onSuccess,
   invoice,
   customers,
-  jobs,
 }) => {
   const [formData, setFormData] = useState({
     customerId: '',
-    jobId: '',
     subtotal: 0,
     taxAmount: 0,
     discountAmount: 0,
     totalAmount: 0,
-    status: 'draft' as 'draft' | 'pending' | 'paid' | 'overdue' | 'cancelled' | 'partial',
+    status: 'draft' as InvoiceStatus,
     dueDate: '',
     notes: '',
     terms: '',
@@ -40,14 +41,15 @@ const EditInvoiceModal: React.FC<EditInvoiceModalProps> = ({
     { description: '', quantity: 1, unitPrice: 0, totalPrice: 0 }
   ]);
 
-  const [loading, setLoading] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
+
+  // React Query hook
+  const updateInvoiceMutation = useUpdateInvoice();
 
   useEffect(() => {
     if (invoice) {
       setFormData({
         customerId: invoice.customerId.toString(),
-        jobId: invoice.jobId?.toString() || '',
         subtotal: invoice.subtotal,
         taxAmount: invoice.taxAmount,
         discountAmount: invoice.discountAmount,
@@ -70,6 +72,10 @@ const EditInvoiceModal: React.FC<EditInvoiceModalProps> = ({
       }
     }
   }, [invoice]);
+
+  useEffect(() => {
+    calculateTotals();
+  }, [items, formData.discountAmount]);
 
   const validateForm = () => {
     const newErrors: Record<string, string> = {};
@@ -127,7 +133,6 @@ const EditInvoiceModal: React.FC<EditInvoiceModalProps> = ({
     }
 
     setItems(newItems);
-    calculateTotals();
   };
 
   const addItem = () => {
@@ -138,7 +143,6 @@ const EditInvoiceModal: React.FC<EditInvoiceModalProps> = ({
     if (items.length > 1) {
       const newItems = items.filter((_, i) => i !== index);
       setItems(newItems);
-      calculateTotals();
     }
   };
 
@@ -149,22 +153,29 @@ const EditInvoiceModal: React.FC<EditInvoiceModalProps> = ({
       return;
     }
 
-    setLoading(true);
-
     try {
-      const invoiceData = {
-        ...formData,
-        customerId: parseInt(formData.customerId),
-        jobId: formData.jobId ? parseInt(formData.jobId) : undefined,
+      const invoiceData: UpdateInvoicePayload = {
+        customerId: formData.customerId,
+        subtotal: formData.subtotal,
+        taxAmount: formData.taxAmount,
+        discountAmount: formData.discountAmount,
+        totalAmount: formData.totalAmount,
+        status: formData.status,
+        dueDate: formData.dueDate,
+        notes: formData.notes,
+        terms: formData.terms,
         items: items.filter(item => item.description.trim() && item.quantity > 0 && item.unitPrice > 0),
       };
 
-      await updateInvoice(invoice.id!, invoiceData);
+      await updateInvoiceMutation.mutateAsync({
+        invoiceId: invoice.id,
+        invoiceData
+      });
+      
       onSuccess();
+      onClose();
     } catch (error) {
       console.error('Error updating invoice:', error);
-    } finally {
-      setLoading(false);
     }
   };
 
@@ -179,8 +190,8 @@ const EditInvoiceModal: React.FC<EditInvoiceModalProps> = ({
 
   return (
     <Portal>
-      <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-        <div className="bg-white rounded-lg shadow-xl max-w-4xl max-h-[90vh] overflow-y-auto">
+      <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+        <div className="bg-white rounded-lg shadow-xl max-w-4xl w-full max-h-[90vh] overflow-y-auto">
           <div className="flex justify-between items-center p-6 border-b">
             <h2 className="text-xl font-semibold text-gray-900">Edit Invoice #{invoice.invoiceNumber}</h2>
             <button
@@ -196,7 +207,7 @@ const EditInvoiceModal: React.FC<EditInvoiceModalProps> = ({
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Customer *
+                  Customer <span className="text-red-500">*</span>
                 </label>
                 <select
                   value={formData.customerId}
@@ -208,7 +219,7 @@ const EditInvoiceModal: React.FC<EditInvoiceModalProps> = ({
                   <option value="">Select Customer</option>
                   {customers.map((customer) => (
                     <option key={customer.id} value={customer.id}>
-                      {customer.firstName} {customer.lastName} - {customer.email}
+                      {customer.first_name} {customer.last_name} - {customer.email}
                     </option>
                   ))}
                 </select>
@@ -219,29 +230,11 @@ const EditInvoiceModal: React.FC<EditInvoiceModalProps> = ({
 
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Job (Optional)
-                </label>
-                <select
-                  value={formData.jobId}
-                  onChange={(e) => setFormData({ ...formData, jobId: e.target.value })}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                >
-                  <option value="">Select Job</option>
-                  {jobs.map((job) => (
-                    <option key={job.id} value={job.id}>
-                      Job #{job.id} - {job.jobType.replace('_', ' ')}
-                    </option>
-                  ))}
-                </select>
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
                   Status
                 </label>
                 <select
                   value={formData.status}
-                  onChange={(e) => setFormData({ ...formData, status: e.target.value as any })}
+                  onChange={(e) => setFormData({ ...formData, status: e.target.value as InvoiceStatus })}
                   className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                 >
                   <option value="draft">Draft</option>
@@ -255,7 +248,7 @@ const EditInvoiceModal: React.FC<EditInvoiceModalProps> = ({
 
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Due Date *
+                  Due Date <span className="text-red-500">*</span>
                 </label>
                 <input
                   type="date"
@@ -290,7 +283,7 @@ const EditInvoiceModal: React.FC<EditInvoiceModalProps> = ({
                   <div key={index} className="grid grid-cols-12 gap-4 items-end">
                     <div className="col-span-5">
                       <label className="block text-sm font-medium text-gray-700 mb-2">
-                        Description *
+                        Description <span className="text-red-500">*</span>
                       </label>
                       <input
                         type="text"
@@ -308,7 +301,7 @@ const EditInvoiceModal: React.FC<EditInvoiceModalProps> = ({
 
                     <div className="col-span-2">
                       <label className="block text-sm font-medium text-gray-700 mb-2">
-                        Quantity *
+                        Quantity <span className="text-red-500">*</span>
                       </label>
                       <input
                         type="number"
@@ -326,7 +319,7 @@ const EditInvoiceModal: React.FC<EditInvoiceModalProps> = ({
 
                     <div className="col-span-2">
                       <label className="block text-sm font-medium text-gray-700 mb-2">
-                        Unit Price *
+                        Unit Price <span className="text-red-500">*</span>
                       </label>
                       <input
                         type="number"
@@ -395,7 +388,6 @@ const EditInvoiceModal: React.FC<EditInvoiceModalProps> = ({
                         setFormData({
                           ...formData,
                           discountAmount: discount,
-                          totalAmount: formData.subtotal + formData.taxAmount - discount,
                         });
                       }}
                       className="w-20 px-2 py-1 border border-gray-300 rounded text-right"
@@ -446,16 +438,16 @@ const EditInvoiceModal: React.FC<EditInvoiceModalProps> = ({
                 type="button"
                 onClick={onClose}
                 className="bg-gray-200 text-gray-800 hover:bg-gray-300 focus:ring-gray-500 px-4 py-2 rounded-lg font-medium transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2"
-                disabled={loading}
+                disabled={updateInvoiceMutation.isPending}
               >
                 Cancel
               </button>
               <button
                 type="submit"
                 className="bg-blue-600 text-white hover:bg-blue-700 focus:ring-blue-500 px-4 py-2 rounded-lg font-medium transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2"
-                disabled={loading}
+                disabled={updateInvoiceMutation.isPending}
               >
-                {loading ? 'Updating...' : 'Update Invoice'}
+                {updateInvoiceMutation.isPending ? 'Updating...' : 'Update Invoice'}
               </button>
             </div>
           </form>
@@ -465,4 +457,4 @@ const EditInvoiceModal: React.FC<EditInvoiceModalProps> = ({
   );
 };
 
-export default EditInvoiceModal; 
+export default EditInvoiceModal;

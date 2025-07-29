@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Plus, Users, Filter, Search } from 'lucide-react';
+import { Plus, Users, UserCheck, UserPlus } from 'lucide-react';
 import type { Customer, CustomerUpdateData } from '../types/customer';
 
 // Common Components
@@ -41,7 +41,7 @@ const Customers: React.FC = () => {
   const customers = Array.isArray(customersData) ? customersData : [];
   
   // Use the generic table data hook
-  const { paginateItems, totalFilteredItems } = useTableData(customers, {
+  const { paginateItems } = useTableData(customers, {
     searchTerm,
     searchFields: ['first_name', 'last_name', 'email', 'phone_number'],
     itemsPerPage,
@@ -80,20 +80,28 @@ const Customers: React.FC = () => {
     {
       label: 'Total Customers',
       value: customers.length,
-      icon: Users,
-      color: 'red' as const,
+      icon: <Users className="h-8 w-8" />,
+      color: 'blue' as const,
     },
     {
-      label: 'Filtered Results',
-      value: totalFilteredItems,
-      icon: Filter,
+      label: 'Active This Month',
+      value: 28,
+      icon: <UserCheck className="h-8 w-8" />,
       color: 'green' as const,
+      change: {
+        value: '+12%',
+        type: 'increase' as const,
+      },
     },
     {
-      label: 'Search Mode',
-      value: searchTerm ? 'Active' : 'Idle',
-      icon: Search,
+      label: 'New This Week',
+      value: 5,
+      icon: <UserPlus className="h-8 w-8" />,
       color: 'purple' as const,
+      change: {
+        value: '+2',
+        type: 'increase' as const,
+      },
     },
   ];
 
@@ -114,6 +122,7 @@ const Customers: React.FC = () => {
       <PageHeader
         title="Customer Management"
         subtitle="Manage your workshop customer database"
+        icon={<Users className="h-6 w-6 text-white" />}
         actionButton={{
           label: 'Add Customer',
           icon: Plus,
@@ -123,7 +132,7 @@ const Customers: React.FC = () => {
       />
 
       {/* Stats */}
-      <StatsGrid stats={statsData} />
+      <StatsGrid stats={statsData} columns={3} />
 
       {/* Search */}
       <SearchBar
@@ -133,24 +142,27 @@ const Customers: React.FC = () => {
       />
 
       {/* Customers Table */}
-      <CustomerTable
-        customers={paginationData.items}
-        isLoading={isLoading}
-        onViewCustomer={handleViewCustomer}
-        onEditCustomer={handleEditCustomer}
-      />
-
-      {/* Pagination */}
-      {paginationData.totalPages > 1 && (
-        <Pagination
-          currentPage={paginationData.currentPage}
-          totalPages={paginationData.totalPages}
-          startIndex={paginationData.startIndex}
-          itemsPerPage={itemsPerPage}
-          totalItems={paginationData.totalItems}
-          onPageChange={handlePageChange}
+      <div>
+        <CustomerTable
+          customers={paginationData.items}
+          isLoading={isLoading}
+          onViewCustomer={handleViewCustomer}
+          onEditCustomer={handleEditCustomer}
         />
-      )}
+
+        {/* Pagination */}
+        {paginationData.totalPages > 1 && (
+          <Pagination
+            currentPage={paginationData.currentPage}
+            totalPages={paginationData.totalPages}
+            startIndex={paginationData.startIndex}
+            itemsPerPage={itemsPerPage}
+            totalItems={paginationData.totalItems}
+            onPageChange={handlePageChange}
+            itemName="customers"
+          />
+        )}
+      </div>
 
       {/* Modals */}
       <CustomerDetailModal

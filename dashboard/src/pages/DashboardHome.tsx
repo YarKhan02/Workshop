@@ -1,97 +1,77 @@
 import React from 'react';
-import { useQuery } from '@tanstack/react-query';
 import { useNavigate } from 'react-router-dom';
 import { 
   CalendarDays, 
   DollarSign, 
   Users,
   Car,
-  TrendingUp,
   Clock,
   CheckCircle,
   AlertCircle
 } from 'lucide-react';
 
-import { useAuth } from '../contexts/AuthContext';
+// Common Components
+import { PageHeader, StatsGrid } from '../components/common';
 
-interface DashboardStats {
-  todayBookings: number;
-  todayRevenue: number;
-  totalCustomers: number;
-  totalJobs: number;
-  revenueGrowth: number;
-  bookingsGrowth: number;
-  recentJobs: Array<{
-    id: number;
-    customerName: string;
-    serviceType: string;
-    status: string;
-    amount: number;
-    createdAt: string;
-  }>;
-}
+// API Types
+import type { DashboardStats, RecentJob } from '../api/dashboard';
+
+// Hooks
+import { useDashboardStats } from '../hooks/useDashboard';
+
+/*
+ * Backend Integration Notes:
+ * 
+ * This component uses the dashboard API located in src/api/dashboard.ts
+ * The API follows the same pattern as other APIs in the project.
+ * 
+ * Backend endpoint: GET /api/dashboard/stats
+ * Expected response structure (defined in src/api/dashboard.ts):
+ * 
+ * {
+ *   todayBookings: number,           // Count of bookings for today
+ *   todayRevenue: number,            // Total revenue for today in PKR
+ *   totalCustomers: number,          // Total registered customers
+ *   totalJobs: number,              // Active jobs in queue
+ *   revenueGrowth: number,          // Percentage growth compared to previous period
+ *   bookingsGrowth: number,         // Percentage growth compared to previous period
+ *   recentJobs: [
+ *     {
+ *       id: number,                 // Job ID
+ *       customerName: string,       // Customer full name
+ *       serviceType: string,        // Type of service requested
+ *       status: "pending" | "in_progress" | "completed" | "cancelled",
+ *       amount: number,             // Job amount in PKR
+ *       createdAt: string           // ISO date string
+ *     }
+ *   ]
+ * }
+ * 
+ * The dashboard API handles:
+ * - Authentication headers via apiClient
+ * - Error handling
+ * - Type safety with TypeScript interfaces
+ * - Query configuration (caching, refresh intervals)
+ */
 
 const DashboardHome: React.FC = () => {
-  const { token } = useAuth();
   const navigate = useNavigate();
 
-  // Fetch dashboard statistics
-  const { data: stats, isLoading } = useQuery({
-    queryKey: ['dashboardStats'],
-    queryFn: async (): Promise<DashboardStats> => {
-      const response = await fetch('http://localhost:5000/api/dashboard/stats', {
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json',
-        },
-      });
-
-      if (!response.ok) {
-        throw new Error('Failed to fetch dashboard statistics');
-      }
-
-      return response.json();
-    },
-    enabled: !!token,
-  });
-
-  // Fallback data if API is not available
-  const fallbackStats: DashboardStats = {
-    todayBookings: 8,
-    todayRevenue: 12500,
-    totalCustomers: 156,
-    totalJobs: 89,
-    revenueGrowth: 12.5,
-    bookingsGrowth: 8.3,
-    recentJobs: [
-      {
-        id: 1,
-        customerName: 'Rahul Sharma',
-        serviceType: 'Full Detailing',
-        status: 'completed',
-        amount: 1499,
-        createdAt: '2024-01-15T10:30:00Z'
-      },
-      {
-        id: 2,
-        customerName: 'Priya Patel',
-        serviceType: 'Interior Cleaning',
-        status: 'in_progress',
-        amount: 399,
-        createdAt: '2024-01-15T09:15:00Z'
-      },
-      {
-        id: 3,
-        customerName: 'Amit Kumar',
-        serviceType: 'Exterior Wash',
-        status: 'pending',
-        amount: 299,
-        createdAt: '2024-01-15T08:45:00Z'
-      }
-    ]
+  // Data fetching using the dashboard API (non-blocking)
+  const { data: stats } = useDashboardStats();
+  
+  // Empty structure for when no data is available
+  const emptyStats: DashboardStats = {
+    today_bookings: 0,
+    today_revenue: 0,
+    total_customers: 0,
+    total_jobs: 0,
+    revenue_growth: 0,
+    bookings_growth: 0,
+    recent_jobs: []
   };
 
-  const currentStats = stats || fallbackStats;
+  const currentStats = stats || emptyStats;
 
   const getStatusColor = (status: string) => {
     switch (status) {
@@ -143,98 +123,58 @@ const DashboardHome: React.FC = () => {
     }
   };
 
-  if (isLoading) {
-    return (
-      <div className="flex items-center justify-center h-64">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-orange-400"></div>
-      </div>
-    );
-  }
+  // Prepare stats data for StatsGrid component
+  const statsData = [
+    {
+      title: "Today's Bookings",
+      value: currentStats.today_bookings.toString(),
+      icon: <CalendarDays className="h-8 w-8" />,
+      change: {
+        value: `${Math.abs(currentStats.bookings_growth)}%`,
+        type: (currentStats.bookings_growth >= 0 ? 'increase' : 'decrease') as 'increase' | 'decrease',
+      },
+      color: 'blue' as const,
+    },
+    {
+      title: "Today's Revenue",
+      value: formatCurrency(currentStats.today_revenue),
+      icon: <DollarSign className="h-8 w-8" />,
+      change: {
+        value: `${Math.abs(currentStats.revenue_growth)}%`,
+        type: (currentStats.revenue_growth >= 0 ? 'increase' : 'decrease') as 'increase' | 'decrease',
+      },
+      color: 'green' as const,
+    },
+    {
+      title: 'Total Customers',
+      value: currentStats.total_customers.toString(),
+      icon: <Users className="h-8 w-8" />,
+      color: 'purple' as const,
+    },
+    {
+      title: 'Service Queue',
+      value: currentStats.total_jobs.toString(),
+      icon: <Car className="h-8 w-8" />,
+      color: 'orange' as const,
+    },
+  ];
 
   return (
     <div className="space-y-8">
       {/* Header */}
-      <div className="mb-8">
-        <h1 className="text-4xl font-bold bg-gradient-to-r from-orange-400 to-red-500 bg-clip-text text-transparent">Command Center</h1>
-        <p className="text-gray-400 mt-2 text-lg">Peak performance dashboard • Real-time insights</p>
-      </div>
+      <PageHeader
+        title="Command Center"
+        subtitle="Peak performance dashboard • Real-time insights"
+      />
 
       {/* Key Metrics */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {/* Today's Bookings */}
-        <div className="bg-gradient-to-br from-gray-800/50 to-slate-800/50 rounded-2xl shadow-2xl p-6 border border-gray-700/30 backdrop-blur-md hover:transform hover:scale-105 transition-all duration-300">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-4">
-              <div className="bg-gradient-to-br from-blue-500/20 to-cyan-500/20 p-4 rounded-xl backdrop-blur-sm border border-blue-400/30">
-                <CalendarDays className="h-8 w-8 text-blue-400" />
-              </div>
-              <div>
-                <div className="text-3xl font-bold text-gray-100">{currentStats.todayBookings}</div>
-                <div className="text-gray-400 text-sm font-medium">Today's Bookings</div>
-              </div>
-            </div>
-            <div className="flex items-center text-emerald-400 text-sm font-medium">
-              <TrendingUp className="h-4 w-4 mr-1" />
-              +{currentStats.bookingsGrowth}%
-            </div>
-          </div>
-        </div>
-
-        {/* Today's Revenue */}
-        <div className="bg-gradient-to-br from-gray-800/50 to-slate-800/50 rounded-2xl shadow-2xl p-6 border border-gray-700/30 backdrop-blur-md hover:transform hover:scale-105 transition-all duration-300">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-4">
-              <div className="bg-gradient-to-br from-emerald-500/20 to-green-500/20 p-4 rounded-xl backdrop-blur-sm border border-emerald-400/30">
-                <DollarSign className="h-8 w-8 text-emerald-400" />
-              </div>
-              <div>
-                <div className="text-3xl font-bold text-gray-100">{formatCurrency(currentStats.todayRevenue)}</div>
-                <div className="text-gray-400 text-sm font-medium">Today's Revenue</div>
-              </div>
-            </div>
-            <div className="flex items-center text-emerald-400 text-sm font-medium">
-              <TrendingUp className="h-4 w-4 mr-1" />
-              +{currentStats.revenueGrowth}%
-            </div>
-          </div>
-        </div>
-
-        {/* Total Customers */}
-        <div className="bg-gradient-to-br from-gray-800/50 to-slate-800/50 rounded-2xl shadow-2xl p-6 border border-gray-700/30 backdrop-blur-md hover:transform hover:scale-105 transition-all duration-300">
-          <div className="flex items-center gap-4">
-            <div className="bg-gradient-to-br from-purple-500/20 to-pink-500/20 p-4 rounded-xl backdrop-blur-sm border border-purple-400/30">
-              <Users className="h-8 w-8 text-purple-400" />
-            </div>
-            <div>
-              <div className="text-3xl font-bold text-gray-100">{currentStats.totalCustomers}</div>
-              <div className="text-gray-400 text-sm font-medium">Total Customers</div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* Secondary Metrics */}
-      <div className="grid grid-cols-1 gap-6">
-        {/* Total Jobs */}
-        <div className="bg-gradient-to-br from-gray-800/50 to-slate-800/50 rounded-2xl shadow-2xl p-6 border border-gray-700/30 backdrop-blur-md">
-          <div className="flex items-center gap-4">
-            <div className="bg-gradient-to-br from-orange-500/20 to-red-500/20 p-4 rounded-xl backdrop-blur-sm border border-orange-400/30">
-              <Car className="h-8 w-8 text-orange-400" />
-            </div>
-            <div>
-              <div className="text-3xl font-bold text-gray-100">{currentStats.totalJobs}</div>
-              <div className="text-gray-400 text-sm font-medium">Service Queue</div>
-            </div>
-          </div>
-        </div>
-      </div>
+      <StatsGrid stats={statsData} />
 
       {/* Recent Activity */}
-      <div className="grid grid-cols-1 gap-8">
-        {/* Recent Jobs */}
-        <div className="bg-gradient-to-br from-gray-800/50 to-slate-800/50 rounded-2xl shadow-2xl p-8 border border-gray-700/30 backdrop-blur-md">
-          <div className="flex items-center justify-between mb-8">
-            <h3 className="text-2xl font-bold text-gray-100">Recent Activity</h3>
+      <div className="bg-gradient-to-br from-gray-800/50 to-slate-800/50 rounded-2xl border border-gray-700/30 backdrop-blur-md overflow-hidden">
+        <div className="p-6 border-b border-gray-700/50">
+          <div className="flex items-center justify-between">
+            <h3 className="text-xl font-semibold text-gray-100">Recent Activity</h3>
             <button 
               onClick={() => navigate('/jobs')}
               className="text-orange-400 hover:text-orange-300 text-sm font-medium bg-gray-700/50 px-4 py-2 rounded-lg hover:bg-gray-600/50 transition-all backdrop-blur-sm"
@@ -242,25 +182,35 @@ const DashboardHome: React.FC = () => {
               View All →
             </button>
           </div>
-          <div className="space-y-4">
-            {currentStats.recentJobs.map((job) => (
-              <div key={job.id} className="flex items-center justify-between p-6 bg-gray-900/50 rounded-xl border border-gray-700/30 backdrop-blur-sm hover:bg-gray-800/50 transition-all duration-300">
-                <div className="flex items-center gap-4">
-                  <div className={`p-3 rounded-xl ${getStatusColor(job.status)} backdrop-blur-sm`}>
-                    {getStatusIcon(job.status)}
+        </div>
+        <div className="p-6">
+          {currentStats.recent_jobs.length === 0 ? (
+            <div className="text-center py-12">
+              <Clock className="h-12 w-12 text-gray-500 mx-auto mb-4" />
+              <p className="text-gray-400">No recent activity</p>
+              <p className="text-gray-500 text-sm">Jobs will appear here once you start processing orders</p>
+            </div>
+          ) : (
+            <div className="space-y-4">
+              {currentStats.recent_jobs.map((job: RecentJob) => (
+                <div key={job.id} className="flex items-center justify-between p-4 bg-gray-900/30 rounded-xl border border-gray-700/30 hover:bg-gray-800/30 transition-all duration-300">
+                  <div className="flex items-center gap-4">
+                    <div className={`p-3 rounded-xl ${getStatusColor(job.status)} backdrop-blur-sm`}>
+                      {getStatusIcon(job.status)}
+                    </div>
+                    <div>
+                      <div className="font-medium text-gray-100">{job.customer_name}</div>
+                      <div className="text-sm text-gray-400">{job.service_type}</div>
+                    </div>
                   </div>
-                  <div>
-                    <div className="font-medium text-gray-100">{job.customerName}</div>
-                    <div className="text-sm text-gray-400">{job.serviceType}</div>
+                  <div className="text-right">
+                    <div className="font-medium text-gray-100">{formatCurrency(job.amount)}</div>
+                    <div className="text-sm text-gray-400">{formatDate(job.created_at)}</div>
                   </div>
                 </div>
-                <div className="text-right">
-                  <div className="font-medium text-gray-100">{formatCurrency(job.amount)}</div>
-                  <div className="text-sm text-gray-400">{formatDate(job.createdAt)}</div>
-                </div>
-              </div>
-            ))}
-          </div>
+              ))}
+            </div>
+          )}
         </div>
       </div>
 

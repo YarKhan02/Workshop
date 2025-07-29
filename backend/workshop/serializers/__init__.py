@@ -11,3 +11,4 @@ from .booking_serializer import (
     BookingCreateSerializer, BookingUpdateSerializer,
     BookingStatsSerializer
 )
+from .dashboard_serializer import DashboardStatsSerializer, RecentBookingSerializer

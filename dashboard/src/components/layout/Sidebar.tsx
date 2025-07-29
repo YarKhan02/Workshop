@@ -30,7 +30,7 @@ const Sidebar: React.FC = () => {
 
   const operationsLinks = [
     { name: 'Bookings', to: '/bookings', icon: CalendarDaysIcon, badge: '3', description: 'Service Schedule' },
-    { name: 'Jobs', to: '/jobs', icon: WrenchScrewdriverIcon, badge: null, description: 'Service Queue' },
+    // { name: 'Jobs', to: '/jobs', icon: WrenchScrewdriverIcon, badge: null, description: 'Service Queue' },
     { name: 'Inventory', to: '/inventory', icon: Squares2X2Icon, badge: null, description: 'Parts Depot' },
   ];
 

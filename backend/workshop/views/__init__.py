@@ -8,3 +8,4 @@ from .product_variant_view import ProductVariantView
 from .invoice_view import InvoiceView
 from .booking_view import BookingView
 from .service_view import ServiceView
+from .dashboard_view import DashboardView

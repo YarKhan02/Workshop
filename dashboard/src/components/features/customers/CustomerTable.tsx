@@ -41,15 +41,6 @@ const CustomerTable: React.FC<CustomerTableProps> = ({
       ),
     },
     {
-      key: 'actions',
-      header: 'Actions',
-      render: (customer: Customer) => (
-        <div className="flex gap-2">
-          {/* Actions will be handled by DataTable */}
-        </div>
-      ),
-    },
-    {
       key: 'vehicles',
       header: 'Vehicles',
       render: (customer: Customer) => (
@@ -65,13 +56,13 @@ const CustomerTable: React.FC<CustomerTableProps> = ({
       label: 'View Details',
       icon: Eye,
       onClick: onViewCustomer,
-      className: 'text-orange-400 hover:text-orange-300',
+      className: 'text-orange-400 hover:text-orange-300 transition-colors duration-200 p-1 rounded-lg hover:bg-orange-500/20',
     },
     {
       label: 'Edit Customer',
       icon: Edit,
       onClick: onEditCustomer,
-      className: 'text-red-400 hover:text-red-300',
+      className: 'text-emerald-400 hover:text-emerald-300 transition-colors duration-200 p-1 rounded-lg hover:bg-emerald-500/20',
     },
   ];
 

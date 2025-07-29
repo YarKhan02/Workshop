@@ -56,6 +56,33 @@ export type {
   ServiceCategoryEnum,
 } from './service';
 
+// Inventory Management Types - Re-exported from dedicated file
+export type {
+  Product,
+  ProductVariant,
+  FlattenedInventoryVariant,
+  ProductFormData,
+  ProductCreateData,
+  ProductVariantFormData,
+  ProductVariantCreateData,
+  ProductVariantUpdateData,
+  AddInventoryModalProps,
+  EditInventoryModalProps,
+  AddVariantModalProps,
+  InventoryTableProps,
+  InventoryFilters,
+  InventoryStatsData,
+  InventoryStatsProps,
+  ProductsResponse,
+  ProductApiResponse,
+  ProductVariantApiResponse,
+  ProductSearchFields,
+  ProductMutationVariables,
+  ProductVariantMutationVariables,
+  ProductVariantUpdateMutationVariables,
+  ProductVariantDeleteMutationVariables,
+} from './inventory';
+
 // Import for internal use in this file (for other interfaces that reference Customer/Car)
 import type { Customer } from './customer';
 import type { Car } from './car';
@@ -363,27 +390,4 @@ export interface User {
   isActive: boolean;
   createdAt: string;
   updatedAt: string;
-}
-
-// Product Management Types
-export interface ProductVariant {
-  id: string;
-  variant_name: string;
-  sku: string;
-  price: number;
-  quantity: number;
-  created_at: string;
-}
-
-export interface Product {
-  id: string;
-  name: string;
-  category: string;
-  created_at: string;
-  variants: ProductVariant[];
-}
-
-export interface FlattenedInventoryVariant extends ProductVariant {
-  productName: string;
-  category: string;
 }
