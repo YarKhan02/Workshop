@@ -1,7 +1,7 @@
 import React from 'react';
 import { X, Edit, Phone, Mail, MapPin, Car } from 'lucide-react';
 import type { CustomerDetailModalProps, CustomerCar } from '../../../types';
-import Portal from '../../ui/Portal';
+import Portal from '../../shared/utility/Portal';
 
 const CustomerDetailModal: React.FC<CustomerDetailModalProps> = ({
   customer,

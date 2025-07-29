@@ -6,7 +6,7 @@ import { X, Save } from 'lucide-react';
 import toast from 'react-hot-toast';
 import type { EditCarModalProps, CarFormData } from '../../../types';
 import { useUpdateCar } from '../../../hooks/useCars';
-import Portal from '../../ui/Portal';
+import Portal from '../../shared/utility/Portal';
 
 const carSchema = z.object({
   make: z.string().min(1, 'Make is required'),

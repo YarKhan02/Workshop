@@ -112,24 +112,70 @@ const Login: React.FC = () => {
       initial={{ opacity: 0, y: -20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.6, ease: "easeOut" }}
-      className="text-center"
+      className="text-center mb-8"
     >
-      <div className="mx-auto h-16 w-16 bg-gradient-to-br from-orange-400/20 via-orange-500/30 to-red-500/20 rounded-2xl flex items-center justify-center mb-8 shadow-lg backdrop-blur-sm border border-orange-500/10">
-        <LockClosedIcon className="h-8 w-8 text-orange-400/80" />
-      </div>
       <h1 
-        className="text-5xl font-medium text-slate-50 mb-3 tracking-tight" 
+        className="text-4xl font-medium text-slate-50 mb-3 tracking-tight" 
         style={STYLES.typography.heading}
       >
         Welcome Back
       </h1>
       <p 
-        className="text-slate-400 text-lg" 
+        className="text-slate-400 text-base" 
         style={STYLES.typography.label}
       >
         Access your <span className="text-orange-400/90 font-normal">Detailing Hub</span> command center
       </p>
     </motion.div>
+  );
+
+  const renderLeftSide = () => (
+    <div className="hidden lg:flex lg:w-1/2 bg-gradient-to-br from-slate-800 via-gray-800 to-black relative overflow-hidden">
+      {/* Background Pattern */}
+      <div className="absolute inset-0 bg-gradient-to-r from-orange-500/10 to-red-500/10"></div>
+      
+      {/* Content */}
+      <div className="flex flex-col items-center justify-center w-full p-12 relative z-10">
+        <motion.div
+          initial={{ opacity: 0, scale: 0.8 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ duration: 0.8, ease: "easeOut" }}
+          className="max-w-md w-full text-center"
+        >
+          {/* Large Logo */}
+          <div className="mb-8">
+            <img 
+              src="/assets/logo-512.png" 
+              alt="Detailing Hub" 
+              className="w-full max-w-sm mx-auto object-contain filter drop-shadow-2xl"
+            />
+          </div>
+          
+          {/* Tagline */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, delay: 0.3 }}
+            className="space-y-4"
+          >
+            <h2 className="text-3xl font-bold text-white mb-4">
+              Professional Car Detailing
+            </h2>
+            <p className="text-lg text-gray-300 leading-relaxed">
+              Powered by <span className="text-orange-400 font-semibold">BIKE DOCTORS</span>
+            </p>
+            <p className="text-sm text-gray-400 leading-relaxed">
+              Excellence • Precision • Care
+            </p>
+          </motion.div>
+        </motion.div>
+        
+        {/* Decorative Elements */}
+        <div className="absolute top-10 left-10 w-20 h-20 bg-orange-500/10 rounded-full blur-xl"></div>
+        <div className="absolute bottom-10 right-10 w-32 h-32 bg-red-500/10 rounded-full blur-xl"></div>
+        <div className="absolute top-1/2 right-20 w-16 h-16 bg-yellow-500/10 rounded-full blur-xl"></div>
+      </div>
+    </div>
   );
 
   const renderInputField = (
@@ -229,52 +275,64 @@ const Login: React.FC = () => {
 
   // ==================== MAIN RENDER ====================
   return (
-    <div 
-      className="min-h-screen flex items-center justify-center p-4" 
-      style={STYLES.container}
-    >
-      <div className="max-w-md w-full space-y-10">
-        {/* Header Section */}
-        {renderHeader()}
+    <div className="min-h-screen flex">
+      {/* Left Side - Logo/Branding */}
+      {renderLeftSide()}
+      
+      {/* Right Side - Login Form */}
+      <div className="w-full lg:w-1/2 flex items-center justify-center p-4 lg:p-8" style={STYLES.container}>
+        <div className="max-w-md w-full space-y-8">
+          {/* Mobile Logo */}
+          <div className="lg:hidden text-center mb-8">
+            <img 
+              src="/assets/logo-200x60.png" 
+              alt="Detailing Hub" 
+              className="h-16 w-auto mx-auto object-contain mb-4"
+            />
+          </div>
 
-        {/* Form Section */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, delay: 0.2, ease: "easeOut" }}
-          className="bg-slate-800/30 rounded-xl shadow-2xl p-10 border border-slate-700/30 backdrop-blur-md"
-        >
-          <form onSubmit={handleSubmit} className="space-y-8">
-            {/* Username Field */}
-            {renderInputField(
-              'username',
-              'Username or Email',
-              'text',
-              formData.username,
-              'Enter your username or email',
-              UserIcon,
-              handleInputChange('username')
-            )}
+          {/* Header Section */}
+          {renderHeader()}
 
-            {/* Password Field */}
-            {renderInputField(
-              'password',
-              'Password',
-              showPassword ? 'text' : 'password',
-              formData.password,
-              'Enter your password',
-              LockClosedIcon,
-              handleInputChange('password'),
-              true
-            )}
+          {/* Form Section */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, delay: 0.2, ease: "easeOut" }}
+            className="bg-slate-800/30 rounded-xl shadow-2xl p-8 lg:p-10 border border-slate-700/30 backdrop-blur-md"
+          >
+            <form onSubmit={handleSubmit} className="space-y-6">
+              {/* Username Field */}
+              {renderInputField(
+                'username',
+                'Username or Email',
+                'text',
+                formData.username,
+                'Enter your username or email',
+                UserIcon,
+                handleInputChange('username')
+              )}
 
-            {/* Submit Button */}
-            {renderSubmitButton()}
-          </form>
-        </motion.div>
+              {/* Password Field */}
+              {renderInputField(
+                'password',
+                'Password',
+                showPassword ? 'text' : 'password',
+                formData.password,
+                'Enter your password',
+                LockClosedIcon,
+                handleInputChange('password'),
+                true
+              )}
 
-        {/* Footer Section */}
-        {renderFooter()}
+              {/* Submit Button */}
+              {renderSubmitButton()}
+            </form>
+          </motion.div>
+
+          {/* Footer Section */}
+          {renderFooter()}
+        </div>
       </div>
     </div>
   );

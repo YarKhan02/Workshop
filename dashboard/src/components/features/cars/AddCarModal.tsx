@@ -6,7 +6,7 @@ import { X, Save } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { useCreateCar } from '../../../hooks/useCars';
 import { useCustomers } from '../../../hooks/useCustomers';
-import Portal from '../../ui/Portal';
+import Portal from '../../shared/utility/Portal';
 import type { AddCarModalProps, CarFormData } from '../../../types';
 
 const carSchema = z.object({

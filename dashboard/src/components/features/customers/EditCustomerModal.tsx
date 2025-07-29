@@ -4,7 +4,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import type { EditCustomerModalProps } from '../../../types';
 import { X, Save } from 'lucide-react';
-import Portal from '../../ui/Portal';
+import Portal from '../../shared/utility/Portal';
 
 const customerSchema = z.object({
   first_name: z.string().min(1, 'First name is required'),

@@ -1,6 +1,6 @@
 import React from 'react';
-import { Eye, Edit } from 'lucide-react';
-import { DataTable } from '../../common';
+import { Eye, Edit, Trash2 } from 'lucide-react';
+import { DataTable } from '../../shared/data';
 import type { Customer, CustomerTableProps } from '../../../types';
 
 const CustomerTable: React.FC<CustomerTableProps> = ({

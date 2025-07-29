@@ -14,7 +14,7 @@ import type {
   Service, 
   TimeSlot 
 } from '../../../types';
-import Portal from '../../ui/Portal';
+import Portal from '../../shared/utility/Portal';
 
 // ==================== COMPONENT ====================
 const AddBookingModal: React.FC<AddBookingModalProps> = ({ isOpen, onClose }) => {

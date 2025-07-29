@@ -10,7 +10,7 @@ import type {
   TimeSlot,
   Service 
 } from '../../../types';
-import Portal from '../../ui/Portal';
+import Portal from '../../shared/utility/Portal';
 
 // ==================== COMPONENT ====================
 

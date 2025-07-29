@@ -1,6 +1,7 @@
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
+import { NotificationProvider } from './contexts/NotificationContext';
 
 import Login from './pages/Login';
 import DashboardLayout from './components/layout/DashboardLayout';
@@ -24,32 +25,34 @@ const ProtectedRoute: React.FC<{ children: React.ReactNode }> = ({ children }) =
 
 const App: React.FC = () => (
   <AuthProvider>
-    <Router future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
-      <Toaster position="top-right" />
-      <Routes>
-        <Route path="/login" element={<Login />} />
-        <Route
-          path="/*"
-          element={
-            <ProtectedRoute>
-              <DashboardLayout>
-                <Routes>
-                  <Route path="/" element={<DashboardHome />} />
-                  <Route path="/customers" element={<Customers />} />
-                  <Route path="/cars" element={<Cars />} />
-                  <Route path="/jobs" element={<Jobs />} />
-                  <Route path="/bookings" element={<Bookings />} />
-                  <Route path="/billing" element={<Billing />} />
-                  <Route path="/settings" element={<Settings />} />
-                  <Route path="/users" element={<Users />} />
-                  <Route path="/inventory" element={<Inventory />} />
-                </Routes>
-              </DashboardLayout>
-            </ProtectedRoute>
-          }
-        />
-      </Routes>
-    </Router>
+    <NotificationProvider>
+      <Router future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
+        <Toaster position="top-right" />
+        <Routes>
+          <Route path="/login" element={<Login />} />
+          <Route
+            path="/*"
+            element={
+              <ProtectedRoute>
+                <DashboardLayout>
+                  <Routes>
+                    <Route path="/" element={<DashboardHome />} />
+                    <Route path="/customers" element={<Customers />} />
+                    <Route path="/cars" element={<Cars />} />
+                    <Route path="/jobs" element={<Jobs />} />
+                    <Route path="/bookings" element={<Bookings />} />
+                    <Route path="/billing" element={<Billing />} />
+                    <Route path="/settings" element={<Settings />} />
+                    <Route path="/users" element={<Users />} />
+                    <Route path="/inventory" element={<Inventory />} />
+                  </Routes>
+                </DashboardLayout>
+              </ProtectedRoute>
+            }
+          />
+        </Routes>
+      </Router>
+    </NotificationProvider>
   </AuthProvider>
 );
 

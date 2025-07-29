@@ -2,7 +2,7 @@
 
 import React from 'react';
 import { Eye, Edit } from 'lucide-react';
-import { DataTable } from '../../common';
+import { DataTable } from '../../shared/data';
 import type { Booking, BookingTableProps } from '../../../types/booking';
 
 // ==================== HELPER FUNCTIONS ====================

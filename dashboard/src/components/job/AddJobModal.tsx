@@ -7,7 +7,7 @@ import { useMutation, useQueryClient, useQuery } from '@tanstack/react-query';
 import toast from 'react-hot-toast';
 import { useAuth } from '../../contexts/AuthContext';
 import type { Customer, Car, User } from '../../types';
-import Portal from '../ui/Portal';
+import Portal from '../shared/utility/Portal';
 
 const jobSchema = z.object({
   customerId: z.number().min(1, 'Customer is required'),

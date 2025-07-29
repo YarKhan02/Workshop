@@ -13,9 +13,16 @@ const Header: React.FC = () => {
 
   return (
     <header className="flex items-center justify-between h-20 px-6 bg-gradient-to-r from-slate-900 via-gray-900 to-black border-b border-gray-700/30 shadow-2xl sticky top-0 z-10 backdrop-blur-md">
-      <div className="text-xl font-light tracking-wider text-gray-100">
-        <span className="font-light">Detailing</span>
-        <span className="font-bold text-orange-400 ml-1">Dashboard</span>
+      <div className="flex items-center gap-3">
+        <img 
+          src="/assets/logo-200x60.png" 
+          alt="Detailing Hub" 
+          className="h-8 w-auto object-contain md:hidden"
+        />
+        <div className="text-xl font-light tracking-wider text-gray-100">
+          <span className="font-light">Detailing</span>
+          <span className="font-bold text-orange-400 ml-1">Dashboard</span>
+        </div>
       </div>
       <div className="flex items-center gap-4">
         <div className="flex flex-col items-end">

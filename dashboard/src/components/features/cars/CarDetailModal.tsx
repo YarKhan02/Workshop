@@ -1,7 +1,7 @@
 import React from 'react';
 import { X, Edit, Trash2, Car, Calendar } from 'lucide-react';
 import type { CarDetailModalProps } from '../../../types';
-import Portal from '../../ui/Portal';
+import Portal from '../../shared/utility/Portal';
 
 const CarDetailModal: React.FC<CarDetailModalProps> = ({
   car,

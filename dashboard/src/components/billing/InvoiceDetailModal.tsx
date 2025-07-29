@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { X, CheckCircle, Clock, AlertTriangle, XCircle } from 'lucide-react';
 import type { Invoice } from '../../api/billing';
-import Portal from '../ui/Portal';
+import Portal from '../shared/utility/Portal';
 
 interface InvoiceDetailModalProps {
   isOpen: boolean;

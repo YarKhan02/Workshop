@@ -1,7 +1,7 @@
 import React from 'react';
 import { X, Edit, Trash2, Calendar, Clock, DollarSign, User, Car, Users } from 'lucide-react';
 import type { Job } from '../../types';
-import Portal from '../ui/Portal';
+import Portal from '../shared/utility/Portal';
 
 interface JobDetailModalProps {
   job: Job | null;

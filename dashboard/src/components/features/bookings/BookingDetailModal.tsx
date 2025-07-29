@@ -6,7 +6,7 @@ import { X, Calendar, Clock, User, Car, FileText, DollarSign, Phone, Mail, Check
 import toast from 'react-hot-toast';
 import { bookingAPI } from '../../../api/booking';
 import type { BookingDetailModalProps } from '../../../types/booking';
-import Portal from '../../ui/Portal';
+import Portal from '../../shared/utility/Portal';
 
 // ==================== HELPER FUNCTIONS ====================
 

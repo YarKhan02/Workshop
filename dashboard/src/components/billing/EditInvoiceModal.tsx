@@ -4,7 +4,7 @@ import { updateInvoice } from '../../api/billing';
 import type { Invoice, InvoiceItem } from '../../api/billing';
 import type { Customer } from '../../api/customers';
 import type { Job } from '../../api/jobs';
-import Portal from '../ui/Portal';
+import Portal from '../shared/utility/Portal';
 
 interface EditInvoiceModalProps {
   isOpen: boolean;

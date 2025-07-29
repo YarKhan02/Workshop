@@ -5,7 +5,7 @@ import { z } from 'zod';
 import { X, Save } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { useCreateCustomer } from '../../../hooks/useCustomers';
-import Portal from '../../ui/Portal';
+import Portal from '../../shared/utility/Portal';
 
 const customerSchema = z.object({
   first_name: z.string().min(1, 'First name is required'),

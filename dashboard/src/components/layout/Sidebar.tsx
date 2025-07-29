@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { NavLink } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
+import NotificationBell from '../features/notifications/NotificationBell';
 import {
   HomeIcon,
   UsersIcon,
@@ -11,7 +12,6 @@ import {
   ShieldCheckIcon,
   ChevronLeftIcon,
   ChevronRightIcon,
-  BellIcon,
   Squares2X2Icon,
   ChartBarIcon,
   WrenchScrewdriverIcon
@@ -122,26 +122,32 @@ const Sidebar: React.FC = () => {
       isCollapsed ? 'w-16' : 'w-80'
     }`}>
       {/* Header */}
-      <div className={`flex items-center ${isCollapsed ? 'justify-center' : 'justify-between'} h-18 border-b border-gray-700/30 px-6 bg-gradient-to-r from-gray-800/50 to-slate-800/50 backdrop-blur-md`}>
+      <div className={`flex items-center ${isCollapsed ? 'justify-center' : 'justify-between'} h-20 px-6 py-4 bg-gradient-to-r from-gray-800/50 to-slate-800/50 backdrop-blur-md`}>
         {!isCollapsed && (
           <div className="flex items-center gap-4">
             <div className="relative">
-              <div className="w-11 h-11 bg-gradient-to-br from-red-500 via-orange-500 to-yellow-500 rounded-lg flex items-center justify-center shadow-lg transform rotate-12 hover:rotate-0 transition-transform duration-300">
-                <WrenchScrewdriverIcon className="h-6 w-6 text-white" />
-              </div>
-              <div className="absolute -top-1 -right-1 w-3 h-3 bg-green-400 rounded-full animate-pulse"></div>
+              <img 
+                src="/assets/logo-200x60.png" 
+                alt="Detailing Hub" 
+                className="h-12 w-auto object-contain"
+              />
             </div>
-            <div>
-              <span className="text-xl font-light tracking-wider text-gray-100">Detailing</span>
-              <span className="text-xl font-bold tracking-wider text-orange-400 ml-1">Hub</span>
-              <div className="text-xs text-gray-400 font-light">Performance • Precision • Care</div>
-            </div>
+          </div>
+        )}
+        
+        {isCollapsed && (
+          <div className="flex items-center justify-center">
+            <img 
+              src="/assets/logo-32.png" 
+              alt="Detailing Hub" 
+              className="h-8 w-8 object-contain"
+            />
           </div>
         )}
         
         <button
           onClick={toggleCollapse}
-          className="p-2.5 rounded-lg bg-gray-800/50 hover:bg-gray-700/50 transition-all duration-300 backdrop-blur-sm border border-gray-600/30 hover:border-orange-400/50 group"
+          className="p-3 rounded-lg bg-gray-800/50 hover:bg-gray-700/50 transition-all duration-300 backdrop-blur-sm border border-gray-600/30 hover:border-orange-400/50 group mt-2"
           title={isCollapsed ? 'Expand Sidebar' : 'Collapse Sidebar'}
         >
           {isCollapsed ? (
@@ -154,7 +160,7 @@ const Sidebar: React.FC = () => {
 
       {/* User Profile Section */}
       {!isCollapsed && user && (
-        <div className="p-5 border-b border-gray-700/30 bg-gradient-to-r from-gray-800/30 to-slate-800/30 backdrop-blur-md">
+        <div className="p-5 bg-gradient-to-r from-gray-800/30 to-slate-800/30 backdrop-blur-md">
           <div className="flex items-center gap-4">
             <div className="relative group">
               <div className="w-14 h-14 bg-gradient-to-br from-orange-400 via-red-500 to-pink-500 rounded-full flex items-center justify-center text-white font-bold text-lg shadow-lg ring-2 ring-gray-700/50 group-hover:ring-orange-400/50 transition-all duration-300">
@@ -175,8 +181,7 @@ const Sidebar: React.FC = () => {
               </div>
             </div>
             <div className="relative">
-              <BellIcon className="h-5 w-5 text-gray-400 hover:text-orange-400 cursor-pointer transition-colors duration-300" />
-              <div className="absolute -top-1 -right-1 w-2 h-2 bg-red-400 rounded-full animate-ping"></div>
+              <NotificationBell />
             </div>
           </div>
         </div>
@@ -193,7 +198,11 @@ const Sidebar: React.FC = () => {
       {/* Footer */}
       <div className={`p-6 border-t border-gray-700/30 bg-gradient-to-r from-gray-800/30 to-slate-800/30 backdrop-blur-md ${isCollapsed ? 'text-center' : ''}`}>
         {isCollapsed ? (
-          <div className="w-10 h-10 bg-gradient-to-br from-orange-400 to-red-500 rounded-lg mx-auto shadow-lg animate-pulse"></div>
+          <img 
+            src="/assets/logo-32.png" 
+            alt="Detailing Hub" 
+            className="w-10 h-10 mx-auto object-contain opacity-80"
+          />
         ) : (
           <div className="text-center">
             <div className="flex items-center justify-center gap-2 mb-2">
