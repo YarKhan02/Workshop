@@ -2,7 +2,7 @@
 
 import type React from "react"
 import { useState } from "react"
-import { X, Plus, DollarSign, Hash, Loader2, Tag } from "lucide-react"
+import { X, Plus, Banknote, Hash, Loader2, Tag } from "lucide-react"
 import Portal from "../../shared/utility/Portal"
 import { useCreateVariant } from "../../../hooks/useInventory"
 import type { AddVariantModalProps, ProductVariantFormData } from "../../../types/inventory"
@@ -129,11 +129,11 @@ const AddVariantModal: React.FC<AddVariantModalProps> = ({ open, onClose, produc
                   {/* Price */}
                   <div className="space-y-2">
                     <label className="block text-sm font-semibold text-gray-300">
-                      Price ($) <span className="text-red-400">*</span>
+                      Price <span className="text-red-400">*</span>
                     </label>
                     <div className="relative">
                       <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                        <DollarSign className="h-5 w-5 text-gray-400" />
+                        <Banknote className="h-5 w-5 text-gray-400" />
                       </div>
                       <input
                         type="number"

@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { X, Calendar, Clock, FileText, DollarSign, Save } from 'lucide-react';
+import { X, Calendar, Clock, FileText, Banknote, Save } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { bookingAPI, serviceAPI } from '../../../api/booking';
 import type { 
@@ -11,6 +11,7 @@ import type {
   Service 
 } from '../../../types';
 import Portal from '../../shared/utility/Portal';
+import { formatCurrency } from '../../../utils/currency';
 
 // ==================== COMPONENT ====================
 
@@ -215,7 +216,7 @@ const EditBookingModal: React.FC<EditBookingModalProps> = ({ isOpen, onClose, bo
                     <option value="">Select service...</option>
                     {(services as Service[]).map((service: Service) => (
                       <option key={service.id} value={service.code}>
-                        {service.name} - ${service.base_price}
+                        {service.name} - {formatCurrency(service.base_price)}
                       </option>
                     ))}
                   </select>
@@ -284,7 +285,7 @@ const EditBookingModal: React.FC<EditBookingModalProps> = ({ isOpen, onClose, bo
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
                   <label className="block text-sm font-medium text-gray-300 mb-2">
-                    <DollarSign className="inline-block w-4 h-4 mr-2" />
+                    <Banknote className="inline-block w-4 h-4 mr-2" />
                     Service Amount
                   </label>
                   <input

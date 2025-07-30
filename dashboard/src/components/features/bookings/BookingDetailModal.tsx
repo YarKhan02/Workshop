@@ -2,11 +2,12 @@
 
 import React from 'react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { X, Calendar, Clock, User, Car, FileText, DollarSign, Phone, Mail, CheckCircle } from 'lucide-react';
+import { X, Calendar, Clock, User, Car, FileText, Banknote, Phone, Mail, CheckCircle } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { bookingAPI } from '../../../api/booking';
 import type { BookingDetailModalProps } from '../../../types/booking';
 import Portal from '../../shared/utility/Portal';
+import { formatCurrency } from '../../../utils/currency';
 
 // ==================== HELPER FUNCTIONS ====================
 
@@ -30,13 +31,6 @@ const getStatusText = (status: string) => {
     case 'cancelled': return 'Cancelled';
     default: return status.replace('_', ' ').toUpperCase();
   }
-};
-
-const formatCurrency = (amount: number) => {
-  return new Intl.NumberFormat('en-PK', {
-    style: 'currency',
-    currency: 'PKR',
-  }).format(amount);
 };
 
 const formatDate = (dateString: string) => {
@@ -226,7 +220,7 @@ const BookingDetailModal: React.FC<BookingDetailModalProps> = ({ isOpen, onClose
             {/* Pricing Info */}
             <div className="bg-gray-900/30 rounded-xl p-4 border border-gray-700/30 mb-6">
               <h3 className="text-lg font-semibold text-orange-400 mb-3 flex items-center">
-                <DollarSign className="w-5 h-5 mr-2" />
+                <Banknote className="w-5 h-5 mr-2" />
                 Prize Money
               </h3>
               <div className="text-2xl font-bold text-green-400">

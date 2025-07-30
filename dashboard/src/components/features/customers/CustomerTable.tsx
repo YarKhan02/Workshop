@@ -1,6 +1,7 @@
 import React from 'react';
-import { Eye, Edit, Trash2 } from 'lucide-react';
+import { Eye, Edit } from 'lucide-react';
 import { DataTable } from '../../shared/data';
+import { useTheme, cn } from '../../ui';
 import type { Customer, CustomerTableProps } from '../../../types';
 
 const CustomerTable: React.FC<CustomerTableProps> = ({
@@ -9,13 +10,15 @@ const CustomerTable: React.FC<CustomerTableProps> = ({
   onViewCustomer,
   onEditCustomer,
 }) => {
+  const { theme } = useTheme();
+
   const columns = [
     {
       key: 'name',
       header: 'Customer',
       render: (customer: Customer) => (
         <div>
-          <div className="text-sm font-medium text-gray-100">
+          <div className={cn("text-sm font-medium", theme.textPrimary)}>
             {customer.first_name} {customer.last_name}
           </div>
         </div>
@@ -26,8 +29,8 @@ const CustomerTable: React.FC<CustomerTableProps> = ({
       header: 'Contact',
       render: (customer: Customer) => (
         <div>
-          <div className="text-sm text-gray-100">{customer.email}</div>
-          <div className="text-sm text-gray-400">{customer.phone_number}</div>
+          <div className={cn("text-sm", theme.textPrimary)}>{customer.email}</div>
+          <div className={cn("text-sm", theme.textSecondary)}>{customer.phone_number}</div>
         </div>
       ),
     },
@@ -35,7 +38,7 @@ const CustomerTable: React.FC<CustomerTableProps> = ({
       key: 'address',
       header: 'Location',
       render: (customer: Customer) => (
-        <div className="text-sm text-gray-100">
+        <div className={cn("text-sm", theme.textPrimary)}>
           {customer.city && customer.state ? `${customer.city}, ${customer.state}` : customer.address}
         </div>
       ),
@@ -44,7 +47,7 @@ const CustomerTable: React.FC<CustomerTableProps> = ({
       key: 'vehicles',
       header: 'Vehicles',
       render: (customer: Customer) => (
-        <div className="text-sm text-gray-200">
+        <div className={cn("text-sm", theme.textSecondary)}>
           {customer.cars?.length || 0} vehicles
         </div>
       ),

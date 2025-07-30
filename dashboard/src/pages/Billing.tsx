@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from 'react';
-import { Plus, FileText, DollarSign, Clock } from 'lucide-react';
+import { Plus, FileText, Banknote, Clock } from 'lucide-react';
 
 // Common Components
 import {
@@ -24,6 +24,9 @@ import {
   useUpdateInvoiceStatus,
 } from '../hooks/useBilling';
 import type { Invoice, InvoiceStatus, PaymentMethod, BillingFilters as BillingFiltersType } from '../types/billing';
+
+// Currency utility
+import { formatCurrency } from '../utils/currency';
 
 const Billing: React.FC = () => {
   // State for filters and pagination
@@ -141,8 +144,8 @@ const Billing: React.FC = () => {
           stats={stats ? [
             {
               title: 'Total Revenue',
-              value: new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(stats.totalRevenue),
-              icon: <DollarSign className="h-8 w-8" />,
+              value: formatCurrency(stats.totalRevenue),
+              icon: <Banknote className="h-8 w-8" />,
               color: 'green' as const,
             },
             {
@@ -153,14 +156,14 @@ const Billing: React.FC = () => {
             },
             {
               title: 'Outstanding',
-              value: new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(stats.outstandingAmount),
+              value: formatCurrency(stats.outstandingAmount),
               icon: <Clock className="h-8 w-8" />,
               color: 'yellow' as const,
             },
             {
               title: 'Monthly Revenue',
-              value: new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(stats.monthlyRevenue),
-              icon: <DollarSign className="h-8 w-8" />,
+              value: formatCurrency(stats.monthlyRevenue),
+              icon: <Banknote className="h-8 w-8" />,
               color: 'purple' as const,
             },
           ] : []}

@@ -13,6 +13,7 @@ import type {
   CreateInvoicePayload, 
   InvoiceStatus
 } from '../../../types/billing';
+import { formatCurrency } from '../../../utils/currency';
 import type { CustomerInvoice, Product, ProductVariant } from '../../../types';
 import type { InvoiceItemWithProduct } from './invoice/types';
 import {
@@ -233,14 +234,6 @@ const AddInvoiceModal: React.FC<AddInvoiceModalProps> = ({
       console.error("Error creating invoice:", error);
       toast.error("Failed to create invoice. Please check the console for details.");
     }
-  };
-
-  const formatCurrency = (amount: number) => {
-    const validAmount = Number(amount) || 0;
-    return new Intl.NumberFormat("en-PK", {
-      style: "currency",
-      currency: "PKR",
-    }).format(validAmount);
   };
 
   const handleClose = () => {

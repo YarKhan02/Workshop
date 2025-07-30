@@ -83,18 +83,15 @@ export function getInvoiceField(invoice: any, field: string, fallback: any = nul
 }
 
 /**
- * Format currency specifically for Pakistani Rupee
+ * Format currency using centralized utility
  */
+import { formatCurrency } from './currency';
+
 export function formatPKRCurrency(amount: number | string): string {
   const numAmount = typeof amount === 'string' ? parseFloat(amount) : amount;
   const validAmount = Number(numAmount) || 0;
   
-  return new Intl.NumberFormat('en-PK', {
-    style: 'currency',
-    currency: 'PKR',
-    minimumFractionDigits: 2,
-    maximumFractionDigits: 2,
-  }).format(validAmount);
+  return formatCurrency(validAmount);
 }
 
 /**

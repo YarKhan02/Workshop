@@ -6,13 +6,14 @@ import {
   Eye,
   Edit,
   Trash2,
-  DollarSign,
+  Banknote,
   Calendar,
   Clock,
   FileText,
   CheckCircle,
 } from 'lucide-react';
 import toast from 'react-hot-toast';
+import { formatCurrency } from '../utils/currency';
 import { useAuth } from '../contexts/AuthContext';
 import { usePagination } from '../hooks/usePagination';
 import type { Job, JobStats } from '../types';
@@ -252,11 +253,11 @@ const Jobs: React.FC = () => {
         <div className="bg-gradient-to-br from-gray-800/50 to-slate-800/50 p-6 rounded-xl shadow-2xl border border-gray-700/30 backdrop-blur-md">
           <div className="flex items-center">
             <div className="p-3 bg-gradient-to-br from-purple-500 to-violet-600 rounded-xl shadow-lg">
-              <DollarSign className="text-white" size={24} />
+              <Banknote className="text-white" size={24} />
             </div>
             <div className="ml-4">
               <p className="text-sm font-medium text-gray-400">Total Earnings</p>
-              <p className="text-2xl font-bold text-gray-100">{stats?.totalRevenue?.toLocaleString('en-PK', { style: 'currency', currency: 'PKR' }) || '₨0'}</p>
+              <p className="text-2xl font-bold text-gray-100">{formatCurrency(stats?.totalRevenue || 0)}</p>
             </div>
           </div>
         </div>
@@ -397,11 +398,11 @@ const Jobs: React.FC = () => {
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
                         <div className="text-sm font-medium text-gray-900">
-                          ${job.totalPrice.toFixed(2)}
+                          {formatCurrency(job.totalPrice)}
                         </div>
                         {job.discount && job.discount > 0 && (
                           <div className="text-sm text-green-600">
-                            -${job.discount.toFixed(2)} discount
+                            -{formatCurrency(job.discount)} discount
                           </div>
                         )}
                       </td>

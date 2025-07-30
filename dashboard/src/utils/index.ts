@@ -27,13 +27,8 @@ export const getRelativeTime = (date: Date | string) => {
   return formatDistanceToNow(dateObj, { addSuffix: true });
 };
 
-// Currency formatting
-export const formatCurrency = (amount: number, currency: string = 'PKR') => {
-  return new Intl.NumberFormat('en-PK', {
-    style: 'currency',
-    currency: currency,
-  }).format(amount);
-};
+// Currency formatting - using centralized utility
+export { formatCurrency } from './currency';
 
 // Status color utilities
 export const getStatusColor = (status: JobStatus | PaymentStatus | AttendanceStatus) => {

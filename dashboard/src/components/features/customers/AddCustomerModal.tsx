@@ -2,10 +2,10 @@ import React from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-import { X, Save } from 'lucide-react';
+import { UserPlus } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { useCreateCustomer } from '../../../hooks/useCustomers';
-import Portal from '../../shared/utility/Portal';
+import { useTheme, cn, ThemedModal, ThemedInput, ThemedButton } from '../../ui';
 
 const customerSchema = z.object({
   first_name: z.string().min(1, 'First name is required'),
@@ -28,6 +28,7 @@ const AddCustomerModal: React.FC<AddCustomerModalProps> = ({
   isOpen,
   onClose
 }) => {
+  const { theme } = useTheme();
   const createCustomerMutation = useCreateCustomer();
   
   const {
@@ -69,228 +70,123 @@ const AddCustomerModal: React.FC<AddCustomerModalProps> = ({
   if (!isOpen) return null;
 
   return (
-    <Portal>
-      <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50">
-        <div className="bg-gradient-to-br from-gray-800/95 to-slate-800/95 rounded-xl shadow-2xl max-w-2xl w-full mx-4 max-h-[90vh] overflow-y-auto border border-gray-700/30 backdrop-blur-md">
-          <div className="flex items-center justify-between p-6 border-b border-gray-600/30">
-            <h2 className="text-2xl font-bold bg-gradient-to-r from-orange-400 to-red-500 bg-clip-text text-transparent">
-              Add New Elite Client
-            </h2>
-            <button
-              onClick={onClose}
-              className="text-gray-400 hover:text-orange-400 transition-colors duration-200"
-            >
-              <X size={24} />
-            </button>
-          </div>
-
-          <form onSubmit={handleSubmit(onSubmit)} className="p-6">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div className="space-y-4">
-                <div>
-                  <label className="block text-sm font-medium text-gray-300 mb-1">
-                    First Name *
-                  </label>
-                  <input
-                    type="text"
-                    {...register('first_name')}
-                    className="w-full px-3 py-2 bg-gray-900/50 border border-gray-600/50 rounded-lg text-gray-100 placeholder-gray-400 focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-all duration-300"
-                    placeholder="Enter first name"
-                  />
-                  {errors.first_name && (
-                    <p className="text-red-400 text-sm mt-1">{errors.first_name.message}</p>
-                  )}
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-gray-300 mb-1">
-                    Last Name *
-                  </label>
-                  <input
-                    type="text"
-                    {...register('last_name')}
-                    className="w-full px-3 py-2 bg-gray-900/50 border border-gray-600/50 rounded-lg text-gray-100 placeholder-gray-400 focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-all duration-300"
-                    placeholder="Enter last name"
-                  />
-                  {errors.last_name && (
-                    <p className="text-red-400 text-sm mt-1">{errors.last_name.message}</p>
-                  )}
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-gray-300 mb-1">
-                    Email *
-                  </label>
-                  <input
-                    type="email"
-                    {...register('email')}
-                    className="w-full px-3 py-2 bg-gray-900/50 border border-gray-600/50 rounded-lg text-gray-100 placeholder-gray-400 focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-all duration-300"
-                    placeholder="Enter email address"
-                  />
-                  {errors.email && (
-                    <p className="text-red-400 text-sm mt-1">{errors.email.message}</p>
-                  )}
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-gray-300 mb-1">
-                    Phone *
-                  </label>
-                  <input
-                    type="tel"
-                    {...register('phone_number')}
-                    className="w-full px-3 py-2 bg-gray-900/50 border border-gray-600/50 rounded-lg text-gray-100 placeholder-gray-400 focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-all duration-300"
-                    placeholder="Enter phone number"
-                  />
-                  {errors.phone_number && (
-                    <p className="text-red-400 text-sm mt-1">{errors.phone_number.message}</p>
-                  )}
-                </div>
-              </div>
-
-              <div className="space-y-4">
-                <div>
-                  <label className="block text-sm font-medium text-gray-300 mb-1">
-                    Address *
-                  </label>
-                  <textarea
-                    {...register('address')}
-                    rows={3}
-                    className="w-full px-3 py-2 bg-gray-900/50 border border-gray-600/50 rounded-lg text-gray-100 placeholder-gray-400 focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-all duration-300"
-                    placeholder="Enter address"
-                  />
-                  {errors.address && (
-                    <p className="text-red-400 text-sm mt-1">{errors.address.message}</p>
-                  )}
-                </div>
-
-                <div className="grid grid-cols-2 gap-2">
-                  <div>
-                    <label className="block text-sm font-medium text-gray-300 mb-1">
-                      City
-                    </label>
-                    <input
-                      type="text"
-                      {...register('city')}
-                      className="w-full px-3 py-2 bg-gray-900/50 border border-gray-600/50 rounded-lg text-gray-100 placeholder-gray-400 focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-all duration-300"
-                      placeholder="City"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-gray-300 mb-1">
-                      State
-                    </label>
-                    <input
-                      type="text"
-                      {...register('state')}
-                      className="w-full px-3 py-2 bg-gray-900/50 border border-gray-600/50 rounded-lg text-gray-100 placeholder-gray-400 focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-all duration-300"
-                      placeholder="State"
-                    />
-                  </div>
-                  {/* <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
-                      ZIP Code
-                    </label>
-                    <input
-                      type="text"
-                      {...register('zipCode')}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                      placeholder="ZIP"
-                    />
-                  </div> */}
-                </div>
-              </div>
+    <ThemedModal
+      isOpen={isOpen}
+      onClose={onClose}
+      title="Add New Elite Client"
+    >
+      <form onSubmit={handleSubmit(onSubmit)} className="p-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div className="space-y-4">
+            <div>
+              <label className={cn("block text-sm font-medium mb-1", theme.textSecondary)}>
+                First Name *
+              </label>
+              <ThemedInput
+                type="text"
+                {...register('first_name')}
+                placeholder="Enter first name"
+                error={errors.first_name?.message}
+              />
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
-              <div className="space-y-4">
-                {/* <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Date of Birth
-                  </label>
-                  <input
-                    type="date"
-                    {...register('dateOfBirth')}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  />
-                </div> */}
-
-                {/* <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Gender
-                  </label>
-                  <select
-                    {...register('gender')}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  >
-                    <option value="">Select gender</option>
-                    <option value="male">Male</option>
-                    <option value="female">Female</option>
-                    <option value="other">Other</option>
-                  </select>
-                </div> */}
-              </div>
-
-              {/* <div className="space-y-4">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Emergency Contact
-                  </label>
-                  <input
-                    type="text"
-                    {...register('emergencyContact')}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                    placeholder="Emergency contact name"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Emergency Phone
-                  </label>
-                  <input
-                    type="tel"
-                    {...register('emergencyPhone')}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                    placeholder="Emergency phone number"
-                  />
-                </div>
-              </div> */}
+            <div>
+              <label className={cn("block text-sm font-medium mb-1", theme.textSecondary)}>
+                Last Name *
+              </label>
+              <ThemedInput
+                type="text"
+                {...register('last_name')}
+                placeholder="Enter last name"
+                error={errors.last_name?.message}
+              />
             </div>
 
-            {/* <div className="mt-6">
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Notes
+            <div>
+              <label className={cn("block text-sm font-medium mb-1", theme.textSecondary)}>
+                Email *
+              </label>
+              <ThemedInput
+                type="email"
+                {...register('email')}
+                placeholder="Enter email address"
+                error={errors.email?.message}
+              />
+            </div>
+
+            <div>
+              <label className={cn("block text-sm font-medium mb-1", theme.textSecondary)}>
+                Phone *
+              </label>
+              <ThemedInput
+                type="tel"
+                {...register('phone_number')}
+                placeholder="Enter phone number"
+                error={errors.phone_number?.message}
+              />
+            </div>
+              </div>
+
+          <div className="space-y-4">
+            <div>
+              <label className={cn("block text-sm font-medium mb-1", theme.textSecondary)}>
+                Address *
               </label>
               <textarea
-                {...register('notes')}
+                {...register('address')}
                 rows={3}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                placeholder="Any additional notes about the customer"
+                className={cn("w-full px-3 py-2 rounded-lg", theme.components.input.base)}
+                placeholder="Enter address"
               />
-            </div> */}
-
-            <div className="flex justify-end gap-3 mt-8 pt-6 border-t border-gray-600/30">
-              <button
-                type="button"
-                onClick={onClose}
-                className="px-6 py-2 text-gray-300 bg-gray-700/50 rounded-lg hover:bg-gray-600/50 transition-colors duration-200"
-              >
-                Cancel
-              </button>
-              <button
-                type="submit"
-                disabled={isSubmitting}
-                className="flex items-center gap-2 px-6 py-2 bg-gradient-to-r from-orange-500 to-red-600 text-white rounded-lg hover:from-orange-600 hover:to-red-700 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed shadow-lg"
-              >
-                <Save size={16} />
-                {isSubmitting ? 'Adding...' : 'Add Client'}
-              </button>
+              {errors.address && (
+                <p className="text-red-400 text-sm mt-1">{errors.address.message}</p>
+              )}
             </div>
-          </form>
+
+            <div className="grid grid-cols-2 gap-2">
+              <div>
+                <label className={cn("block text-sm font-medium mb-1", theme.textSecondary)}>
+                  City
+                </label>
+                <ThemedInput
+                  type="text"
+                  {...register('city')}
+                  placeholder="City"
+                />
+              </div>
+              <div>
+                <label className={cn("block text-sm font-medium mb-1", theme.textSecondary)}>
+                  State
+                </label>
+                <ThemedInput
+                  type="text"
+                  {...register('state')}
+                  placeholder="State"
+                />
+              </div>
+            </div>
+          </div>
         </div>
-      </div>
-    </Portal>
+
+        <div className="flex justify-end gap-3 mt-8 pt-6 border-t border-gray-600/30">
+          <ThemedButton
+            type="button"
+            variant="secondary"
+            onClick={onClose}
+          >
+            Cancel
+          </ThemedButton>
+          <ThemedButton
+            type="submit"
+            variant="primary"
+            disabled={isSubmitting}
+          >
+                        <UserPlus className="w-4 h-4 mr-2" />
+            {isSubmitting ? 'Adding...' : 'Add Customer'}
+          </ThemedButton>
+        </div>
+      </form>
+    </ThemedModal>
   );
 };
 

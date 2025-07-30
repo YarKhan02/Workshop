@@ -8,6 +8,7 @@ import toast from 'react-hot-toast';
 import { useAuth } from '../../contexts/AuthContext';
 import type { Job, Customer, Car, User } from '../../types';
 import Portal from '../shared/utility/Portal';
+import { formatCurrency } from '../../utils/currency';
 
 const jobSchema = z.object({
   customerId: z.number().min(1, 'Customer is required'),
@@ -420,7 +421,7 @@ const EditJobModal: React.FC<EditJobModalProps> = ({
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mt-6">
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
-                Price ($) *
+                Price *
               </label>
               <input
                 type="number"
@@ -450,7 +451,7 @@ const EditJobModal: React.FC<EditJobModalProps> = ({
                 Total Price
               </label>
               <div className="w-full px-3 py-2 bg-gray-100 border border-gray-300 rounded-lg">
-                ${totalPrice.toFixed(2)}
+                {formatCurrency(totalPrice)}
               </div>
             </div>
           </div>

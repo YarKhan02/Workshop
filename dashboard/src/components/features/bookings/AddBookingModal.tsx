@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { X, Calendar, Clock, User, Car as CarIcon, FileText, DollarSign } from 'lucide-react';
+import { X, Calendar, Clock, User, Car as CarIcon, FileText, Banknote } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { bookingAPI, serviceAPI, customerAPI } from '../../../api/booking';
 import { useCarsByCustomer } from '../../../hooks/useCars';
@@ -15,6 +15,7 @@ import type {
   TimeSlot 
 } from '../../../types';
 import Portal from '../../shared/utility/Portal';
+import { formatCurrency } from '../../../utils/currency';
 
 // ==================== COMPONENT ====================
 const AddBookingModal: React.FC<AddBookingModalProps> = ({ isOpen, onClose }) => {
@@ -271,7 +272,7 @@ const AddBookingModal: React.FC<AddBookingModalProps> = ({ isOpen, onClose }) =>
                     <option value="">Select service...</option>
                     {services.map((service: Service) => (
                       <option key={service.id} value={service.code}>
-                        {service.name} - ${service.base_price}
+                        {service.name} - {formatCurrency(service.base_price)}
                       </option>
                     ))}
                   </select>
@@ -322,7 +323,7 @@ const AddBookingModal: React.FC<AddBookingModalProps> = ({ isOpen, onClose }) =>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
                   <label className="block text-sm font-medium text-gray-300 mb-2">
-                    <DollarSign className="inline-block w-4 h-4 mr-2" />
+                    <Banknote className="inline-block w-4 h-4 mr-2" />
                     Service Amount
                   </label>
                   <input

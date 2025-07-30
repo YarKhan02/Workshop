@@ -1,8 +1,12 @@
 import React, { useState } from 'react';
-import { X, CheckCircle, Clock, AlertTriangle, XCircle, Package, FileText } from 'lucide-react';
+import { X, Package } from 'lucide-react';
 import Portal from '../../shared/utility/Portal';
 import type { Invoice, InvoiceStatus, PaymentMethod } from '../../../types/billing';
-import { getInvoiceField, formatPKRCurrency, formatStatus, formatDate } from '../../../utils/invoiceUtils';
+import { getInvoiceField, formatDate } from '../../../utils/invoiceUtils';
+import { formatCurrency } from '../../../utils/currency';
+import {
+  InvoiceStatusBadge,
+} from './invoice';
 
 interface InvoiceDetailModalProps {
   isOpen: boolean;
@@ -21,44 +25,6 @@ const InvoiceDetailModal: React.FC<InvoiceDetailModalProps> = ({
   const [newStatus, setNewStatus] = useState<InvoiceStatus>(invoice.status);
   const [paymentMethod, setPaymentMethod] = useState<PaymentMethod | ''>(invoice.paymentMethod || '');
   const [updating, setUpdating] = useState(false);
-
-  const getStatusColor = (status: InvoiceStatus) => {
-    switch (status) {
-      case 'paid':
-        return 'text-emerald-400 bg-emerald-500/20 border-emerald-500/30';
-      case 'pending':
-        return 'text-amber-400 bg-amber-500/20 border-amber-500/30';
-      case 'overdue':
-        return 'text-red-400 bg-red-500/20 border-red-500/30';
-      case 'draft':
-        return 'text-slate-400 bg-slate-500/20 border-slate-500/30';
-      case 'cancelled':
-        return 'text-slate-400 bg-slate-500/20 border-slate-500/30';
-      case 'partially_paid':
-      case 'partial':
-        return 'text-blue-400 bg-blue-500/20 border-blue-500/30';
-      default:
-        return 'text-blue-400 bg-blue-500/20 border-blue-500/30';
-    }
-  };
-
-  const getStatusIcon = (status: InvoiceStatus) => {
-    switch (status) {
-      case 'paid':
-        return <CheckCircle className="w-4 h-4" />;
-      case 'pending':
-        return <Clock className="w-4 h-4" />;
-      case 'overdue':
-        return <AlertTriangle className="w-4 h-4" />;
-      case 'cancelled':
-        return <XCircle className="w-4 h-4" />;
-      case 'partially_paid':
-      case 'partial':
-        return <CheckCircle className="w-4 h-4" />;
-      default:
-        return <FileText className="w-4 h-4" />;
-    }
-  };
 
   const handleStatusUpdate = async () => {
     if (newStatus === invoice.status) {
@@ -124,14 +90,7 @@ const InvoiceDetailModal: React.FC<InvoiceDetailModalProps> = ({
                   </p>
                   <p className="text-sm text-slate-300">
                     <span className="font-medium text-slate-200">Status:</span>
-                    <span
-                      className={`ml-2 inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium border ${getStatusColor(
-                        invoice.status
-                      )}`}
-                    >
-                      {getStatusIcon(invoice.status)}
-                      {formatStatus(invoice.status)}
-                    </span>
+                    <InvoiceStatusBadge status={invoice.status} />
                   </p>
                 </div>
               </div>
@@ -221,10 +180,10 @@ const InvoiceDetailModal: React.FC<InvoiceDetailModalProps> = ({
                           {item.quantity}
                         </td>
                         <td className="text-right py-3 px-4 text-sm text-slate-300">
-                          {formatPKRCurrency((item as any).unit_price || item.unitPrice || 0)}
+                          {formatCurrency((item as any).unit_price || item.unitPrice || 0)}
                         </td>
                         <td className="text-right py-3 px-4 text-sm font-medium text-slate-200">
-                          {formatPKRCurrency((item as any).total_price || item.totalPrice || 0)}
+                          {formatCurrency((item as any).total_price || item.totalPrice || 0)}
                         </td>
                       </tr>
                     ))}
@@ -238,20 +197,20 @@ const InvoiceDetailModal: React.FC<InvoiceDetailModalProps> = ({
               <div className="w-64 space-y-2">
                 <div className="flex justify-between">
                   <span className="text-slate-400">Subtotal:</span>
-                  <span className="font-medium text-slate-200">{formatPKRCurrency((invoice as any).total_amount || 0)}</span>
+                  <span className="font-medium text-slate-200">{formatCurrency((invoice as any).total_amount || 0)}</span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-slate-400">Tax:</span>
-                  <span className="font-medium text-slate-200">{formatPKRCurrency((invoice as any).tax || 0)}</span>
+                  <span className="font-medium text-slate-200">{formatCurrency((invoice as any).tax || 0)}</span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-slate-400">Discount:</span>
-                  <span className="font-medium text-slate-200">{formatPKRCurrency((invoice as any).discount || 0)}</span>
+                  <span className="font-medium text-slate-200">{formatCurrency((invoice as any).discount || 0)}</span>
                 </div>
                 <div className="border-t border-slate-700/50 pt-2">
                   <div className="flex justify-between">
                     <span className="text-lg font-semibold text-slate-100">Total:</span>
-                    <span className="text-lg font-semibold text-slate-100">{formatPKRCurrency((invoice as any).grand_total || (invoice as any).total_amount || 0)}</span>
+                    <span className="text-lg font-semibold text-slate-100">{formatCurrency((invoice as any).grand_total || (invoice as any).total_amount || 0)}</span>
                   </div>
                 </div>
               </div>

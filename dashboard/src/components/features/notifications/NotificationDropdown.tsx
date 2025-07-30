@@ -6,7 +6,7 @@ import {
   Trash2,
   AlertTriangle,
   Calendar,
-  DollarSign,
+  Banknote,
   X,
   Eye
 } from 'lucide-react';
@@ -80,7 +80,7 @@ const NotificationDropdown: React.FC<NotificationDropdownProps> = ({
       case 'invoice_created':
       case 'invoice_due':
       case 'payment_received':
-        return <DollarSign className="h-4 w-4 text-green-400" />;
+        return <Banknote className="h-4 w-4 text-green-400" />;
       case 'system':
         return <AlertTriangle className="h-4 w-4 text-yellow-400" />;
       case 'service':

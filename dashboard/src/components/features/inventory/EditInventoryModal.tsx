@@ -2,7 +2,7 @@
 
 import type React from "react"
 import { useState, useEffect } from "react"
-import { X, Edit3, DollarSign, Hash, Loader2, Save } from "lucide-react"
+import { X, Edit3, Banknote, Hash, Loader2, Save } from "lucide-react"
 import Portal from "../../shared/utility/Portal"
 import { useUpdateVariant } from "../../../hooks/useInventory"
 import type { EditInventoryModalProps, ProductVariantUpdateData } from "../../../types/inventory"
@@ -90,11 +90,11 @@ const EditInventoryModal: React.FC<EditInventoryModalProps> = ({ open, onClose, 
                 {/* Price */}
                 <div className="space-y-2">
                   <label className="block text-sm font-semibold text-gray-300">
-                    Price ($) <span className="text-red-400">*</span>
+                    Price <span className="text-red-400">*</span>
                   </label>
                   <div className="relative">
                     <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                      <DollarSign className="h-5 w-5 text-gray-400" />
+                      <Banknote className="h-5 w-5 text-gray-400" />
                     </div>
                     <input
                       type="number"

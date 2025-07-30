@@ -12,6 +12,9 @@ import {
   Pagination,
 } from '../components/common';
 
+// Themed Components
+import { useTheme, cn } from '../components/ui';
+
 // Feature Components
 import {
   CarTable,
@@ -29,6 +32,7 @@ import { usePagination } from '../hooks/usePagination';
 import { filterCars, calculateCarStats } from '../utils/carUtils';
 
 const Cars: React.FC = () => {
+  const { theme } = useTheme();
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCar, setSelectedCar] = useState<Car | null>(null);
   const [isDetailModalOpen, setIsDetailModalOpen] = useState(false);
@@ -112,7 +116,7 @@ const Cars: React.FC = () => {
   // Error state
   if (error) {
     return (
-      <div className="bg-gradient-to-br from-gray-800/50 to-slate-800/50 rounded-xl shadow-2xl border border-gray-700/30 p-6 backdrop-blur-md">
+      <div className={cn("p-6 rounded-xl shadow-2xl border", theme.surface, theme.border)}>
         <div className="text-center py-8">
           <p className="text-red-400">Error loading vehicles: {error.message}</p>
         </div>

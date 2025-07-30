@@ -2,11 +2,11 @@ import React, { useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-import { X, Save } from 'lucide-react';
+import { Save } from 'lucide-react';
 import toast from 'react-hot-toast';
 import type { EditCarModalProps, CarFormData } from '../../../types';
 import { useUpdateCar } from '../../../hooks/useCars';
-import Portal from '../../shared/utility/Portal';
+import { useTheme, cn, ThemedModal, ThemedInput, ThemedButton } from '../../ui';
 
 const carSchema = z.object({
   make: z.string().min(1, 'Make is required'),
@@ -23,6 +23,7 @@ const EditCarModal: React.FC<EditCarModalProps> = ({
   onClose,
   onSave
 }) => {
+  const { theme } = useTheme();
   const updateCarMutation = useUpdateCar();
   
   const {
@@ -83,136 +84,107 @@ const EditCarModal: React.FC<EditCarModalProps> = ({
   if (!isOpen || !car) return null;
 
   return (
-    <Portal>
-      <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50">
-        <div className="bg-gradient-to-br from-gray-800/95 to-slate-800/95 rounded-xl shadow-2xl max-w-2xl w-full mx-4 max-h-[90vh] overflow-y-auto border border-gray-700/30 backdrop-blur-md">
-          <div className="flex items-center justify-between p-6 border-b border-gray-600/30">
-            <h2 className="text-2xl font-bold bg-gradient-to-r from-orange-400 to-red-500 bg-clip-text text-transparent">
-              Modify Racing Machine
-            </h2>
-            <button
-              onClick={onClose}
-              className="text-gray-400 hover:text-orange-400 transition-colors duration-200"
-            >
-              <X size={24} />
-            </button>
+    <ThemedModal
+      isOpen={isOpen}
+      onClose={onClose}
+      title="Edit Vehicle"
+    >
+      <form onSubmit={handleSubmit(onSubmit)} className="p-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div className="space-y-4">
+            <div>
+              <label className={cn("block text-sm font-medium mb-1", theme.textSecondary)}>
+                Make *
+              </label>
+              <ThemedInput
+                type="text"
+                {...register('make')}
+                placeholder="e.g., Toyota, Honda, Ford"
+                error={errors.make?.message}
+              />
+            </div>
+
+            <div>
+              <label className={cn("block text-sm font-medium mb-1", theme.textSecondary)}>
+                Model *
+              </label>
+              <ThemedInput
+                type="text"
+                {...register('model')}
+                placeholder="e.g., Camry, Civic, F-150"
+                error={errors.model?.message}
+              />
+            </div>
+
+            <div>
+              <label className={cn("block text-sm font-medium mb-1", theme.textSecondary)}>
+                Year *
+              </label>
+              <ThemedInput
+                type="number"
+                {...register('year', { valueAsNumber: true })}
+                placeholder="e.g., 2020"
+                error={errors.year?.message}
+              />
+            </div>
+
+            <div>
+              <label className={cn("block text-sm font-medium mb-1", theme.textSecondary)}>
+                Color *
+              </label>
+              <ThemedInput
+                type="text"
+                {...register('color')}
+                placeholder="e.g., Red, Blue, Silver"
+                error={errors.color?.message}
+              />
+            </div>
           </div>
 
-          <form onSubmit={handleSubmit(onSubmit)} className="p-6">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div className="space-y-4">
-                <div>
-                  <label className="block text-sm font-medium text-gray-300 mb-1">
-                    Make *
-                  </label>
-                  <input
-                    type="text"
-                    {...register('make')}
-                    className="w-full px-3 py-2 bg-gray-900/50 border border-gray-600/50 rounded-lg text-gray-100 placeholder-gray-400 focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-all duration-300"
-                    placeholder="e.g., Toyota, Honda, Ford"
-                  />
-                  {errors.make && (
-                    <p className="text-red-400 text-sm mt-1">{errors.make.message}</p>
-                  )}
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-gray-300 mb-1">
-                    Model *
-                  </label>
-                  <input
-                    type="text"
-                    {...register('model')}
-                    className="w-full px-3 py-2 bg-gray-900/50 border border-gray-600/50 rounded-lg text-gray-100 placeholder-gray-400 focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-all duration-300"
-                    placeholder="e.g., Camry, Civic, F-150"
-                  />
-                  {errors.model && (
-                    <p className="text-red-400 text-sm mt-1">{errors.model.message}</p>
-                  )}
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-gray-300 mb-1">
-                    Year *
-                  </label>
-                  <input
-                    type="number"
-                    {...register('year', { valueAsNumber: true })}
-                    className="w-full px-3 py-2 bg-gray-900/50 border border-gray-600/50 rounded-lg text-gray-100 placeholder-gray-400 focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-all duration-300"
-                    placeholder="e.g., 2020"
-                  />
-                  {errors.year && (
-                    <p className="text-red-400 text-sm mt-1">{errors.year.message}</p>
-                  )}
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-gray-300 mb-1">
-                    Color *
-                  </label>
-                  <input
-                    type="text"
-                    {...register('color')}
-                    className="w-full px-3 py-2 bg-gray-900/50 border border-gray-600/50 rounded-lg text-gray-100 placeholder-gray-400 focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-all duration-300"
-                    placeholder="e.g., Red, Blue, Silver"
-                  />
-                  {errors.color && (
-                    <p className="text-red-400 text-sm mt-1">{errors.color.message}</p>
-                  )}
-                </div>
-              </div>
-
-              <div className="space-y-4">
-                <div>
-                  <label className="block text-sm font-medium text-gray-300 mb-1">
-                    License Plate *
-                  </label>
-                  <input
-                    type="text"
-                    {...register('license_plate')}
-                    className="w-full px-3 py-2 bg-gray-900/50 border border-gray-600/50 rounded-lg text-gray-100 placeholder-gray-400 focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-all duration-300"
-                    placeholder="e.g., ABC-1234"
-                  />
-                  {errors.license_plate && (
-                    <p className="text-red-400 text-sm mt-1">{errors.license_plate.message}</p>
-                  )}
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-gray-300 mb-1">
-                    VIN (Optional)
-                  </label>
-                  <input
-                    type="text"
-                    {...register('vin')}
-                    className="w-full px-3 py-2 bg-gray-900/50 border border-gray-600/50 rounded-lg text-gray-100 placeholder-gray-400 focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-all duration-300"
-                    placeholder="17-character VIN"
-                  />
-                </div>
-              </div>
+          <div className="space-y-4">
+            <div>
+              <label className={cn("block text-sm font-medium mb-1", theme.textSecondary)}>
+                License Plate *
+              </label>
+              <ThemedInput
+                type="text"
+                {...register('license_plate')}
+                error={errors.license_plate?.message}
+              />
             </div>
 
-            <div className="flex justify-end gap-3 mt-8 pt-6 border-t border-gray-600/30">
-              <button
+            <div>
+              <label className={cn("block text-sm font-medium mb-1", theme.textSecondary)}>
+                VIN (Optional)
+              </label>
+              <ThemedInput
+                type="text"
+                {...register('vin')}
+                placeholder="17-character VIN"
+              />
+            </div>
+          </div>
+        </div>
+
+            <div className={cn("flex justify-end gap-3 mt-8 pt-6 border-t", theme.border)}>
+              <ThemedButton
                 type="button"
+                variant="secondary"
                 onClick={onClose}
-                className="px-6 py-2 text-gray-300 bg-gray-700/50 rounded-lg hover:bg-gray-600/50 transition-colors duration-200"
               >
                 Cancel
-              </button>
-              <button
+              </ThemedButton>
+              <ThemedButton
                 type="submit"
+                variant="primary"
                 disabled={isSubmitting}
-                className="flex items-center gap-2 px-6 py-2 bg-gradient-to-r from-orange-500 to-red-600 text-white rounded-lg hover:from-orange-600 hover:to-red-700 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                <Save size={16} />
+                <Save className="w-4 h-4 mr-2" />
                 {isSubmitting ? 'Saving Changes...' : 'Save Changes'}
-              </button>
+              </ThemedButton>
             </div>
           </form>
-        </div>
-      </div>
-    </Portal>
+        </ThemedModal>
   );
 };
 

@@ -1,6 +1,7 @@
 import React from 'react';
 import { Eye } from 'lucide-react';
 import type { Invoice } from '../../../types/billing';
+import { formatCurrency } from '../../../utils/currency';
 
 interface BillingTableProps {
   invoices: Invoice[];
@@ -86,7 +87,7 @@ const BillingTable: React.FC<BillingTableProps> = ({ invoices, onRowClick, loadi
                     {invoice.created_at ? new Date(invoice.created_at).toLocaleDateString() : 'N/A'}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-slate-200">
-                    ${Number(invoice.total_amount || 0).toFixed(2)}
+                    {formatCurrency(Number(invoice.total_amount || 0))}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
                     <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium border ${getStatusColor(invoice.status)}`}>

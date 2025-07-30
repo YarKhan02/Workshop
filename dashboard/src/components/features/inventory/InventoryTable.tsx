@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { ChevronDown, ChevronRight, Plus, Trash2, Edit, Package, Tag, Hash, Search } from 'lucide-react';
 import type { Product, ProductVariant } from '../../../types/inventory';
+import { formatCurrency } from '../../../utils/currency';
 
 interface InventoryTableProps {
   products: Product[];
@@ -219,7 +220,7 @@ const InventoryTable: React.FC<InventoryTableProps> = ({
                               </div>
                             </div>
                             <div className="col-span-2">
-                              <div className="text-lg font-semibold text-gray-100">${variant.price}</div>
+                              <div className="text-lg font-semibold text-gray-100">{formatCurrency(variant.price)}</div>
                             </div>
                             <div className="col-span-2">
                               <div className="flex items-center space-x-2">

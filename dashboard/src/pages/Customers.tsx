@@ -10,6 +10,9 @@ import {
   Pagination,
 } from '../components/common';
 
+// Themed Components
+import { useTheme, cn } from '../components/ui';
+
 // Feature Components
 import {
   CustomerTable,
@@ -24,6 +27,7 @@ import { useTableData } from '../hooks/useTableData';
 import { usePagination } from '../hooks/usePagination';
 
 const Customers: React.FC = () => {
+  const { theme } = useTheme();
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCustomer, setSelectedCustomer] = useState<Customer | null>(null);
   const [isDetailModalOpen, setIsDetailModalOpen] = useState(false);
@@ -108,9 +112,9 @@ const Customers: React.FC = () => {
   // Error state
   if (error) {
     return (
-      <div className="bg-gradient-to-br from-gray-800/50 to-slate-800/50 rounded-xl shadow-2xl border border-gray-700/30 p-6 backdrop-blur-md">
+      <div className={cn(theme.components.card.base, "p-6")}>
         <div className="text-center py-8">
-          <p className="text-red-400">Error loading customers: {error.message}</p>
+          <p className={cn("text-red-400")}>Error loading customers: {error.message}</p>
         </div>
       </div>
     );

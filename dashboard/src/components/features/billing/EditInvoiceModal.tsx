@@ -1,6 +1,4 @@
 import React, { useState, useEffect } from 'react';
-import { X, Plus, Trash2 } from 'lucide-react';
-import Portal from '../../shared/utility/Portal';
 import { useUpdateInvoice } from '../../../hooks/useBilling';
 import type { 
   Invoice, 
@@ -9,6 +7,16 @@ import type {
   UpdateInvoicePayload 
 } from '../../../types/billing';
 import type { Customer } from '../../../types';
+import {
+  InvoiceModalWrapper,
+  InvoiceStatusSelector,
+  DueDateInput,
+  EditableInvoiceItemsList,
+  InvoiceTotals,
+  InvoiceNotesTerms,
+  FormActions,
+} from './invoice';
+import { formatCurrency } from '../../../utils/currency';
 
 interface EditInvoiceModalProps {
   isOpen: boolean;
@@ -179,281 +187,98 @@ const EditInvoiceModal: React.FC<EditInvoiceModalProps> = ({
     }
   };
 
-  const formatCurrency = (amount: number) => {
-    return new Intl.NumberFormat('en-PK', {
-      style: 'currency',
-      currency: 'PKR',
-    }).format(amount);
-  };
-
   if (!isOpen) return null;
 
   return (
-    <Portal>
-      <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-        <div className="bg-white rounded-lg shadow-xl max-w-4xl w-full max-h-[90vh] overflow-y-auto">
-          <div className="flex justify-between items-center p-6 border-b">
-            <h2 className="text-xl font-semibold text-gray-900">Edit Invoice #{invoice.invoiceNumber}</h2>
-            <button
-              onClick={onClose}
-              className="text-gray-400 hover:text-gray-600 transition-colors"
+    <InvoiceModalWrapper
+      isOpen={isOpen}
+      onClose={onClose}
+      title={`Edit Invoice #${invoice.invoiceNumber}`}
+    >
+      <form onSubmit={handleSubmit} className="p-6 space-y-6">
+        {/* Basic Information */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          {/* Customer Selection - Custom implementation for now */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              Customer <span className="text-red-500">*</span>
+            </label>
+            <select
+              value={formData.customerId}
+              onChange={(e) => setFormData({ ...formData, customerId: e.target.value })}
+              className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent ${
+                errors.customerId ? 'border-red-500' : 'border-gray-300'
+              }`}
             >
-              <X className="w-6 h-6" />
-            </button>
+              <option value="">Select Customer</option>
+              {customers.map((customer) => (
+                <option key={customer.id} value={customer.id}>
+                  {customer.first_name} {customer.last_name} - {customer.email}
+                </option>
+              ))}
+            </select>
+            {errors.customerId && (
+              <p className="mt-1 text-sm text-red-600">{errors.customerId}</p>
+            )}
           </div>
 
-          <form onSubmit={handleSubmit} className="p-6 space-y-6">
-            {/* Basic Information */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Customer <span className="text-red-500">*</span>
-                </label>
-                <select
-                  value={formData.customerId}
-                  onChange={(e) => setFormData({ ...formData, customerId: e.target.value })}
-                  className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent ${
-                    errors.customerId ? 'border-red-500' : 'border-gray-300'
-                  }`}
-                >
-                  <option value="">Select Customer</option>
-                  {customers.map((customer) => (
-                    <option key={customer.id} value={customer.id}>
-                      {customer.first_name} {customer.last_name} - {customer.email}
-                    </option>
-                  ))}
-                </select>
-                {errors.customerId && (
-                  <p className="mt-1 text-sm text-red-600">{errors.customerId}</p>
-                )}
-              </div>
+          {/* Status Selection using reusable component */}
+          <InvoiceStatusSelector
+            value={formData.status}
+            onChange={(status) => setFormData({ ...formData, status })}
+          />
 
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Status
-                </label>
-                <select
-                  value={formData.status}
-                  onChange={(e) => setFormData({ ...formData, status: e.target.value as InvoiceStatus })}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                >
-                  <option value="draft">Draft</option>
-                  <option value="pending">Pending</option>
-                  <option value="paid">Paid</option>
-                  <option value="overdue">Overdue</option>
-                  <option value="cancelled">Cancelled</option>
-                  <option value="partial">Partial</option>
-                </select>
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Due Date <span className="text-red-500">*</span>
-                </label>
-                <input
-                  type="date"
-                  value={formData.dueDate}
-                  onChange={(e) => setFormData({ ...formData, dueDate: e.target.value })}
-                  className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent ${
-                    errors.dueDate ? 'border-red-500' : 'border-gray-300'
-                  }`}
-                />
-                {errors.dueDate && (
-                  <p className="mt-1 text-sm text-red-600">{errors.dueDate}</p>
-                )}
-              </div>
-            </div>
-
-            {/* Invoice Items */}
-            <div>
-              <div className="flex justify-between items-center mb-4">
-                <h3 className="text-lg font-medium text-gray-900">Invoice Items</h3>
-                <button
-                  type="button"
-                  onClick={addItem}
-                  className="bg-gray-200 text-gray-800 hover:bg-gray-300 focus:ring-gray-500 px-4 py-2 rounded-lg font-medium transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 flex items-center gap-2"
-                >
-                  <Plus className="w-4 h-4" />
-                  Add Item
-                </button>
-              </div>
-
-              <div className="space-y-4">
-                {items.map((item, index) => (
-                  <div key={index} className="grid grid-cols-12 gap-4 items-end">
-                    <div className="col-span-5">
-                      <label className="block text-sm font-medium text-gray-700 mb-2">
-                        Description <span className="text-red-500">*</span>
-                      </label>
-                      <input
-                        type="text"
-                        value={item.description}
-                        onChange={(e) => updateItem(index, 'description', e.target.value)}
-                        className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent ${
-                          errors[`item${index}Description`] ? 'border-red-500' : 'border-gray-300'
-                        }`}
-                        placeholder="Service description"
-                      />
-                      {errors[`item${index}Description`] && (
-                        <p className="mt-1 text-sm text-red-600">{errors[`item${index}Description`]}</p>
-                      )}
-                    </div>
-
-                    <div className="col-span-2">
-                      <label className="block text-sm font-medium text-gray-700 mb-2">
-                        Quantity <span className="text-red-500">*</span>
-                      </label>
-                      <input
-                        type="number"
-                        min="1"
-                        value={item.quantity}
-                        onChange={(e) => updateItem(index, 'quantity', parseInt(e.target.value) || 0)}
-                        className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent ${
-                          errors[`item${index}Quantity`] ? 'border-red-500' : 'border-gray-300'
-                        }`}
-                      />
-                      {errors[`item${index}Quantity`] && (
-                        <p className="mt-1 text-sm text-red-600">{errors[`item${index}Quantity`]}</p>
-                      )}
-                    </div>
-
-                    <div className="col-span-2">
-                      <label className="block text-sm font-medium text-gray-700 mb-2">
-                        Unit Price <span className="text-red-500">*</span>
-                      </label>
-                      <input
-                        type="number"
-                        min="0"
-                        step="0.01"
-                        value={item.unitPrice}
-                        onChange={(e) => updateItem(index, 'unitPrice', parseFloat(e.target.value) || 0)}
-                        className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent ${
-                          errors[`item${index}UnitPrice`] ? 'border-red-500' : 'border-gray-300'
-                        }`}
-                      />
-                      {errors[`item${index}UnitPrice`] && (
-                        <p className="mt-1 text-sm text-red-600">{errors[`item${index}UnitPrice`]}</p>
-                      )}
-                    </div>
-
-                    <div className="col-span-2">
-                      <label className="block text-sm font-medium text-gray-700 mb-2">
-                        Total
-                      </label>
-                      <input
-                        type="text"
-                        value={formatCurrency(item.totalPrice)}
-                        readOnly
-                        className="w-full px-3 py-2 border border-gray-300 rounded-lg bg-gray-50"
-                      />
-                    </div>
-
-                    <div className="col-span-1">
-                      <button
-                        type="button"
-                        onClick={() => removeItem(index)}
-                        disabled={items.length === 1}
-                        className="p-2 text-red-600 hover:text-red-800 disabled:text-gray-400 disabled:cursor-not-allowed"
-                        title="Remove Item"
-                      >
-                        <Trash2 className="w-4 h-4" />
-                      </button>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-
-            {/* Totals */}
-            <div className="border-t pt-6">
-              <div className="flex justify-end">
-                <div className="w-64 space-y-2">
-                  <div className="flex justify-between">
-                    <span className="text-gray-600">Subtotal:</span>
-                    <span className="font-medium">{formatCurrency(formData.subtotal)}</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-gray-600">Tax (10%):</span>
-                    <span className="font-medium">{formatCurrency(formData.taxAmount)}</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-gray-600">Discount:</span>
-                    <input
-                      type="number"
-                      min="0"
-                      step="0.01"
-                      value={formData.discountAmount}
-                      onChange={(e) => {
-                        const discount = parseFloat(e.target.value) || 0;
-                        setFormData({
-                          ...formData,
-                          discountAmount: discount,
-                        });
-                      }}
-                      className="w-20 px-2 py-1 border border-gray-300 rounded text-right"
-                    />
-                  </div>
-                  <div className="border-t pt-2">
-                    <div className="flex justify-between">
-                      <span className="text-lg font-semibold">Total:</span>
-                      <span className="text-lg font-semibold">{formatCurrency(formData.totalAmount)}</span>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            {/* Notes and Terms */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Notes
-                </label>
-                <textarea
-                  value={formData.notes}
-                  onChange={(e) => setFormData({ ...formData, notes: e.target.value })}
-                  rows={3}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  placeholder="Additional notes..."
-                />
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Terms & Conditions
-                </label>
-                <textarea
-                  value={formData.terms}
-                  onChange={(e) => setFormData({ ...formData, terms: e.target.value })}
-                  rows={3}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  placeholder="Payment terms and conditions..."
-                />
-              </div>
-            </div>
-
-            {/* Form Actions */}
-            <div className="flex justify-end gap-4 pt-6 border-t">
-              <button
-                type="button"
-                onClick={onClose}
-                className="bg-gray-200 text-gray-800 hover:bg-gray-300 focus:ring-gray-500 px-4 py-2 rounded-lg font-medium transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2"
-                disabled={updateInvoiceMutation.isPending}
-              >
-                Cancel
-              </button>
-              <button
-                type="submit"
-                className="bg-blue-600 text-white hover:bg-blue-700 focus:ring-blue-500 px-4 py-2 rounded-lg font-medium transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2"
-                disabled={updateInvoiceMutation.isPending}
-              >
-                {updateInvoiceMutation.isPending ? 'Updating...' : 'Update Invoice'}
-              </button>
-            </div>
-          </form>
+          {/* Due Date using reusable component */}
+          <DueDateInput
+            value={formData.dueDate}
+            onChange={(dueDate) => setFormData({ ...formData, dueDate })}
+            error={errors.dueDate}
+            required={true}
+          />
         </div>
-      </div>
-    </Portal>
+
+        {/* Invoice Items using reusable component */}
+        <EditableInvoiceItemsList
+          items={items}
+          onUpdateItem={updateItem}
+          onAddItem={addItem}
+          onRemoveItem={removeItem}
+          errors={errors}
+          formatCurrency={formatCurrency}
+        />
+
+        {/* Totals using reusable component */}
+        <InvoiceTotals
+          subtotal={formData.subtotal}
+          taxAmount={formData.taxAmount}
+          discountAmount={formData.discountAmount}
+          totalAmount={formData.totalAmount}
+          onDiscountChange={(discount) => {
+            setFormData({
+              ...formData,
+              discountAmount: discount,
+            });
+          }}
+          formatCurrency={formatCurrency}
+        />
+
+        {/* Notes and Terms using reusable component */}
+        <InvoiceNotesTerms
+          notes={formData.notes}
+          terms={formData.terms}
+          onNotesChange={(notes) => setFormData({ ...formData, notes })}
+          onTermsChange={(terms) => setFormData({ ...formData, terms })}
+        />
+
+        {/* Form Actions using reusable component */}
+        <FormActions
+          onCancel={onClose}
+          onSubmit={handleSubmit}
+          submitLabel="Update Invoice"
+          isLoading={updateInvoiceMutation.isPending}
+        />
+      </form>
+    </InvoiceModalWrapper>
   );
 };
 

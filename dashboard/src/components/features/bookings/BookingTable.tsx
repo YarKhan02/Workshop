@@ -4,6 +4,7 @@ import React from 'react';
 import { Eye, Edit } from 'lucide-react';
 import { DataTable } from '../../shared/data';
 import type { Booking, BookingTableProps } from '../../../types/booking';
+import { formatCurrency } from '../../../utils/currency';
 
 // ==================== HELPER FUNCTIONS ====================
 const getStatusColor = (status: string) => {
@@ -26,13 +27,6 @@ const getServiceTypeColor = (serviceType: string) => {
     case 'premium_detail': return 'bg-pink-500/20 text-pink-400 border border-pink-500/30';
     default: return 'bg-gray-500/20 text-gray-400 border border-gray-500/30';
   }
-};
-
-const formatCurrency = (amount: number) => {
-  return new Intl.NumberFormat('en-PK', {
-    style: 'currency',
-    currency: 'PKR',
-  }).format(amount);
 };
 
 const formatDate = (dateString: string) => {
