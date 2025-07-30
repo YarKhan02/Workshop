@@ -138,6 +138,7 @@ const InventoryPage: React.FC = () => {
 
       {/* Modals */}
       <AddInventoryModal open={isAddModalOpen} onClose={() => setIsAddModalOpen(false)} />
+      
       <EditInventoryModal
         open={isEditModalOpen}
         onClose={() => setIsEditModalOpen(false)}

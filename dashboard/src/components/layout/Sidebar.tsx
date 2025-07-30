@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { NavLink } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
+import { useBookingStats } from '../../hooks/useBookings';
 import NotificationBell from '../features/notifications/NotificationBell';
 import {
   HomeIcon,
@@ -13,14 +14,17 @@ import {
   ChevronLeftIcon,
   ChevronRightIcon,
   Squares2X2Icon,
-  ChartBarIcon,
-  WrenchScrewdriverIcon
+  ChartBarIcon
 } from '@heroicons/react/24/outline';
 
 const Sidebar: React.FC = () => {
   const { user } = useAuth();
   const [isCollapsed, setIsCollapsed] = useState(false);
   const isAdmin = user?.role === 'admin';
+  
+  // Get booking stats to show pending count
+  const { data: bookingStats } = useBookingStats();
+  const pendingBookingsCount = bookingStats?.pendingBookings || 0;
 
   const mainNavLinks = [
     { name: 'Dashboard', to: '/', icon: HomeIcon, badge: null, description: 'Overview Center' },
@@ -29,7 +33,13 @@ const Sidebar: React.FC = () => {
   ];
 
   const operationsLinks = [
-    { name: 'Bookings', to: '/bookings', icon: CalendarDaysIcon, badge: '3', description: 'Service Schedule' },
+    { 
+      name: 'Bookings', 
+      to: '/bookings', 
+      icon: CalendarDaysIcon, 
+      badge: pendingBookingsCount > 0 ? pendingBookingsCount.toString() : null, 
+      description: 'Service Schedule' 
+    },
     // { name: 'Jobs', to: '/jobs', icon: WrenchScrewdriverIcon, badge: null, description: 'Service Queue' },
     { name: 'Inventory', to: '/inventory', icon: Squares2X2Icon, badge: null, description: 'Parts Depot' },
   ];
@@ -40,7 +50,7 @@ const Sidebar: React.FC = () => {
   ];
 
   const systemLinks = [
-    ...(isAdmin ? [{ name: 'Users', to: '/users', icon: ShieldCheckIcon, badge: null, description: 'Crew Management' }] : []),
+    // ...(isAdmin ? [{ name: 'Users', to: '/users', icon: ShieldCheckIcon, badge: null, description: 'Crew Management' }] : []),
     { name: 'Settings', to: '/settings', icon: Cog6ToothIcon, badge: null, description: 'Tuning Console' },
   ];
 
@@ -76,40 +86,44 @@ const Sidebar: React.FC = () => {
             end={link.to === '/'}
             title={isCollapsed ? link.name : ''}
           >
-            <div className="relative flex items-center justify-center">
-              <link.icon className={`${isCollapsed ? 'h-6 w-6' : 'h-5 w-5'} transition-all duration-300`} />
-              {link.badge && (
-                <div className="absolute -top-2 -right-2 bg-gradient-to-r from-red-500 to-pink-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center font-bold shadow-lg animate-pulse">
-                  {link.badge}
-                </div>
-              )}
-            </div>
-            
-            {!isCollapsed && (
+            {({ isActive }) => (
               <>
-                <div className="flex-1 min-w-0">
-                  <div className="font-medium tracking-wide">{link.name}</div>
-                  <div className="text-xs text-gray-500 opacity-75 group-hover:opacity-100 transition-opacity font-light">
-                    {link.description}
-                  </div>
+                <div className="relative flex items-center justify-center">
+                  <link.icon className={`${isCollapsed ? 'h-6 w-6' : 'h-5 w-5'} transition-all duration-300`} />
+                  {link.badge && (
+                    <div className="absolute -top-2 -right-2 bg-gradient-to-r from-red-500 to-pink-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center font-bold shadow-lg animate-pulse">
+                      {link.badge}
+                    </div>
+                  )}
                 </div>
                 
-                {/* Racing stripe indicator for active state */}
-                <div className={`w-1 h-8 rounded-full transition-all duration-300 ${
-                  window.location.pathname === link.to 
-                    ? 'bg-gradient-to-b from-orange-400 to-red-500 shadow-lg' 
-                    : 'bg-transparent group-hover:bg-gray-600/50'
-                }`}></div>
-              </>
-            )}
+                {!isCollapsed && (
+                  <>
+                    <div className="flex-1 min-w-0">
+                      <div className="font-medium tracking-wide">{link.name}</div>
+                      <div className="text-xs text-gray-500 opacity-75 group-hover:opacity-100 transition-opacity font-light">
+                        {link.description}
+                      </div>
+                    </div>
+                    
+                    {/* Racing stripe indicator for active state */}
+                    <div className={`w-1 h-8 rounded-full transition-all duration-300 ${
+                      isActive 
+                        ? 'bg-gradient-to-b from-orange-400 to-red-500 shadow-lg' 
+                        : 'bg-transparent group-hover:bg-gray-600/50'
+                    }`}></div>
+                  </>
+                )}
 
-            {/* Enhanced tooltip for collapsed state */}
-            {isCollapsed && (
-              <div className="absolute left-full ml-3 px-4 py-3 bg-black/90 text-white text-sm rounded-xl opacity-0 group-hover:opacity-100 transition-all duration-300 pointer-events-none z-50 whitespace-nowrap backdrop-blur-md border border-gray-700/50">
-                <div className="font-medium">{link.name}</div>
-                <div className="text-xs text-gray-400 mt-1">{link.description}</div>
-                <div className="absolute left-0 top-1/2 transform -translate-y-1/2 -translate-x-1 w-2 h-2 bg-black/90 rotate-45 border-l border-b border-gray-700/50"></div>
-              </div>
+                {/* Enhanced tooltip for collapsed state */}
+                {isCollapsed && (
+                  <div className="absolute left-full ml-3 px-4 py-3 bg-black/90 text-white text-sm rounded-xl opacity-0 group-hover:opacity-100 transition-all duration-300 pointer-events-none z-50 whitespace-nowrap backdrop-blur-md border border-gray-700/50">
+                    <div className="font-medium">{link.name}</div>
+                    <div className="text-xs text-gray-400 mt-1">{link.description}</div>
+                    <div className="absolute left-0 top-1/2 transform -translate-y-1/2 -translate-x-1 w-2 h-2 bg-black/90 rotate-45 border-l border-b border-gray-700/50"></div>
+                  </div>
+                )}
+              </>
             )}
           </NavLink>
         ))}

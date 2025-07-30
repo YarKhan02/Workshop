@@ -33,3 +33,6 @@ python manage.py seed_time_slots
 
 echo -e "${CYAN}== Seeding Booking...${NO_COLOR}"
 python manage.py seed_booking
+
+echo -e "${CYAN}== Seeding Notifications...${NO_COLOR}"
+python manage.py seed_notifications

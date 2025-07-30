@@ -1,5 +1,5 @@
 import React from 'react';
-import type { Notification } from '../../types/notification';
+import type { Notification } from '../../../types/notification';
 
 interface PriorityBadgeProps {
   priority: Notification['priority'];

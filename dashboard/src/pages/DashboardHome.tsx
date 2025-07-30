@@ -7,7 +7,8 @@ import {
   Car,
   Clock,
   CheckCircle,
-  AlertCircle
+  AlertCircle,
+  Receipt
 } from 'lucide-react';
 
 // Common Components
@@ -19,40 +20,6 @@ import type { DashboardStats, RecentJob } from '../api/dashboard';
 // Hooks
 import { useDashboardStats } from '../hooks/useDashboard';
 
-/*
- * Backend Integration Notes:
- * 
- * This component uses the dashboard API located in src/api/dashboard.ts
- * The API follows the same pattern as other APIs in the project.
- * 
- * Backend endpoint: GET /api/dashboard/stats
- * Expected response structure (defined in src/api/dashboard.ts):
- * 
- * {
- *   todayBookings: number,           // Count of bookings for today
- *   todayRevenue: number,            // Total revenue for today in PKR
- *   totalCustomers: number,          // Total registered customers
- *   totalJobs: number,              // Active jobs in queue
- *   revenueGrowth: number,          // Percentage growth compared to previous period
- *   bookingsGrowth: number,         // Percentage growth compared to previous period
- *   recentJobs: [
- *     {
- *       id: number,                 // Job ID
- *       customerName: string,       // Customer full name
- *       serviceType: string,        // Type of service requested
- *       status: "pending" | "in_progress" | "completed" | "cancelled",
- *       amount: number,             // Job amount in PKR
- *       createdAt: string           // ISO date string
- *     }
- *   ]
- * }
- * 
- * The dashboard API handles:
- * - Authentication headers via apiClient
- * - Error handling
- * - Type safety with TypeScript interfaces
- * - Query configuration (caching, refresh intervals)
- */
 
 const DashboardHome: React.FC = () => {
   const navigate = useNavigate();
@@ -113,7 +80,7 @@ const DashboardHome: React.FC = () => {
         navigate('/bookings');
         break;
       case 'job':
-        navigate('/jobs');
+        navigate('/billing');
         break;
       case 'customer':
         navigate('/customers');
@@ -172,11 +139,11 @@ const DashboardHome: React.FC = () => {
 
       {/* Recent Activity */}
       <div className="bg-gradient-to-br from-gray-800/50 to-slate-800/50 rounded-2xl border border-gray-700/30 backdrop-blur-md overflow-hidden">
-        <div className="p-6 border-b border-gray-700/50">
+        <div className="p-6 border-b border-gray-700/50 bg-gray-900/80">
           <div className="flex items-center justify-between">
             <h3 className="text-xl font-semibold text-gray-100">Recent Activity</h3>
             <button 
-              onClick={() => navigate('/jobs')}
+              onClick={() => navigate('/bookings')}
               className="text-orange-400 hover:text-orange-300 text-sm font-medium bg-gray-700/50 px-4 py-2 rounded-lg hover:bg-gray-600/50 transition-all backdrop-blur-sm"
             >
               View All →
@@ -193,7 +160,7 @@ const DashboardHome: React.FC = () => {
           ) : (
             <div className="space-y-4">
               {currentStats.recent_jobs.map((job: RecentJob) => (
-                <div key={job.id} className="flex items-center justify-between p-4 bg-gray-900/30 rounded-xl border border-gray-700/30 hover:bg-gray-800/30 transition-all duration-300">
+                <div key={job.id} className="flex items-center justify-between p-4 bg-gradient-to-br from-gray-900/40 to-slate-700/40 rounded-xl border border-gray-600/30 hover:from-gray-600/50 hover:to-slate-600/50 transition-all duration-300 backdrop-blur-sm">
                   <div className="flex items-center gap-4">
                     <div className={`p-3 rounded-xl ${getStatusColor(job.status)} backdrop-blur-sm`}>
                       {getStatusIcon(job.status)}
@@ -229,8 +196,8 @@ const DashboardHome: React.FC = () => {
             onClick={() => handleQuickAction('job')}
             className="flex flex-col items-center gap-3 p-6 bg-gradient-to-br from-orange-500/20 to-red-500/20 rounded-xl hover:from-orange-500/30 hover:to-red-500/30 transition-all duration-300 backdrop-blur-sm border border-orange-400/30 hover:transform hover:scale-105"
           >
-            <Car className="h-8 w-8 text-orange-400" />
-            <span className="text-sm font-medium text-gray-100">Service Queue</span>
+            <Receipt className="h-8 w-8 text-orange-400" />
+            <span className="text-sm font-medium text-gray-100">Billing</span>
           </button>
           <button 
             onClick={() => handleQuickAction('customer')}

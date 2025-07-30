@@ -1,4 +1,5 @@
 import React from 'react';
+import { Eye } from 'lucide-react';
 import type { Invoice } from '../../../types/billing';
 
 interface BillingTableProps {
@@ -8,6 +9,11 @@ interface BillingTableProps {
 }
 
 const BillingTable: React.FC<BillingTableProps> = ({ invoices, onRowClick, loading = false }) => {
+
+  const handleViewInvoice = (e: React.MouseEvent, invoice: Invoice) => {
+    e.stopPropagation();
+    onRowClick(invoice);
+  };
 
   const getStatusColor = (status: string) => {
     switch (status) {
@@ -41,9 +47,6 @@ const BillingTable: React.FC<BillingTableProps> = ({ invoices, onRowClick, loadi
           <thead className="bg-slate-900/80">
             <tr>
               <th className="px-6 py-4 text-left text-xs font-medium text-slate-300 uppercase tracking-wider">
-                Invoice ID
-              </th>
-              <th className="px-6 py-4 text-left text-xs font-medium text-slate-300 uppercase tracking-wider">
                 Customer
               </th>
               <th className="px-6 py-4 text-left text-xs font-medium text-slate-300 uppercase tracking-wider">
@@ -54,6 +57,9 @@ const BillingTable: React.FC<BillingTableProps> = ({ invoices, onRowClick, loadi
               </th>
               <th className="px-6 py-4 text-left text-xs font-medium text-slate-300 uppercase tracking-wider">
                 Status
+              </th>
+              <th className="px-6 py-4 text-left text-xs font-medium text-slate-300 uppercase tracking-wider">
+                Actions
               </th>
             </tr>
           </thead>
@@ -68,12 +74,8 @@ const BillingTable: React.FC<BillingTableProps> = ({ invoices, onRowClick, loadi
               invoices.map((invoice: any) => (
                 <tr
                   key={invoice.id}
-                  onClick={() => onRowClick(invoice)}
-                  className="hover:bg-slate-700/30 cursor-pointer transition-colors duration-150"
+                  className="hover:bg-slate-700/30 transition-colors duration-150"
                 >
-                  <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-slate-200">
-                    #{invoice.id}
-                  </td>
                   <td className="px-6 py-4 whitespace-nowrap">
                     <div className="text-sm font-medium text-slate-200">
                       {invoice.customer?.first_name || ''} {invoice.customer?.last_name || ''}
@@ -90,6 +92,15 @@ const BillingTable: React.FC<BillingTableProps> = ({ invoices, onRowClick, loadi
                     <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium border ${getStatusColor(invoice.status)}`}>
                       {invoice.status.charAt(0).toUpperCase() + invoice.status.slice(1)}
                     </span>
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-slate-300">
+                    <button
+                      onClick={(e) => handleViewInvoice(e, invoice)}
+                      className="p-2 text-slate-400 hover:text-orange-400 hover:bg-slate-700/50 rounded-lg transition-colors duration-150"
+                      title="View invoice details"
+                    >
+                      <Eye className="h-4 w-4" />
+                    </button>
                   </td>
                 </tr>
               ))

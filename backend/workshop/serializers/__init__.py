@@ -12,3 +12,8 @@ from .booking_serializer import (
     BookingStatsSerializer
 )
 from .dashboard_serializer import DashboardStatsSerializer, RecentBookingSerializer
+from .notification_serializer import (
+    NotificationSerializer,
+    NotificationStatsSerializer,
+    MarkAsReadSerializer
+)

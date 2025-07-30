@@ -10,89 +10,90 @@ import {
 // Common Components
 import { PageHeader, StatsGrid, SearchBar } from '../components/common';
 
-// Mock data for now since useNotifications hook might not be implemented
-const mockStats = {
-  total: 15,
-  unread: 3,
-  urgent: 1,
-  booking: 2
-};
+// Hooks
+import {
+  useNotifications,
+  useNotificationStats,
+  useMarkNotificationsAsRead,
+  useDeleteNotification
+} from '../hooks/useNotifications';
 
-const mockNotifications = [
-  {
-    id: '1',
-    title: 'New Booking Request',
-    message: 'John Doe has requested a service booking for tomorrow.',
-    type: 'booking',
-    priority: 'normal',
-    isRead: false,
-    createdAt: new Date().toISOString()
-  },
-  {
-    id: '2',
-    title: 'Payment Received',
-    message: 'Payment of $150 received for Invoice #INV-001.',
-    type: 'payment',
-    priority: 'normal',
-    isRead: true,
-    createdAt: new Date().toISOString()
-  },
-  {
-    id: '3',
-    title: 'Urgent: Equipment Maintenance',
-    message: 'Workshop equipment requires immediate attention.',
-    type: 'system',
-    priority: 'urgent',
-    isRead: false,
-    createdAt: new Date().toISOString()
-  }
-];
+// Types
+import type { NotificationFilters } from '../api/notifications';
 
 const Notifications: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState('');
+  const [filters] = useState<NotificationFilters>({
+    search: '',
+    page: 1,
+    limit: 20
+  });
 
-  const filteredNotifications = mockNotifications.filter(notification =>
+  // API hooks
+  const { data: notificationsResponse, isLoading: loadingNotifications } = useNotifications(filters);
+  const { data: statsResponse } = useNotificationStats();
+  const markAsReadMutation = useMarkNotificationsAsRead();
+  const deleteNotificationMutation = useDeleteNotification();
+
+  // Extract data from responses
+  const notifications = notificationsResponse?.results || [];
+  const stats = statsResponse || { total: 0, unread: 0, urgent: 0, booking: 0, payment: 0, system: 0 };
+
+  // Filter notifications based on search term
+  const filteredNotifications = notifications.filter(notification =>
     notification.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
     notification.message.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
-  const handleMarkAsRead = (id: string) => {
-    console.log('Mark as read:', id);
+  const handleMarkAsRead = async (id: string) => {
+    try {
+      await markAsReadMutation.mutateAsync([id]);
+    } catch (error) {
+      console.error('Error marking notification as read:', error);
+    }
   };
 
-  const handleDelete = (id: string) => {
-    console.log('Delete notification:', id);
+  const handleDelete = async (id: string) => {
+    try {
+      await deleteNotificationMutation.mutateAsync(id);
+    } catch (error) {
+      console.error('Error deleting notification:', error);
+    }
   };
 
-  const handleMarkAllAsRead = () => {
-    console.log('Mark all as read');
+  const handleMarkAllAsRead = async () => {
+    try {
+      await markAsReadMutation.mutateAsync([]);
+    } catch (error) {
+      console.error('Error marking all notifications as read:', error);
+    }
   };
 
   // Prepare stats data
   const statsData = [
     {
-      title: "Total Notifications",
-      value: mockStats.total,
-      icon: Bell,
+      label: "Total Notifications",
+      value: stats.total,
+      icon: <Bell className="h-8 w-8" />,
       color: "blue" as const,
     },
     {
-      title: "Unread",
-      value: mockStats.unread,
-      icon: Bell,
+      label: "Unread",
+      value: stats.unread,
+      icon: <Bell className="h-8 w-8" />,
       color: "orange" as const,
-      change: { value: "+2", type: "increase" as const },
+      change: stats.unread > 0 ? { value: `+${stats.unread}`, type: "increase" as const } : undefined,
     },
     {
-      title: "Urgent",
-      value: mockStats.urgent,
-      icon: AlertTriangle,
+      label: "Urgent",
+      value: stats.urgent,
+      icon: <AlertTriangle className="h-8 w-8" />,
       color: "red" as const,
     },
     {
-      title: "Bookings",
-      value: mockStats.booking,
-      icon: Calendar,
+      label: "Bookings",
+      value: stats.booking,
+      icon: <Calendar className="h-8 w-8" />,
       color: "green" as const,
     },
   ];
@@ -112,7 +113,7 @@ const Notifications: React.FC = () => {
       />
 
       {/* Stats */}
-      <StatsGrid stats={statsData} />
+      <StatsGrid stats={statsData} columns={4} />
 
       {/* Search */}
       <SearchBar
@@ -126,7 +127,12 @@ const Notifications: React.FC = () => {
         <div className="p-6">
           <h3 className="text-lg font-semibold text-white mb-4">Recent Notifications</h3>
           
-          {filteredNotifications.length === 0 ? (
+          {loadingNotifications ? (
+            <div className="text-center py-8">
+              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-orange-500 mx-auto mb-4"></div>
+              <p className="text-gray-400">Loading notifications...</p>
+            </div>
+          ) : filteredNotifications.length === 0 ? (
             <div className="text-center py-8">
               <Bell className="h-12 w-12 text-gray-400 mx-auto mb-4" />
               <p className="text-gray-400">No notifications found</p>
@@ -164,6 +170,7 @@ const Notifications: React.FC = () => {
                           onClick={() => handleMarkAsRead(notification.id)}
                           className="p-1 text-blue-400 hover:text-blue-300 transition-colors"
                           title="Mark as read"
+                          disabled={markAsReadMutation.isPending}
                         >
                           <Check className="h-4 w-4" />
                         </button>
@@ -172,6 +179,7 @@ const Notifications: React.FC = () => {
                         onClick={() => handleDelete(notification.id)}
                         className="p-1 text-red-400 hover:text-red-300 transition-colors"
                         title="Delete notification"
+                        disabled={deleteNotificationMutation.isPending}
                       >
                         <Trash2 className="h-4 w-4" />
                       </button>

@@ -6,6 +6,7 @@ from rest_framework.routers import DefaultRouter
 from .views import LoginView, ProfileView, CustomerView, CarView, ProductView, ProductVariantView, InvoiceView, DashboardView
 from .views.booking_view import BookingView
 from .views.service_view import ServiceView
+from .views.notification_view import NotificationView
 
 router = DefaultRouter()
 router.register(r'customers', CustomerView, basename='customer')
@@ -16,6 +17,7 @@ router.register(r'invoices', InvoiceView, basename='invoice')
 router.register(r'bookings', BookingView, basename='booking')
 router.register(r'services', ServiceView, basename='service')
 router.register(r'dashboard', DashboardView, basename='dashboard')
+router.register(r'notifications', NotificationView, basename='notification')
 
 urlpatterns = [
     path('auth/login/', LoginView.as_view(), name = 'login'),

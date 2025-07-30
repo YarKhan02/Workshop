@@ -18,25 +18,9 @@ from workshop.serializers.booking_serializer import (
 
 
 class BookingView(viewsets.ViewSet):
-    """
-    ViewSet for managing bookings
-    """
     
     @action(detail=False, methods=['get'], url_path='list')
     def get_bookings(self, request):
-        """
-        Get list of bookings with filtering and pagination
-        GET: /bookings/list/
-        Query params:
-        - status: filter by status
-        - customer: filter by customer ID
-        - service: filter by service ID
-        - date_from: filter bookings from date (YYYY-MM-DD)
-        - date_to: filter bookings to date (YYYY-MM-DD)
-        - search: search in customer name, phone, email, car details
-        - page: page number (default: 1)
-        - page_size: items per page (default: 10)
-        """
         queryset = Booking.objects.select_related('customer', 'car', 'service', 'assigned_staff').all()
         
         # Apply filters
@@ -265,10 +249,6 @@ class BookingView(viewsets.ViewSet):
     
     @action(detail=False, methods=['get'], url_path='stats')
     def get_booking_stats(self, request):
-        """
-        Get booking statistics
-        GET: /bookings/stats/
-        """
         today = timezone.now().date()
         
         # Get total counts
