@@ -14,25 +14,10 @@ from workshop.serializers import DashboardStatsSerializer, RecentBookingSerializ
 
 
 class DashboardView(viewsets.ViewSet):
-    """
-    ViewSet for dashboard-related operations
-    """
     permission_classes = [IsAuthenticated]
     
     @action(detail=False, methods=['get'], url_path='stats')
     def get_stats(self, request):
-        """
-        API endpoint for dashboard statistics
-        
-        Returns:
-        - Today's bookings count
-        - Today's revenue
-        - Total customers
-        - Total active jobs (bookings in progress)
-        - Revenue growth percentage
-        - Bookings growth percentage
-        - Recent bookings (last 10)
-        """
         try:
             # Get current date and time
             today = timezone.now().date()
