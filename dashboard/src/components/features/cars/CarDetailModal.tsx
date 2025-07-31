@@ -1,7 +1,7 @@
 import React from 'react';
-import { Edit, Trash2, Car, Calendar } from 'lucide-react';
+import { Edit, Trash2, Car, Calendar, Hash, Palette } from 'lucide-react';
 import type { CarDetailModalProps } from '../../../types';
-import { useTheme, cn, ThemedModal, ThemedButton } from '../../ui';
+import { useTheme, cn, ThemedModal, ThemedButton, ThemedCard } from '../../ui';
 
 const CarDetailModal: React.FC<CarDetailModalProps> = ({
   car,
@@ -47,66 +47,112 @@ const CarDetailModal: React.FC<CarDetailModalProps> = ({
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <div className="space-y-4">
-            <h4 className={cn("text-lg font-semibold", theme.textPrimary)}>Vehicle Information</h4>
+          {/* Vehicle Information Card */}
+          <ThemedCard className="space-y-4">
+            <div className="flex items-center gap-3 mb-4">
+              <div className={cn("p-2 rounded-lg", theme.primaryLight)}>
+                <Car className="w-5 h-5 text-orange-400" />
+              </div>
+              <h4 className={cn("text-lg font-semibold", theme.textPrimary)}>Vehicle Information</h4>
+            </div>
             
-            <div className="flex items-center gap-3">
-              <Car className={theme.textSecondary} size={20} />
-              <div>
-                <p className={cn("text-sm", theme.textSecondary)}>Make & Model</p>
-                <p className={theme.textPrimary}>{car.make} {car.model}</p>
+            <div className="space-y-4">
+              <div className="flex items-start gap-3">
+                <div className={cn("p-2 rounded-lg mt-1", theme.backgroundSecondary)}>
+                  <Car className="w-4 h-4 text-gray-400" />
+                </div>
+                <div className="flex-1">
+                  <p className={cn("text-sm font-medium", theme.textSecondary)}>Make & Model</p>
+                  <p className={cn("text-base font-semibold", theme.textPrimary)}>{car.make} {car.model}</p>
+                </div>
+              </div>
+
+              <div className="flex items-start gap-3">
+                <div className={cn("p-2 rounded-lg mt-1", theme.backgroundSecondary)}>
+                  <Calendar className="w-4 h-4 text-gray-400" />
+                </div>
+                <div className="flex-1">
+                  <p className={cn("text-sm font-medium", theme.textSecondary)}>Year</p>
+                  <p className={cn("text-base", theme.textPrimary)}>{car.year}</p>
+                </div>
+              </div>
+
+              <div className="flex items-start gap-3">
+                <div className={cn("p-2 rounded-lg mt-1", theme.backgroundSecondary)}>
+                  <Hash className="w-4 h-4 text-gray-400" />
+                </div>
+                <div className="flex-1">
+                  <p className={cn("text-sm font-medium", theme.textSecondary)}>License Plate</p>
+                  <p className={cn("font-mono text-lg px-3 py-1 rounded-md inline-block", theme.backgroundTertiary, theme.textPrimary)}>
+                    {car.license_plate}
+                  </p>
+                </div>
               </div>
             </div>
+          </ThemedCard>
 
-            <div className="flex items-center gap-3">
-              <Calendar className={theme.textSecondary} size={20} />
-              <div>
-                <p className={cn("text-sm", theme.textSecondary)}>Year</p>
-                <p className={theme.textPrimary}>{car.year}</p>
+          {/* Technical Details Card */}
+          <ThemedCard className="space-y-4">
+            <div className="flex items-center gap-3 mb-4">
+              <div className={cn("p-2 rounded-lg", theme.primaryLight)}>
+                <Hash className="w-5 h-5 text-orange-400" />
               </div>
+              <h4 className={cn("text-lg font-semibold", theme.textPrimary)}>Technical Details</h4>
             </div>
-
-            <div className="flex items-center gap-3">
-              <div className={cn("w-5 h-5 rounded-full border-2 flex items-center justify-center", theme.border)}>
-                <div 
-                  className="w-3 h-3 rounded-full"
-                  style={{ backgroundColor: car.color.toLowerCase() }}
-                ></div>
-              </div>
-              <div>
-                <p className={cn("text-sm", theme.textSecondary)}>Color</p>
-                <p className={theme.textPrimary}>{car.color}</p>
-              </div>
-            </div>
-
-            <div>
-              <p className={cn("text-sm", theme.textSecondary)}>License Plate</p>
-              <p className={cn("font-mono text-lg", theme.textPrimary)}>{car.license_plate}</p>
-            </div>
-          </div>
-
-          <div className="space-y-4">
-            <h4 className={cn("text-lg font-semibold", theme.textPrimary)}>Technical Details</h4>
             
-            {car.vin && (
-              <div>
-                <p className={cn("text-sm", theme.textSecondary)}>VIN</p>
-                <p className={cn("font-mono text-sm", theme.textPrimary)}>{car.vin}</p>
+            <div className="space-y-4">
+              <div className="flex items-start gap-3">
+                <div className={cn("p-2 rounded-lg mt-1", theme.backgroundSecondary)}>
+                  <Palette className="w-4 h-4 text-gray-400" />
+                </div>
+                <div className="flex-1">
+                  <p className={cn("text-sm font-medium", theme.textSecondary)}>Color</p>
+                  <div className="flex items-center gap-2 mt-1">
+                    <div 
+                      className="w-5 h-5 rounded-full border-2 border-white shadow-sm"
+                      style={{ backgroundColor: car.color.toLowerCase() }}
+                      title={`Color: ${car.color}`}
+                    ></div>
+                    <p className={cn("text-base", theme.textPrimary)}>{car.color}</p>
+                  </div>
+                </div>
               </div>
-            )}
-          </div>
+
+              {car.vin && (
+                <div className="flex items-start gap-3">
+                  <div className={cn("p-2 rounded-lg mt-1", theme.backgroundSecondary)}>
+                    <Hash className="w-4 h-4 text-gray-400" />
+                  </div>
+                  <div className="flex-1">
+                    <p className={cn("text-sm font-medium", theme.textSecondary)}>VIN Number</p>
+                    <p className={cn("font-mono text-sm px-3 py-2 rounded-md break-all", theme.backgroundTertiary, theme.textPrimary)}>
+                      {car.vin}
+                    </p>
+                  </div>
+                </div>
+              )}
+              
+              {!car.vin && (
+                <div className="flex items-center justify-center py-4">
+                  <p className={cn("text-center text-sm", theme.textTertiary)}>
+                    No VIN information available
+                  </p>
+                </div>
+              )}
+            </div>
+          </ThemedCard>
+        </div>
+        
+        <div className={cn("flex justify-end gap-3 mt-8 pt-6 border-t", theme.border)}>
+          <ThemedButton
+            variant="secondary"
+            onClick={onClose}
+          >
+            Close
+          </ThemedButton>
         </div>
       </div>
-
-          <div className={cn("flex justify-end gap-3 p-6 border-t", theme.border)}>
-            <ThemedButton
-              variant="secondary"
-              onClick={onClose}
-            >
-              Close
-            </ThemedButton>
-          </div>
-        </ThemedModal>
+    </ThemedModal>
   );
 };
 

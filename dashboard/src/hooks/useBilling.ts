@@ -10,15 +10,19 @@ import type {
   BillingFilters,
   InvoiceStatus,
   PaymentMethod,
+  PaginatedInvoiceResponse,
 } from '../types/billing';
 
 // ==================== QUERY HOOKS ====================
 
 /**
- * Hook to fetch invoices with filtering
+ * Hook to fetch invoices with filtering and pagination
  */
 export const useInvoices = (filters?: BillingFilters) => {
-  const result = useQuery(billingQueries.invoices(filters));
+  const result = useQuery({
+    ...billingQueries.invoices(filters),
+    select: (data: PaginatedInvoiceResponse) => data, // Return the full paginated response
+  });
   
   if (result.error) {
     console.error('Error fetching invoices:', result.error);

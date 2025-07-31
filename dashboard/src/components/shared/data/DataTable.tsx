@@ -1,35 +1,37 @@
 import React from 'react';
 
-interface Column {
+interface Column<T> {
   key: string;
   header: string;
-  render?: (item: any) => React.ReactNode;
+  render?: (item: T) => React.ReactNode;
 }
 
-interface Action {
+interface Action<T> {
   label: string;
   icon: React.ComponentType<any>;
-  onClick: (item: any) => void;
+  onClick: (item: T) => void;
   className?: string;
 }
 
-interface DataTableProps {
-  data: any[];
-  columns: Column[];
-  actions?: Action[];
+interface DataTableProps<T> {
+  data: T[];
+  columns: Column<T>[];
+  actions?: Action<T>[];
   isLoading?: boolean;
   emptyMessage?: string;
   loadingMessage?: string;
+  onRowClick?: (item: T) => void;
 }
 
-const DataTable: React.FC<DataTableProps> = ({
+const DataTable = <T,>({
   data,
   columns,
   actions,
   isLoading = false,
-  emptyMessage = "No data available",
-  loadingMessage = "Loading..."
-}) => {
+  emptyMessage = 'No data available',
+  loadingMessage = 'Loading...',
+  onRowClick,
+}: DataTableProps<T>) => {
   if (isLoading) {
     return (
       <div className="bg-gradient-to-br from-gray-800/50 to-slate-800/50 rounded-xl shadow-2xl border border-gray-700/30 overflow-hidden backdrop-blur-md">
@@ -74,10 +76,14 @@ const DataTable: React.FC<DataTableProps> = ({
           </thead>
           <tbody className="divide-y divide-gray-600/30">
             {data.map((item, index) => (
-              <tr key={index} className="hover:bg-gray-700/30 transition-colors duration-200">
+              <tr 
+                key={index} 
+                className={`hover:bg-gray-700/30 transition-colors duration-200 ${onRowClick ? 'cursor-pointer' : ''}`}
+                onClick={onRowClick ? () => onRowClick(item) : undefined}
+              >
                 {columns.map((column) => (
                   <td key={column.key} className="px-6 py-4 whitespace-nowrap">
-                    {column.render ? column.render(item) : item[column.key]}
+                    {column.render ? column.render(item) : (item as any)[column.key]}
                   </td>
                 ))}
                 {actions && actions.length > 0 && (

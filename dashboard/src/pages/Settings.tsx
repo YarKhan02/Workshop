@@ -11,24 +11,13 @@ import SystemSettingsSection from '../components/features/settings/SystemSetting
 
 // Hooks & Types
 import { useSettings } from '../hooks/useSettings';
+import { useTheme } from '../contexts/ThemeContext';
+import { cn } from '../lib/utils';
 import type { SettingsTab } from '../types/settings';
 
-/**
- * Admin Settings Page
- * 
- * This is the main settings interface for administrators only.
- * It provides comprehensive control over:
- * - Workshop/Business configuration
- * - User profile management
- * - Notification preferences
- * - Password/Security settings
- * - System configuration
- * 
- * Note: This interface is exclusively for admin users and includes
- * system-level controls that regular users should not access.
- */
 const Settings: React.FC = () => {
   const [activeTab, setActiveTab] = useState('business');
+  const { theme } = useTheme();
   
   const {
     businessSettings,
@@ -58,7 +47,7 @@ const Settings: React.FC = () => {
         <h1 className="text-3xl font-bold bg-gradient-to-r from-orange-400 to-red-500 bg-clip-text text-transparent">
           Admin Command Center
         </h1>
-        <p className="text-slate-400 mt-1">
+        <p className={cn("mt-1", theme.textSecondary)}>
           Configure your workshop operations and system settings
         </p>
         <div className="mt-2 px-3 py-1 bg-orange-600/20 text-orange-400 text-xs font-medium rounded-full inline-block">
@@ -67,7 +56,11 @@ const Settings: React.FC = () => {
       </div>
 
       {/* Settings Panel */}
-      <div className="bg-gradient-to-br from-slate-800/50 to-gray-800/50 rounded-xl shadow-2xl border border-slate-700/30 backdrop-blur-md">
+      <div className={cn(
+        "rounded-xl shadow-2xl backdrop-blur-md",
+        theme.backgroundSecondary,
+        theme.border
+      )}>
         <TabNavigation 
           tabs={tabs} 
           activeTab={activeTab} 
@@ -126,12 +119,16 @@ const Settings: React.FC = () => {
       </div>
 
       {/* Admin Notice */}
-      <div className="bg-slate-800/30 border border-slate-700/30 rounded-lg p-4">
+      <div className={cn(
+        "rounded-lg p-4",
+        theme.backgroundSecondary,
+        theme.border
+      )}>
         <div className="flex items-start gap-3">
           <SettingsIcon className="h-5 w-5 text-orange-400 mt-0.5 flex-shrink-0" />
           <div>
-            <h3 className="text-slate-200 font-medium mb-1">Administrator Notice</h3>
-            <p className="text-slate-400 text-sm">
+            <h3 className={cn("font-medium mb-1", theme.textPrimary)}>Administrator Notice</h3>
+            <p className={cn("text-sm", theme.textSecondary)}>
               These settings control critical aspects of your workshop system. Changes to system 
               configuration may affect all users. Please ensure you understand the implications 
               before modifying system-level settings.

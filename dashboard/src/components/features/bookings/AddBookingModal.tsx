@@ -6,6 +6,7 @@ import { X, Calendar, Clock, User, Car as CarIcon, FileText, Banknote } from 'lu
 import toast from 'react-hot-toast';
 import { bookingAPI, serviceAPI, customerAPI } from '../../../api/booking';
 import { useCarsByCustomer } from '../../../hooks/useCars';
+import { useTheme, cn, ThemedModal, ThemedInput, ThemedButton } from '../../ui';
 import type { BookingCreateData } from '../../../api/booking';
 import type { 
   AddBookingModalProps, 
@@ -14,12 +15,12 @@ import type {
   Service, 
   TimeSlot 
 } from '../../../types';
-import Portal from '../../shared/utility/Portal';
 import { formatCurrency } from '../../../utils/currency';
 
 // ==================== COMPONENT ====================
 const AddBookingModal: React.FC<AddBookingModalProps> = ({ isOpen, onClose }) => {
   const queryClient = useQueryClient();
+  const { theme } = useTheme();
 
   // Form state
   const [formData, setFormData] = useState({
@@ -175,143 +176,126 @@ const AddBookingModal: React.FC<AddBookingModalProps> = ({ isOpen, onClose }) =>
   if (!isOpen) return null;
 
   // ==================== RENDER ====================
-  
   return (
-    <Portal>
-      <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 z-50">
-        <div className="bg-gradient-to-br from-gray-800/95 to-slate-800/95 rounded-2xl shadow-2xl border border-gray-700/30 backdrop-blur-md w-full max-w-4xl max-h-[90vh] overflow-hidden">
-          
-          {/* Header */}
-          <div className="flex items-center justify-between p-6 border-b border-gray-700/30">
-            <div>
-              <h2 className="text-2xl font-bold bg-gradient-to-r from-orange-400 to-red-500 bg-clip-text text-transparent">
-                Schedule New Appointment
-              </h2>
-              <p className="text-gray-400 mt-1">Book a workshop service appointment</p>
-            </div>
-            <button
-              onClick={onClose}
-              className="p-2 hover:bg-gray-700/50 rounded-xl transition-colors text-gray-400 hover:text-gray-200"
+    <ThemedModal
+      isOpen={isOpen}
+      onClose={onClose}
+      title="Schedule New Appointment"
+      subtitle="Book a workshop service appointment"
+      size="xl"
+    >
+      <form onSubmit={handleSubmit} className="space-y-6">
+        
+        {/* Customer Selection */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div>
+            <label className={cn("block text-sm font-medium mb-2", theme.textSecondary)}>
+              <User className="inline-block w-4 h-4 mr-2" />
+              Customer *
+            </label>
+            <select
+              value={formData.customer_id}
+              onChange={(e) => handleInputChange('customer_id', e.target.value)}
+              className={cn("w-full px-4 py-3 border rounded-xl transition-all duration-300", theme.background, theme.textPrimary, theme.border)}
+              required
+              disabled={isLoadingCustomers}
             >
-              <X size={24} />
-            </button>
+              <option value="">Select a customer...</option>
+              {customers.map((customer: Customer) => (
+                <option key={customer.id} value={customer.id}>
+                  {customer.first_name} {customer.last_name} - {customer.phone_number}
+                </option>
+              ))}
+            </select>
           </div>
 
-          {/* Content */}
-          <div className="p-6 overflow-y-auto max-h-[calc(90vh-140px)]">
-            <form onSubmit={handleSubmit} className="space-y-6">
-              
-              {/* Customer Selection */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div>
-                  <label className="block text-sm font-medium text-gray-300 mb-2">
-                    <User className="inline-block w-4 h-4 mr-2" />
-                    Customer *
-                  </label>
-                  <select
-                    value={formData.customer_id}
-                    onChange={(e) => handleInputChange('customer_id', e.target.value)}
-                    className="w-full px-4 py-3 bg-gray-900/50 border border-gray-600/50 rounded-xl text-gray-100 focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-all duration-300"
-                    required
-                    disabled={isLoadingCustomers}
-                  >
-                    <option value="">Select a customer...</option>
-                    {customers.map((customer: Customer) => (
-                      <option key={customer.id} value={customer.id}>
-                        {customer.first_name} {customer.last_name} - {customer.phone_number}
-                      </option>
-                    ))}
-                  </select>
-                </div>
+          <div>
+            <label className={cn("block text-sm font-medium mb-2", theme.textSecondary)}>
+              <CarIcon className="inline-block w-4 h-4 mr-2" />
+              Vehicle *
+            </label>
+            <select
+              value={formData.car_id}
+              onChange={(e) => handleInputChange('car_id', e.target.value)}
+              className={cn("w-full px-4 py-3 border rounded-xl transition-all duration-300", theme.background, theme.textPrimary, theme.border)}
+              disabled={!formData.customer_id || isLoadingCars}
+              required
+            >
+              <option value="">
+                {!formData.customer_id 
+                  ? "Select customer first..." 
+                  : isLoadingCars 
+                  ? "Loading vehicles..." 
+                  : customerCars.length === 0 
+                  ? "No vehicles found" 
+                  : "Select vehicle..."
+                }
+              </option>
+              {customerCars.map((car: Car) => (
+                <option key={car.id} value={car.id}>
+                  {car.display_name || `${car.make} ${car.model} (${car.license_plate})`}
+                </option>
+              ))}
+            </select>
+          </div>
+        </div>
 
-                <div>
-                  <label className="block text-sm font-medium text-gray-300 mb-2">
-                    <CarIcon className="inline-block w-4 h-4 mr-2" />
-                    Vehicle *
-                  </label>
-                  <select
-                    value={formData.car_id}
-                    onChange={(e) => handleInputChange('car_id', e.target.value)}
-                    className="w-full px-4 py-3 bg-gray-900/50 border border-gray-600/50 rounded-xl text-gray-100 focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-all duration-300"
-                    disabled={!formData.customer_id || isLoadingCars}
-                    required
-                  >
-                    <option value="">
-                      {!formData.customer_id 
-                        ? "Select customer first..." 
-                        : isLoadingCars 
-                        ? "Loading vehicles..." 
-                        : customerCars.length === 0 
-                        ? "No vehicles found" 
-                        : "Select vehicle..."
-                      }
-                    </option>
-                    {customerCars.map((car: Car) => (
-                      <option key={car.id} value={car.id}>
-                        {car.display_name || `${car.make} ${car.model} (${car.license_plate})`}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-              </div>
+        {/* Service & Date */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div>
+            <label className={cn("block text-sm font-medium mb-2", theme.textSecondary)}>
+              <FileText className="inline-block w-4 h-4 mr-2" />
+              Service Type *
+            </label>
+            <select
+              value={formData.service}
+              onChange={(e) => handleInputChange('service', e.target.value)}
+              className={cn("w-full px-4 py-3 border rounded-xl transition-all duration-300", theme.background, theme.textPrimary, theme.border)}
+              required
+              disabled={isLoadingServices}
+            >
+              <option value="">Select service...</option>
+              {services.map((service: Service) => (
+                <option key={service.id} value={service.code}>
+                  {service.name} - {formatCurrency(service.base_price)}
+                </option>
+              ))}
+            </select>
+          </div>
 
-              {/* Service & Date */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div>
-                  <label className="block text-sm font-medium text-gray-300 mb-2">
-                    <FileText className="inline-block w-4 h-4 mr-2" />
-                    Service Type *
-                  </label>
-                  <select
-                    value={formData.service}
-                    onChange={(e) => handleInputChange('service', e.target.value)}
-                    className="w-full px-4 py-3 bg-gray-900/50 border border-gray-600/50 rounded-xl text-gray-100 focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-all duration-300"
-                    required
-                    disabled={isLoadingServices}
-                  >
-                    <option value="">Select service...</option>
-                    {services.map((service: Service) => (
-                      <option key={service.id} value={service.code}>
-                        {service.name} - {formatCurrency(service.base_price)}
-                      </option>
-                    ))}
-                  </select>
-                </div>
+          <div>
+            <label className={cn("block text-sm font-medium mb-2", theme.textSecondary)}>
+              <Calendar className="inline-block w-4 h-4 mr-2" />
+              Service Date *
+            </label>
+            <ThemedInput
+              type="date"
+              value={formData.scheduled_date}
+              onChange={(e) => handleInputChange('scheduled_date', e.target.value)}
+              min={new Date().toISOString().split('T')[0]}
+              required
+            />
+          </div>
+        </div>
 
-                <div>
-                  <label className="block text-sm font-medium text-gray-300 mb-2">
-                    <Calendar className="inline-block w-4 h-4 mr-2" />
-                    Service Date *
-                  </label>
-                  <input
-                    type="date"
-                    value={formData.scheduled_date}
-                    onChange={(e) => handleInputChange('scheduled_date', e.target.value)}
-                    min={new Date().toISOString().split('T')[0]}
-                    className="w-full px-4 py-3 bg-gray-900/50 border border-gray-600/50 rounded-xl text-gray-100 focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-all duration-300"
-                    required
-                  />
-                </div>
-              </div>
-
-              {/* Time Slot */}
-              <div>
-                <label className="block text-sm font-medium text-gray-300 mb-2">
-                  <Clock className="inline-block w-4 h-4 mr-2" />
-                  Appointment Time *
-                </label>
-                <select
-                  value={formData.time_slot}
-                  onChange={(e) => handleInputChange('time_slot', e.target.value)}
-                  className="w-full px-4 py-3 bg-gray-900/50 border border-gray-600/50 rounded-xl text-gray-100 focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-all duration-300"
-                  required
-                  disabled={!formData.scheduled_date || isLoadingTimeSlots}
-                >
-                  <option value="">
-                    {isLoadingTimeSlots ? 'Loading slots...' : 'Select time slot...'}
-                  </option>
-                  {availableTimeSlots.map((slot: TimeSlot) => (
-                    <option key={slot.id} value={slot.id} disabled={!slot.is_available}>
+        {/* Time Slot */}
+        <div>
+          <label className={cn("block text-sm font-medium mb-2", theme.textSecondary)}>
+            <Clock className="inline-block w-4 h-4 mr-2" />
+            Appointment Time *
+          </label>
+          <select
+            value={formData.time_slot}
+            onChange={(e) => handleInputChange('time_slot', e.target.value)}
+            className={cn("w-full px-4 py-3 border rounded-xl transition-all duration-300", theme.background, theme.textPrimary, theme.border)}
+            required
+            disabled={!formData.scheduled_date || isLoadingTimeSlots}
+          >
+            <option value="">
+              {isLoadingTimeSlots ? 'Loading slots...' : 'Select time slot...'}
+            </option>
+            {availableTimeSlots.map((slot: TimeSlot) => (
+              <option key={slot.id} value={slot.id} disabled={!slot.is_available}>
                       {slot.start_time} - {slot.end_time} 
                       {(slot.available_slots ?? 0) > 0 ? ` (${slot.available_slots} available)` : ' (Full)'}
                     </option>
@@ -366,30 +350,25 @@ const AddBookingModal: React.FC<AddBookingModalProps> = ({ isOpen, onClose }) =>
                 />
               </div>
 
-            </form>
-          </div>
-
-          {/* Footer */}
-          <div className="flex justify-end gap-4 p-6 border-t border-gray-700/30">
-            <button
-              type="button"
-              onClick={onClose}
-              className="px-6 py-3 bg-gray-700/50 hover:bg-gray-600/50 text-gray-300 rounded-xl transition-all duration-300"
-            >
-              Cancel
-            </button>
-            <button
-              onClick={handleSubmit}
-              disabled={createBookingMutation.isPending}
-              className="px-6 py-3 bg-gradient-to-r from-orange-500 to-red-600 hover:from-orange-600 hover:to-red-700 text-white rounded-xl font-semibold shadow-lg shadow-orange-500/25 transition-all duration-300 disabled:opacity-50"
-            >
-              {createBookingMutation.isPending ? 'Scheduling...' : 'Schedule Appointment'}
-            </button>
-          </div>
-
+        {/* Form Actions */}
+        <div className="flex justify-end gap-4 pt-6">
+          <ThemedButton
+            type="button"
+            onClick={onClose}
+            variant="secondary"
+          >
+            Cancel
+          </ThemedButton>
+          <ThemedButton
+            onClick={handleSubmit}
+            disabled={createBookingMutation.isPending}
+            variant="primary"
+          >
+            {createBookingMutation.isPending ? 'Scheduling...' : 'Schedule Appointment'}
+          </ThemedButton>
         </div>
-      </div>
-    </Portal>
+      </form>
+    </ThemedModal>
   );
 };
 

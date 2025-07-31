@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
-import { X, Package } from 'lucide-react';
-import Portal from '../../shared/utility/Portal';
+import { Package } from 'lucide-react';
+import { useTheme, cn, ThemedModal, ThemedButton } from '../../ui';
 import type { Invoice, InvoiceStatus, PaymentMethod } from '../../../types/billing';
 import { getInvoiceField, formatDate } from '../../../utils/invoiceUtils';
 import { formatCurrency } from '../../../utils/currency';
@@ -21,6 +21,7 @@ const InvoiceDetailModal: React.FC<InvoiceDetailModalProps> = ({
   invoice,
   onStatusUpdate,
 }) => {
+  const { theme } = useTheme();
   const [showStatusUpdate, setShowStatusUpdate] = useState(false);
   const [newStatus, setNewStatus] = useState<InvoiceStatus>(invoice.status);
   const [paymentMethod, setPaymentMethod] = useState<PaymentMethod | ''>(invoice.paymentMethod || '');
@@ -50,258 +51,239 @@ const InvoiceDetailModal: React.FC<InvoiceDetailModalProps> = ({
   if (!isOpen || !invoice) return null;
 
   return (
-    <Portal>
-      <div className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-50">
-        <div className="bg-gradient-to-br from-slate-800/95 to-gray-800/95 backdrop-blur-md rounded-2xl shadow-2xl w-full max-w-4xl max-h-[90vh] overflow-y-auto border border-slate-700/50">
-          <div className="flex justify-between items-center p-6 border-b border-slate-700/50">
+    <ThemedModal
+      isOpen={isOpen}
+      onClose={onClose}
+      title={`Invoice #${(invoice as any).invoice_number || getInvoiceField(invoice, 'invoiceNumber') || invoice.id?.toString().slice(0, 8) || 'N/A'}`}
+      subtitle={`Created on ${formatDate((invoice as any).created_at || getInvoiceField(invoice, 'createdAt') || '')}`}
+      size="xl"
+    >
+      <div className="space-y-6">
+        {/* Customer Information */}
+        <div className={cn("p-4 rounded-lg border", theme.background, theme.border)}>
+          <h3 className={cn("text-lg font-medium mb-4", theme.textPrimary)}>Customer Information</h3>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
-              <h2 className="text-xl font-semibold text-slate-100">
-                Invoice #{(invoice as any).invoice_number || getInvoiceField(invoice, 'invoiceNumber') || invoice.id?.toString().slice(0, 8) || 'N/A'}
-              </h2>
-              <p className="text-sm text-slate-400">
-                Created on {formatDate((invoice as any).created_at || getInvoiceField(invoice, 'createdAt') || '')}
+              <p className={cn("text-sm", theme.textSecondary)}>
+                <span className={cn("font-medium", theme.textPrimary)}>Name:</span>{' '}
+                {invoice.customer.first_name} {invoice.customer.last_name}
+              </p>
+              <p className={cn("text-sm", theme.textSecondary)}>
+                <span className={cn("font-medium", theme.textPrimary)}>Email:</span> {invoice.customer.email}
               </p>
             </div>
-            <button
-              onClick={onClose}
-              className="text-slate-400 hover:text-slate-200 transition-colors p-2 hover:bg-slate-700/50 rounded-lg"
-            >
-              <X className="w-6 h-6" />
-            </button>
-          </div>
-
-          <div className="p-6 space-y-6">
-            {/* Customer Information */}
-            <div className="bg-slate-900/50 p-4 rounded-lg border border-slate-700/30">
-              <h3 className="text-lg font-medium text-slate-100 mb-4">Customer Information</h3>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                  <p className="text-sm text-slate-300">
-                    <span className="font-medium text-slate-200">Name:</span>{' '}
-                    {invoice.customer.first_name} {invoice.customer.last_name}
-                  </p>
-                  <p className="text-sm text-slate-300">
-                    <span className="font-medium text-slate-200">Email:</span> {invoice.customer.email}
-                  </p>
-                </div>
-                <div>
-                  <p className="text-sm text-slate-300">
-                    <span className="font-medium text-slate-200">Phone:</span> {invoice.customer.phone_number}
-                  </p>
-                  <p className="text-sm text-slate-300">
-                    <span className="font-medium text-slate-200">Status:</span>
-                    <InvoiceStatusBadge status={invoice.status} />
-                  </p>
-                </div>
-              </div>
-              <div className="mt-4">
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                  <div>
-                    <p className="text-sm text-slate-300">
-                      <span className="font-medium text-slate-200">Due Date:</span> {
-                        (invoice as any).due_date 
-                          ? formatDate((invoice as any).due_date) 
-                          : <span className="text-slate-500">No due date set</span>
-                      }
-                    </p>
-                  </div>
-                  {((invoice as any).paid_date || getInvoiceField(invoice, 'paidDate')) && (
-                    <div>
-                      <p className="text-sm text-slate-300">
-                        <span className="font-medium text-slate-200">Paid Date:</span> {formatDate((invoice as any).paid_date || getInvoiceField(invoice, 'paidDate'))}
-                      </p>
-                    </div>
-                  )}
-                  {((invoice as any).payment_method || getInvoiceField(invoice, 'paymentMethod')) && (
-                    <div>
-                      <p className="text-sm text-slate-300">
-                        <span className="font-medium text-slate-200">Payment Method:</span>{' '}
-                        {((invoice as any).payment_method || getInvoiceField(invoice, 'paymentMethod'))?.replace('_', ' ')}
-                      </p>
-                    </div>
-                  )}
-                </div>
-              </div>
-            </div>
-
-            {/* Job Information */}
-            {invoice.job && (
-              <div>
-                <h3 className="text-lg font-medium text-slate-100 mb-4">Related Job</h3>
-                <div className="bg-slate-900/50 p-4 rounded-lg border border-slate-700/30">
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                    <div>
-                      <p className="text-sm font-medium text-slate-400">Job ID</p>
-                      <p className="text-sm text-slate-200">#{invoice.job.id}</p>
-                    </div>
-                    <div>
-                      <p className="text-sm font-medium text-slate-400">Job Type</p>
-                      <p className="text-sm text-slate-200">{invoice.job.jobType.replace('_', ' ')}</p>
-                    </div>
-                    <div>
-                      <p className="text-sm font-medium text-slate-400">Status</p>
-                      <p className="text-sm text-slate-200">{invoice.job.status}</p>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            )}
-
-            {/* Invoice Items */}
             <div>
-              <h3 className="text-lg font-medium text-slate-100 mb-4">Invoice Items</h3>
-              <div className="border border-slate-700/50 rounded-lg overflow-hidden bg-slate-900/30">
-                <table className="w-full">
-                  <thead className="bg-slate-900/80">
-                    <tr>
-                      <th className="text-left py-3 px-4 font-medium text-slate-200">Description</th>
-                      <th className="text-right py-3 px-4 font-medium text-slate-200">Quantity</th>
-                      <th className="text-right py-3 px-4 font-medium text-slate-200">Unit Price</th>
-                      <th className="text-right py-3 px-4 font-medium text-slate-200">Total</th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-slate-700/50">
-                    {invoice.items?.map((item, index) => (
-                      <tr key={index}>
-                        <td className="py-3 px-4">
-                          <div className="flex items-center">
-                            <Package className="w-4 h-4 text-slate-400 mr-2" />
-                            <div>
-                              <p className="text-sm font-medium text-slate-200">{item.description}</p>
-                              {(item.productName || (item as any).product_name) && (
-                                <p className="text-xs text-slate-400">
-                                  {item.productName || (item as any).product_name} - {item.productVariant || (item as any).product_variant}
-                                </p>
-                              )}
-                            </div>
-                          </div>
-                        </td>
-                        <td className="text-right py-3 px-4 text-sm text-slate-300">
-                          {item.quantity}
-                        </td>
-                        <td className="text-right py-3 px-4 text-sm text-slate-300">
-                          {formatCurrency((item as any).unit_price || item.unitPrice || 0)}
-                        </td>
-                        <td className="text-right py-3 px-4 text-sm font-medium text-slate-200">
-                          {formatCurrency((item as any).total_price || item.totalPrice || 0)}
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
+              <p className={cn("text-sm", theme.textSecondary)}>
+                <span className={cn("font-medium", theme.textPrimary)}>Phone:</span> {invoice.customer.phone_number}
+              </p>
+              <p className={cn("text-sm", theme.textSecondary)}>
+                <span className={cn("font-medium", theme.textPrimary)}>Status:</span>
+                <InvoiceStatusBadge status={invoice.status} />
+              </p>
             </div>
-
-            {/* Invoice Totals */}
-            <div className="flex justify-end">
-              <div className="w-64 space-y-2">
-                <div className="flex justify-between">
-                  <span className="text-slate-400">Subtotal:</span>
-                  <span className="font-medium text-slate-200">{formatCurrency((invoice as any).total_amount || 0)}</span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-slate-400">Tax:</span>
-                  <span className="font-medium text-slate-200">{formatCurrency((invoice as any).tax || 0)}</span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-slate-400">Discount:</span>
-                  <span className="font-medium text-slate-200">{formatCurrency((invoice as any).discount || 0)}</span>
-                </div>
-                <div className="border-t border-slate-700/50 pt-2">
-                  <div className="flex justify-between">
-                    <span className="text-lg font-semibold text-slate-100">Total:</span>
-                    <span className="text-lg font-semibold text-slate-100">{formatCurrency((invoice as any).grand_total || (invoice as any).total_amount || 0)}</span>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            {/* Notes */}
-            {((invoice as any).notes || getInvoiceField(invoice, 'notes')) && (
+          </div>
+          <div className="mt-4">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <div>
-                <h4 className="text-md font-medium text-slate-100 mb-2">Notes</h4>
-                <p className="text-sm text-slate-300 bg-slate-900/50 p-3 rounded-lg border border-slate-700/30">{(invoice as any).notes || getInvoiceField(invoice, 'notes')}</p>
+                <p className={cn("text-sm", theme.textSecondary)}>
+                  <span className={cn("font-medium", theme.textPrimary)}>Due Date:</span> {
+                    (invoice as any).due_date 
+                      ? formatDate((invoice as any).due_date) 
+                      : <span className={cn("", theme.textSecondary)}>No due date set</span>
+                  }
+                </p>
               </div>
-            )}
-
-            {/* Terms */}
-            {((invoice as any).terms || getInvoiceField(invoice, 'terms')) && (
-              <div>
-                <h4 className="text-md font-medium text-slate-100 mb-2">Terms & Conditions</h4>
-                <p className="text-sm text-slate-300 bg-slate-900/50 p-3 rounded-lg border border-slate-700/30">{(invoice as any).terms || getInvoiceField(invoice, 'terms')}</p>
-              </div>
-            )}
-
-            {/* Status Update Section */}
-            <div className="border-t border-slate-700/50 pt-6">
-              <div className="flex justify-between items-center">
-                <h4 className="text-md font-medium text-slate-100">Update Status</h4>
-                <button
-                  onClick={() => setShowStatusUpdate(!showStatusUpdate)}
-                  className="px-4 py-2 text-sm font-medium text-orange-400 hover:text-orange-300 bg-slate-700/50 hover:bg-slate-600/50 rounded-lg transition-all"
-                >
-                  {showStatusUpdate ? 'Cancel' : 'Change Status'}
-                </button>
-              </div>
-
-              {showStatusUpdate && (
-                <div className="mt-4 p-4 bg-slate-900/50 rounded-lg border border-slate-700/30">
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div>
-                      <label className="block text-sm font-medium text-slate-300 mb-2">
-                        New Status
-                      </label>
-                      <select
-                        value={newStatus}
-                        onChange={(e) => setNewStatus(e.target.value as InvoiceStatus)}
-                        className="w-full px-3 py-2 bg-slate-700/50 border border-slate-600/50 rounded-lg text-slate-200 focus:outline-none focus:ring-2 focus:ring-orange-500/50 focus:border-orange-500/50"
-                      >
-                        <option value="draft">Draft</option>
-                        <option value="pending">Pending</option>
-                        <option value="paid">Paid</option>
-                        <option value="partially_paid">Partially Paid</option>
-                        <option value="overdue">Overdue</option>
-                        <option value="cancelled">Cancelled</option>
-                      </select>
-                    </div>
-                    {(newStatus === 'paid' || newStatus === 'partially_paid') && (
-                      <div>
-                        <label className="block text-sm font-medium text-slate-300 mb-2">
-                          Payment Method
-                        </label>
-                        <select
-                          value={paymentMethod}
-                          onChange={(e) => setPaymentMethod(e.target.value as PaymentMethod)}
-                          className="w-full px-3 py-2 bg-slate-700/50 border border-slate-600/50 rounded-lg text-slate-200 focus:outline-none focus:ring-2 focus:ring-orange-500/50 focus:border-orange-500/50"
-                        >
-                          <option value="">Select method</option>
-                          <option value="cash">Cash</option>
-                          <option value="card">Card</option>
-                          <option value="credit_card">Credit Card</option>
-                          <option value="bank_transfer">Bank Transfer</option>
-                          <option value="upi">UPI</option>
-                          <option value="wallet">Wallet</option>
-                          <option value="check">Check</option>
-                        </select>
-                      </div>
-                    )}
-                  </div>
-                  <div className="mt-4 flex justify-end">
-                    <button
-                      onClick={handleStatusUpdate}
-                      disabled={updating || newStatus === invoice.status}
-                      className="px-4 py-2 bg-orange-600 text-white rounded-lg hover:bg-orange-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
-                    >
-                      {updating ? 'Updating...' : 'Update Status'}
-                    </button>
-                  </div>
+              {((invoice as any).paid_date || getInvoiceField(invoice, 'paidDate')) && (
+                <div>
+                  <p className={cn("text-sm", theme.textSecondary)}>
+                    <span className={cn("font-medium", theme.textPrimary)}>Paid Date:</span> {formatDate((invoice as any).paid_date || getInvoiceField(invoice, 'paidDate'))}
+                  </p>
+                </div>
+              )}
+              {((invoice as any).payment_method || getInvoiceField(invoice, 'paymentMethod')) && (
+                <div>
+                  <p className={cn("text-sm", theme.textSecondary)}>
+                    <span className={cn("font-medium", theme.textPrimary)}>Payment Method:</span>{' '}
+                    {((invoice as any).payment_method || getInvoiceField(invoice, 'paymentMethod'))?.replace('_', ' ')}
+                  </p>
                 </div>
               )}
             </div>
           </div>
         </div>
+
+        {/* Job Information */}
+        {invoice.job && (
+          <div className={cn("p-4 rounded-lg border", theme.background, theme.border)}>
+            <h3 className={cn("text-lg font-medium mb-4", theme.textPrimary)}>Related Job</h3>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div>
+                <p className={cn("text-sm font-medium", theme.textSecondary)}>Job ID</p>
+                <p className={cn("text-sm", theme.textPrimary)}>#{invoice.job.id}</p>
+              </div>
+              <div>
+                <p className={cn("text-sm font-medium", theme.textSecondary)}>Job Type</p>
+                <p className={cn("text-sm", theme.textPrimary)}>{invoice.job.jobType.replace('_', ' ')}</p>
+              </div>
+              <div>
+                <p className={cn("text-sm font-medium", theme.textSecondary)}>Status</p>
+                <p className={cn("text-sm", theme.textPrimary)}>{invoice.job.status}</p>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Invoice Items */}
+        <div className={cn("rounded-lg border overflow-hidden", theme.background, theme.border)}>
+          <h3 className={cn("text-lg font-medium mb-4 p-4", theme.textPrimary)}>Invoice Items</h3>
+          <table className="w-full">
+            <thead className={cn("", theme.background)}>
+              <tr>
+                <th className={cn("text-left py-3 px-4 font-medium", theme.textPrimary)}>Description</th>
+                <th className={cn("text-right py-3 px-4 font-medium", theme.textPrimary)}>Quantity</th>
+                <th className={cn("text-right py-3 px-4 font-medium", theme.textPrimary)}>Unit Price</th>
+                <th className={cn("text-right py-3 px-4 font-medium", theme.textPrimary)}>Total</th>
+              </tr>
+            </thead>
+            <tbody className={cn("divide-y", theme.border)}>
+              {invoice.items?.map((item, index) => (
+                <tr key={index}>
+                  <td className="py-3 px-4">
+                    <div className="flex items-center">
+                      <Package className={cn("w-4 h-4 mr-2", theme.textSecondary)} />
+                      <div>
+                        <p className={cn("text-sm font-medium", theme.textPrimary)}>{item.description}</p>
+                        {(item.productName || (item as any).product_name) && (
+                          <p className={cn("text-xs", theme.textSecondary)}>
+                            {item.productName || (item as any).product_name} - {item.productVariant || (item as any).product_variant}
+                          </p>
+                        )}
+                      </div>
+                    </div>
+                  </td>
+                  <td className={cn("text-right py-3 px-4 text-sm", theme.textSecondary)}>
+                    {item.quantity}
+                  </td>
+                  <td className={cn("text-right py-3 px-4 text-sm", theme.textSecondary)}>
+                    {formatCurrency((item as any).unit_price || item.unitPrice || 0)}
+                  </td>
+                  <td className={cn("text-right py-3 px-4 text-sm font-medium", theme.textPrimary)}>
+                    {formatCurrency((item as any).total_price || item.totalPrice || 0)}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+
+        {/* Invoice Totals */}
+        <div className="flex justify-end">
+          <div className="w-64 space-y-2">
+            <div className="flex justify-between">
+              <span className={cn("", theme.textSecondary)}>Subtotal:</span>
+              <span className={cn("font-medium", theme.textPrimary)}>{formatCurrency((invoice as any).total_amount || 0)}</span>
+            </div>
+            <div className="flex justify-between">
+              <span className={cn("", theme.textSecondary)}>Tax:</span>
+              <span className={cn("font-medium", theme.textPrimary)}>{formatCurrency((invoice as any).tax || 0)}</span>
+            </div>
+            <div className="flex justify-between">
+              <span className={cn("", theme.textSecondary)}>Discount:</span>
+              <span className={cn("font-medium", theme.textPrimary)}>{formatCurrency((invoice as any).discount || 0)}</span>
+            </div>
+            <div className={cn("border-t pt-2", theme.border)}>
+              <div className="flex justify-between">
+                <span className={cn("text-lg font-semibold", theme.textPrimary)}>Total:</span>
+                <span className={cn("text-lg font-semibold", theme.textPrimary)}>{formatCurrency((invoice as any).grand_total || (invoice as any).total_amount || 0)}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Notes */}
+        {((invoice as any).notes || getInvoiceField(invoice, 'notes')) && (
+          <div>
+            <h4 className={cn("text-md font-medium mb-2", theme.textPrimary)}>Notes</h4>
+            <p className={cn("text-sm p-3 rounded-lg border", theme.textSecondary, theme.background, theme.border)}>{(invoice as any).notes || getInvoiceField(invoice, 'notes')}</p>
+          </div>
+        )}
+
+        {/* Terms */}
+        {((invoice as any).terms || getInvoiceField(invoice, 'terms')) && (
+          <div>
+            <h4 className={cn("text-md font-medium mb-2", theme.textPrimary)}>Terms & Conditions</h4>
+            <p className={cn("text-sm p-3 rounded-lg border", theme.textSecondary, theme.background, theme.border)}>{(invoice as any).terms || getInvoiceField(invoice, 'terms')}</p>
+          </div>
+        )}
+
+        {/* Status Update Section */}
+        <div className={cn("border-t pt-6", theme.border)}>
+          <div className="flex justify-between items-center">
+            <h4 className={cn("text-md font-medium", theme.textPrimary)}>Update Status</h4>
+            <ThemedButton
+              onClick={() => setShowStatusUpdate(!showStatusUpdate)}
+              variant="secondary"
+            >
+              {showStatusUpdate ? 'Cancel' : 'Change Status'}
+            </ThemedButton>
+          </div>
+
+          {showStatusUpdate && (
+            <div className={cn("mt-4 p-4 rounded-lg border", theme.background, theme.border)}>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <label className={cn("block text-sm font-medium mb-2", theme.textSecondary)}>
+                    New Status
+                  </label>
+                  <select
+                    value={newStatus}
+                    onChange={(e) => setNewStatus(e.target.value as InvoiceStatus)}
+                    className={cn("w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500/50 focus:border-orange-500/50 transition-colors", theme.background, theme.textPrimary, theme.border)}
+                  >
+                    <option value="draft">Draft</option>
+                    <option value="pending">Pending</option>
+                    <option value="paid">Paid</option>
+                    <option value="partially_paid">Partially Paid</option>
+                    <option value="overdue">Overdue</option>
+                    <option value="cancelled">Cancelled</option>
+                  </select>
+                </div>
+                {(newStatus === 'paid' || newStatus === 'partially_paid') && (
+                  <div>
+                    <label className={cn("block text-sm font-medium mb-2", theme.textSecondary)}>
+                      Payment Method
+                    </label>
+                    <select
+                      value={paymentMethod}
+                      onChange={(e) => setPaymentMethod(e.target.value as PaymentMethod)}
+                      className={cn("w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500/50 focus:border-orange-500/50 transition-colors", theme.background, theme.textPrimary, theme.border)}
+                    >
+                      <option value="">Select method</option>
+                      <option value="cash">Cash</option>
+                      <option value="card">Card</option>
+                      <option value="credit_card">Credit Card</option>
+                      <option value="bank_transfer">Bank Transfer</option>
+                      <option value="upi">UPI</option>
+                      <option value="wallet">Wallet</option>
+                      <option value="check">Check</option>
+                    </select>
+                  </div>
+                )}
+              </div>
+              <div className="mt-4 flex justify-end">
+                <ThemedButton
+                  onClick={handleStatusUpdate}
+                  disabled={updating || newStatus === invoice.status}
+                  variant="primary"
+                >
+                  {updating ? 'Updating...' : 'Update Status'}
+                </ThemedButton>
+              </div>
+            </div>
+          )}
+        </div>
       </div>
-    </Portal>
+    </ThemedModal>
   );
 };
 

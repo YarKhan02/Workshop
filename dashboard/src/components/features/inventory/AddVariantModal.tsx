@@ -2,12 +2,13 @@
 
 import type React from "react"
 import { useState } from "react"
-import { X, Plus, Banknote, Hash, Loader2, Tag } from "lucide-react"
-import Portal from "../../shared/utility/Portal"
+import { Plus, Banknote, Hash, Loader2, Tag } from "lucide-react"
+import { useTheme, cn, ThemedModal, ThemedInput, ThemedButton } from "../../ui"
 import { useCreateVariant } from "../../../hooks/useInventory"
 import type { AddVariantModalProps, ProductVariantFormData } from "../../../types/inventory"
 
 const AddVariantModal: React.FC<AddVariantModalProps> = ({ open, onClose, productId, productName }) => {
+  const { theme } = useTheme();
   const [formData, setFormData] = useState<ProductVariantFormData>({
     variant_name: "",
     price: 0,
@@ -57,45 +58,24 @@ const AddVariantModal: React.FC<AddVariantModalProps> = ({ open, onClose, produc
   if (!open || !productId) return null
 
   return (
-    <Portal>
-      <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-        <div
-          className="bg-gradient-to-br from-gray-800/95 to-slate-800/95 backdrop-blur-md rounded-2xl border border-gray-700/50 shadow-2xl max-w-lg w-full mx-4 transform transition-all duration-300 scale-100"
-          onClick={(e) => e.stopPropagation()}
-        >
-          {/* Header */}
-          <div className="flex items-center justify-between p-6 border-b border-gray-700/50">
-            <div className="flex items-center space-x-3">
-              <div className="p-2 bg-emerald-500/20 rounded-xl border border-emerald-500/30">
-                <Plus className="h-6 w-6 text-emerald-400" />
-              </div>
-              <div>
-                <h2 className="text-xl font-bold text-gray-100">Add New Variant</h2>
-                <p className="text-sm text-gray-400">
-                  {productName ? `Add variant to "${productName}"` : "Create a new product variant"}
-                </p>
-              </div>
+    <ThemedModal
+      isOpen={open}
+      onClose={handleClose}
+      title="Add New Variant"
+      subtitle={productName ? `Add variant to "${productName}"` : "Create a new product variant"}
+      size="md"
+    >
+      <form onSubmit={handleSubmit} className="space-y-6">
+        {/* Product Info Display */}
+        {productName && (
+          <div className={cn("rounded-xl p-4 border", theme.backgroundSecondary, theme.border)}>
+            <div className="flex items-center space-x-2">
+              <Tag className={cn("h-4 w-4", theme.textSecondary)} />
+              <span className={cn("text-sm font-medium", theme.textSecondary)}>Adding variant to:</span>
+              <span className={cn("text-sm font-semibold", theme.textPrimary)}>{productName}</span>
             </div>
-            <button
-              onClick={handleClose}
-              className="p-2 text-gray-400 hover:text-gray-200 hover:bg-gray-700/50 rounded-xl transition-colors"
-            >
-              <X className="h-5 w-5" />
-            </button>
           </div>
-
-          <form onSubmit={handleSubmit} className="p-6">
-            <div className="space-y-6">
-              {/* Product Info Display */}
-              {productName && (
-                <div className="bg-gray-700/30 rounded-xl p-4 border border-gray-600/30">
-                  <div className="flex items-center space-x-2">
-                    <Tag className="h-4 w-4 text-gray-400" />
-                    <span className="text-sm font-medium text-gray-300">Adding variant to:</span>
-                    <span className="text-sm font-semibold text-gray-100">{productName}</span>
-                  </div>
-                </div>
-              )}
+        )}
 
               {/* Variant Information Section */}
               <div className="space-y-4">
@@ -207,40 +187,37 @@ const AddVariantModal: React.FC<AddVariantModalProps> = ({ open, onClose, produc
                   </div>
                 )}
               </div>
-            </div>
 
-            {/* Footer */}
-            <div className="flex items-center justify-end space-x-3 pt-6 border-t border-gray-700/50 mt-6">
-              <button
-                type="button"
-                onClick={handleClose}
-                className="px-6 py-3 border border-gray-600/50 text-gray-300 rounded-xl hover:bg-gray-700/50 transition-colors font-medium"
-                disabled={createVariantMutation.isPending}
-              >
-                Cancel
-              </button>
-              <button
-                type="submit"
-                className="flex items-center px-6 py-3 bg-gradient-to-r from-emerald-500 to-emerald-600 text-white rounded-xl hover:from-emerald-600 hover:to-emerald-700 transition-all duration-200 shadow-lg hover:shadow-xl font-medium disabled:opacity-50 disabled:cursor-not-allowed"
-                disabled={createVariantMutation.isPending}
-              >
-                {createVariantMutation.isPending ? (
-                  <>
-                    <Loader2 className="animate-spin mr-2 h-4 w-4" />
-                    Adding...
-                  </>
-                ) : (
-                  <>
-                    <Plus className="mr-2 h-4 w-4" />
-                    Add Variant
-                  </>
-                )}
-              </button>
-            </div>
-          </form>
+        {/* Form Actions */}
+        <div className="flex items-center justify-end space-x-3 pt-6 border-t mt-6">
+          <ThemedButton
+            type="button"
+            onClick={handleClose}
+            variant="secondary"
+            disabled={createVariantMutation.isPending}
+          >
+            Cancel
+          </ThemedButton>
+          <ThemedButton
+            type="submit"
+            variant="primary"
+            disabled={createVariantMutation.isPending}
+          >
+            {createVariantMutation.isPending ? (
+              <>
+                <Loader2 className="animate-spin mr-2 h-4 w-4" />
+                Adding...
+              </>
+            ) : (
+              <>
+                <Plus className="mr-2 h-4 w-4" />
+                Add Variant
+              </>
+            )}
+          </ThemedButton>
         </div>
-      </div>
-    </Portal>
+      </form>
+    </ThemedModal>
   )
 }
 

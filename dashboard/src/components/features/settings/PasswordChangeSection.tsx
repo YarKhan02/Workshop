@@ -1,5 +1,7 @@
 import React, { useState } from 'react';
 import { Lock, Save, Eye, EyeOff } from 'lucide-react';
+import { useTheme } from '../../../contexts/ThemeContext';
+import { cn } from '../../../lib/utils';
 import type { ChangePasswordData } from '../../../types/settings';
 
 interface PasswordChangeProps {
@@ -11,6 +13,7 @@ const PasswordChangeSection: React.FC<PasswordChangeProps> = ({
   onPasswordChange,
   isLoading,
 }) => {
+  const { theme } = useTheme();
   const [showCurrentPassword, setShowCurrentPassword] = useState(false);
   const [showNewPassword, setShowNewPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
@@ -57,7 +60,7 @@ const PasswordChangeSection: React.FC<PasswordChangeProps> = ({
     placeholder: string;
   }) => (
     <div>
-      <label className="block text-sm font-medium text-slate-300 mb-2">
+      <label className={cn("block text-sm font-medium mb-2", theme.textSecondary)}>
         {label}
       </label>
       <div className="relative">
@@ -65,13 +68,13 @@ const PasswordChangeSection: React.FC<PasswordChangeProps> = ({
           type={show ? 'text' : 'password'}
           value={value}
           onChange={(e) => onChange(e.target.value)}
-          className="w-full px-3 py-2 pr-10 bg-slate-700/50 border border-slate-600/50 rounded-lg text-slate-200 focus:outline-none focus:ring-2 focus:ring-orange-500/50 focus:border-orange-500/50"
+          className={cn("w-full px-3 py-2 pr-10 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500/50 focus:border-orange-500/50", theme.components.input.base)}
           placeholder={placeholder}
         />
         <button
           type="button"
           onClick={onToggleShow}
-          className="absolute inset-y-0 right-0 pr-3 flex items-center text-slate-400 hover:text-slate-200"
+          className={cn("absolute inset-y-0 right-0 pr-3 flex items-center hover:text-slate-200", theme.textSecondary)}
         >
           {show ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
         </button>
@@ -83,7 +86,7 @@ const PasswordChangeSection: React.FC<PasswordChangeProps> = ({
     <div className="space-y-6">
       <div className="flex items-center gap-2 mb-6">
         <Lock className="h-5 w-5 text-orange-400" />
-        <h2 className="text-xl font-semibold text-slate-100">Change Password</h2>
+        <h2 className={cn("text-xl font-semibold", theme.textPrimary)}>Change Password</h2>
       </div>
 
       <div className="max-w-md space-y-6">
@@ -105,7 +108,7 @@ const PasswordChangeSection: React.FC<PasswordChangeProps> = ({
             onToggleShow={() => setShowNewPassword(!showNewPassword)}
             placeholder="Enter new password"
           />
-          <p className="text-sm text-slate-400 mt-1">
+          <p className={cn("text-sm mt-1", theme.textSecondary)}>
             Password must be at least 8 characters long
           </p>
         </div>
@@ -124,7 +127,7 @@ const PasswordChangeSection: React.FC<PasswordChangeProps> = ({
           <p className="text-sm text-red-400">Passwords do not match</p>
         )}
 
-        <div className="flex justify-end border-t border-slate-700/50 pt-6">
+        <div className={cn("flex justify-end border-t pt-6", theme.border)}>
           <button
             onClick={handleSubmit}
             disabled={isLoading || !isFormValid() || passwordData.newPassword !== passwordData.confirmPassword}

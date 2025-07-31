@@ -3,6 +3,7 @@
 import React from 'react';
 import { Eye, Edit } from 'lucide-react';
 import { DataTable } from '../../shared/data';
+import { useTheme, cn } from '../../ui';
 import type { Booking, BookingTableProps } from '../../../types/booking';
 import { formatCurrency } from '../../../utils/currency';
 
@@ -57,15 +58,17 @@ const BookingTable: React.FC<BookingTableProps> = ({
   onViewBooking,
   onEditBooking,
 }) => {
+  const { theme } = useTheme();
+
   const columns = [
     {
       key: 'customer_car',
       header: 'Customer & Vehicle',
       render: (booking: Booking) => (
         <div>
-          <div className="text-sm font-medium text-gray-100">{booking.customerName}</div>
-          <div className="text-sm text-gray-300">{booking.carMake} {booking.carModel}</div>
-          <div className="text-xs text-gray-400">{booking.carLicensePlate}</div>
+          <div className={cn("text-sm font-medium", theme.textPrimary)}>{booking.customerName}</div>
+          <div className={cn("text-sm", theme.textSecondary)}>{booking.carMake} {booking.carModel}</div>
+          <div className={cn("text-xs", theme.textSecondary)}>{booking.carLicensePlate}</div>
         </div>
       ),
     },
@@ -77,7 +80,7 @@ const BookingTable: React.FC<BookingTableProps> = ({
           <span className={`inline-flex px-3 py-1 text-xs font-semibold rounded-full ${getServiceTypeColor(booking.serviceType)}`}>
             {booking.serviceType.replace('_', ' ').toUpperCase()}
           </span>
-          <div className="text-xs text-gray-400 mt-1">
+          <div className={cn("text-xs mt-1", theme.textSecondary)}>
             {formatDuration(booking.estimatedDuration)}
           </div>
         </div>
@@ -88,8 +91,8 @@ const BookingTable: React.FC<BookingTableProps> = ({
       header: 'Service Time',
       render: (booking: Booking) => (
         <div>
-          <div className="text-sm text-gray-200">{formatDate(booking.scheduledDate)}</div>
-          <div className="text-sm text-gray-400">{formatTime(booking.scheduledTime)}</div>
+          <div className={cn("text-sm", theme.textPrimary)}>{formatDate(booking.scheduledDate)}</div>
+          <div className={cn("text-sm", theme.textSecondary)}>{formatTime(booking.scheduledTime)}</div>
         </div>
       ),
     },
@@ -106,7 +109,7 @@ const BookingTable: React.FC<BookingTableProps> = ({
       key: 'amount',
       header: 'Service Amount',
       render: (booking: Booking) => (
-        <div className="text-sm font-medium text-gray-200">
+        <div className={cn("text-sm font-medium", theme.textPrimary)}>
           {formatCurrency(booking.totalAmount)}
         </div>
       ),
@@ -118,13 +121,13 @@ const BookingTable: React.FC<BookingTableProps> = ({
       label: 'View Details',
       icon: Eye,
       onClick: onViewBooking,
-      className: 'text-orange-400 hover:text-orange-300',
+      className: 'text-orange-400 hover:text-orange-300 transition-colors duration-200 p-1.5 rounded-lg hover:bg-orange-500/20',
     },
     {
       label: 'Edit Appointment',
       icon: Edit,
       onClick: onEditBooking,
-      className: 'text-red-400 hover:text-red-300',
+      className: 'text-emerald-400 hover:text-emerald-300 transition-colors duration-200 p-1.5 rounded-lg hover:bg-emerald-500/20',
     },
   ];
 

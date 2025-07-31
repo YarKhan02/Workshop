@@ -177,6 +177,20 @@ export interface BillingFilters {
   limit?: number;
 }
 
+export interface PaginationInfo {
+  current_page: number;
+  total_pages: number;
+  total_count: number;
+  per_page: number;
+  has_next: boolean;
+  has_previous: boolean;
+}
+
+export interface PaginatedInvoiceResponse {
+  data: Invoice[];
+  pagination: PaginationInfo;
+}
+
 export interface BillingResponse {
   data: Invoice[];
   pagination?: {

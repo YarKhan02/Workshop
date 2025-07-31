@@ -1,5 +1,6 @@
 import React from 'react';
-import { Eye } from 'lucide-react';
+import { useTheme, cn } from '../../ui';
+import DataTable from '../../shared/data/DataTable';
 import type { Invoice } from '../../../types/billing';
 import { formatCurrency } from '../../../utils/currency';
 
@@ -10,11 +11,7 @@ interface BillingTableProps {
 }
 
 const BillingTable: React.FC<BillingTableProps> = ({ invoices, onRowClick, loading = false }) => {
-
-  const handleViewInvoice = (e: React.MouseEvent, invoice: Invoice) => {
-    e.stopPropagation();
-    onRowClick(invoice);
-  };
+  const { theme } = useTheme();
 
   const getStatusColor = (status: string) => {
     switch (status) {
@@ -31,85 +28,65 @@ const BillingTable: React.FC<BillingTableProps> = ({ invoices, onRowClick, loadi
 
   if (loading) {
     return (
-      <div className="bg-slate-800/50 rounded-lg border border-slate-700/50 p-8">
+      <div className={cn("rounded-lg border p-8", theme.background, theme.border)}>
         <div className="flex items-center justify-center">
           <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-orange-500"></div>
-          <span className="ml-3 text-slate-300">Loading invoices...</span>
+          <span className={cn("ml-3", theme.textSecondary)}>Loading invoices...</span>
         </div>
       </div>
     );
   }
 
+  const columns = [
+    {
+      key: 'customer',
+      header: 'Customer',
+      render: (invoice: any) => (
+        <div>
+          <div className={cn("text-sm font-medium", theme.textPrimary)}>
+            {invoice.customer?.first_name || ''} {invoice.customer?.last_name || ''}
+          </div>
+          <div className={cn("text-sm", theme.textSecondary)}>{invoice.customer?.email || 'N/A'}</div>
+        </div>
+      )
+    },
+    {
+      key: 'date',
+      header: 'Date',
+      render: (invoice: any) => (
+        <span className={cn("text-sm", theme.textSecondary)}>
+          {invoice.created_at ? new Date(invoice.created_at).toLocaleDateString() : 'N/A'}
+        </span>
+      )
+    },
+    {
+      key: 'amount',
+      header: 'Amount',
+      render: (invoice: any) => (
+        <span className={cn("text-sm font-medium", theme.textPrimary)}>
+          {formatCurrency(Number(invoice.total_amount || 0))}
+        </span>
+      )
+    },
+    {
+      key: 'status',
+      header: 'Status',
+      render: (invoice: any) => (
+        <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium border ${getStatusColor(invoice.status)}`}>
+          {invoice.status.charAt(0).toUpperCase() + invoice.status.slice(1)}
+        </span>
+      )
+    }
+  ];
+
   return (
-    <div className="bg-slate-800/50 rounded-lg border border-slate-700/50 overflow-hidden">
-      {/* Table */}
-      <div className="overflow-x-auto">
-        <table className="w-full">
-          <thead className="bg-slate-900/80">
-            <tr>
-              <th className="px-6 py-4 text-left text-xs font-medium text-slate-300 uppercase tracking-wider">
-                Customer
-              </th>
-              <th className="px-6 py-4 text-left text-xs font-medium text-slate-300 uppercase tracking-wider">
-                Date
-              </th>
-              <th className="px-6 py-4 text-left text-xs font-medium text-slate-300 uppercase tracking-wider">
-                Amount
-              </th>
-              <th className="px-6 py-4 text-left text-xs font-medium text-slate-300 uppercase tracking-wider">
-                Status
-              </th>
-              <th className="px-6 py-4 text-left text-xs font-medium text-slate-300 uppercase tracking-wider">
-                Actions
-              </th>
-            </tr>
-          </thead>
-          <tbody className="divide-y divide-slate-700/50">
-            {invoices.length === 0 ? (
-              <tr>
-                <td colSpan={5} className="px-6 py-8 text-center text-slate-400">
-                  No invoices found
-                </td>
-              </tr>
-            ) : (
-              invoices.map((invoice: any) => (
-                <tr
-                  key={invoice.id}
-                  className="hover:bg-slate-700/30 transition-colors duration-150"
-                >
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <div className="text-sm font-medium text-slate-200">
-                      {invoice.customer?.first_name || ''} {invoice.customer?.last_name || ''}
-                    </div>
-                    <div className="text-sm text-slate-400">{invoice.customer?.email || 'N/A'}</div>
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-slate-300">
-                    {invoice.created_at ? new Date(invoice.created_at).toLocaleDateString() : 'N/A'}
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-slate-200">
-                    {formatCurrency(Number(invoice.total_amount || 0))}
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium border ${getStatusColor(invoice.status)}`}>
-                      {invoice.status.charAt(0).toUpperCase() + invoice.status.slice(1)}
-                    </span>
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-slate-300">
-                    <button
-                      onClick={(e) => handleViewInvoice(e, invoice)}
-                      className="p-2 text-slate-400 hover:text-orange-400 hover:bg-slate-700/50 rounded-lg transition-colors duration-150"
-                      title="View invoice details"
-                    >
-                      <Eye className="h-4 w-4" />
-                    </button>
-                  </td>
-                </tr>
-              ))
-            )}
-          </tbody>
-        </table>
-      </div>
-    </div>
+    <DataTable
+      data={invoices}
+      columns={columns}
+      isLoading={loading}
+      emptyMessage="No invoices found"
+      onRowClick={onRowClick}
+    />
   );
 };
 

@@ -1,4 +1,6 @@
 import React from 'react';
+import { useTheme } from '../../../contexts/ThemeContext';
+import { cn } from '../../../lib/utils';
 import type { SettingsTab } from '../../../types/settings';
 
 interface TabNavigationProps {
@@ -12,8 +14,14 @@ const TabNavigation: React.FC<TabNavigationProps> = ({
   activeTab,
   onTabChange,
 }) => {
+  const { theme } = useTheme();
+
   return (
-    <div className="border-b border-slate-600/30">
+    <div className={cn(
+      "border-b rounded-t-xl",
+      theme.components.table.header,
+      theme.border
+    )}>
       <nav className="flex space-x-8 px-6">
         {tabs.map((tab) => {
           const Icon = tab.icon;
@@ -21,11 +29,12 @@ const TabNavigation: React.FC<TabNavigationProps> = ({
             <button
               key={tab.id}
               onClick={() => onTabChange(tab.id)}
-              className={`flex items-center gap-2 py-4 px-1 border-b-2 font-medium text-sm transition-all duration-300 ${
+              className={cn(
+                "flex items-center gap-2 py-4 px-1 border-b-2 font-medium text-sm transition-all duration-300",
                 activeTab === tab.id
-                  ? 'border-orange-500 text-orange-400'
-                  : 'border-transparent text-slate-400 hover:text-slate-200 hover:border-orange-500/50'
-              }`}
+                  ? "border-orange-500 text-orange-400"
+                  : cn("border-transparent hover:border-orange-500/50", theme.textSecondary, "hover:text-slate-200")
+              )}
             >
               <Icon className="h-4 w-4" />
               {tab.label}

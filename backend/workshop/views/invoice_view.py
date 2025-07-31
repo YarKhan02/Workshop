@@ -3,6 +3,7 @@ from rest_framework import viewsets, status
 from rest_framework.response import Response
 from rest_framework.decorators import action
 from django.db.models import Q
+from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 
 from workshop.queries.invoice_queries import get_optimized_invoices
 from workshop.models.invoice import Invoice
@@ -10,11 +11,21 @@ from workshop.serializers.invoice_serializer import InvoiceCreateSerializer, Inv
 
 class InvoiceView(viewsets.ViewSet):
 
-    # List all invoices
+    # List all invoices with pagination
     @action(detail=False, methods=['get'], url_path='list-invoices')
     def list_invoices(self, request):
         search = request.query_params.get('search')
         status_filter = request.query_params.get('status')
+        page = request.query_params.get('page', 1)
+        limit = request.query_params.get('limit', 10)
+
+        # Convert to integers with error handling
+        try:
+            page = int(page)
+            limit = int(limit)
+        except (ValueError, TypeError):
+            page = 1
+            limit = 10
 
         # Ensure get_optimized_invoices does not reference 'product'
         invoices = get_optimized_invoices().prefetch_related('items__product_variant')
@@ -22,15 +33,44 @@ class InvoiceView(viewsets.ViewSet):
         if search:
             invoices = invoices.filter(
                 Q(customer__first_name__icontains=search) |
-                Q(customer__last_name__icontains=search)
+                Q(customer__last_name__icontains=search) |
+                Q(id__icontains=search)
             )
 
         if status_filter:
             invoices = invoices.filter(status=status_filter)
+        
+        # Order by created date (most recent first)
+        invoices = invoices.order_by('-created_at')
+        
+        # Apply pagination
+        paginator = Paginator(invoices, limit)
+        total_count = paginator.count
+        total_pages = paginator.num_pages
+        
+        try:
+            paginated_invoices = paginator.page(page)
+        except PageNotAnInteger:
+            paginated_invoices = paginator.page(1)
+        except EmptyPage:
+            paginated_invoices = paginator.page(paginator.num_pages)
             
-        serializer = InvoiceSerializer(invoices, many=True)
-        print("Serialized data:", json.dumps(serializer.data, indent=2))  # Debugging line to check serialized data
-        return Response(serializer.data, status=status.HTTP_200_OK)
+        serializer = InvoiceSerializer(paginated_invoices, many=True)
+        
+        response_data = {
+            'data': serializer.data,
+            'pagination': {
+                'current_page': page,
+                'total_pages': total_pages,
+                'total_count': total_count,
+                'per_page': limit,
+                'has_next': paginated_invoices.has_next(),
+                'has_previous': paginated_invoices.has_previous(),
+            }
+        }
+        
+        print("Paginated response:", json.dumps(response_data, indent=2, default=str))  # Debugging line
+        return Response(response_data, status=status.HTTP_200_OK)
 
     # Add a new invoice
     @action(detail=False, methods=['post'], url_path='add-invoice')

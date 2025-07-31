@@ -2,21 +2,22 @@
 
 import React, { useState, useEffect } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { X, Calendar, Clock, FileText, Banknote, Save } from 'lucide-react';
+import { Calendar, Clock, FileText, Banknote, Save } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { bookingAPI, serviceAPI } from '../../../api/booking';
+import { useTheme, cn, ThemedModal, ThemedInput, ThemedButton } from '../../ui';
 import type { 
   EditBookingModalProps,
   TimeSlot,
   Service 
 } from '../../../types';
-import Portal from '../../shared/utility/Portal';
 import { formatCurrency } from '../../../utils/currency';
 
 // ==================== COMPONENT ====================
 
 const EditBookingModal: React.FC<EditBookingModalProps> = ({ isOpen, onClose, booking }) => {
   const queryClient = useQueryClient();
+  const { theme } = useTheme();
 
   // Form state
   const [formData, setFormData] = useState({
@@ -159,44 +160,27 @@ const EditBookingModal: React.FC<EditBookingModalProps> = ({ isOpen, onClose, bo
   // ==================== RENDER ====================
   
   return (
-    <Portal>
-      <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 z-50">
-        <div className="bg-gradient-to-br from-gray-800/95 to-slate-800/95 rounded-2xl shadow-2xl border border-gray-700/30 backdrop-blur-md w-full max-w-4xl max-h-[90vh] overflow-hidden">
-          
-          {/* Header */}
-          <div className="flex items-center justify-between p-6 border-b border-gray-700/30">
+    <ThemedModal
+      isOpen={isOpen}
+      onClose={onClose}
+      title="Edit Appointment"
+      subtitle={`Modify appointment for ${booking.customerName}`}
+      size="xl"
+    >
+      <form onSubmit={handleSubmit} className="space-y-6">
+        
+        {/* Client Info (Read-only) */}
+        <div className={cn("rounded-xl p-4 border", theme.background, theme.border)}>
+          <h3 className={cn("text-lg font-semibold mb-3", theme.primary)}>Customer & Vehicle</h3>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
-              <h2 className="text-2xl font-bold bg-gradient-to-r from-orange-400 to-red-500 bg-clip-text text-transparent">
-                Edit Appointment
-              </h2>
-              <p className="text-gray-400 mt-1">
-                Modify appointment for {booking.customerName}
-              </p>
+              <p className={cn("font-medium", theme.textPrimary)}>{booking.customerName}</p>
+              <p className={cn("text-sm", theme.textSecondary)}>{booking.customerPhone}</p>
             </div>
-            <button
-              onClick={onClose}
-              className="p-2 hover:bg-gray-700/50 rounded-xl transition-colors text-gray-400 hover:text-gray-200"
-            >
-              <X size={24} />
-            </button>
-          </div>
-
-          {/* Content */}
-          <div className="p-6 overflow-y-auto max-h-[calc(90vh-140px)]">
-            <form onSubmit={handleSubmit} className="space-y-6">
-              
-              {/* Client Info (Read-only) */}
-              <div className="bg-gray-900/30 rounded-xl p-4 border border-gray-700/30">
-                <h3 className="text-lg font-semibold text-orange-400 mb-3">Customer & Vehicle</h3>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div>
-                    <p className="text-gray-300 font-medium">{booking.customerName}</p>
-                    <p className="text-gray-400 text-sm">{booking.customerPhone}</p>
-                  </div>
-                  <div>
-                    <p className="text-gray-300 font-medium">{booking.carMake} {booking.carModel}</p>
-                    <p className="text-gray-400 text-sm">{booking.carLicensePlate}</p>
-                  </div>
+            <div>
+              <p className={cn("font-medium", theme.textPrimary)}>{booking.carMake} {booking.carModel}</p>
+              <p className={cn("text-sm", theme.textSecondary)}>{booking.carLicensePlate}</p>
+            </div>
                 </div>
               </div>
 
@@ -342,31 +326,26 @@ const EditBookingModal: React.FC<EditBookingModalProps> = ({ isOpen, onClose, bo
                 </div>
               </div>
 
-            </form>
-          </div>
-
-          {/* Footer */}
-          <div className="flex justify-end gap-4 p-6 border-t border-gray-700/30">
-            <button
-              type="button"
-              onClick={onClose}
-              className="px-6 py-3 bg-gray-700/50 hover:bg-gray-600/50 text-gray-300 rounded-xl transition-all duration-300"
-            >
-              Cancel
-            </button>
-            <button
-              onClick={handleSubmit}
-              disabled={updateBookingMutation.isPending}
-              className="px-6 py-3 bg-gradient-to-r from-orange-500 to-red-600 hover:from-orange-600 hover:to-red-700 text-white rounded-xl font-semibold shadow-lg shadow-orange-500/25 transition-all duration-300 disabled:opacity-50 flex items-center gap-2"
-            >
-              <Save className="w-4 h-4" />
-              {updateBookingMutation.isPending ? 'Updating...' : 'Save Changes'}
-            </button>
-          </div>
-
+        {/* Form Actions */}
+        <div className="flex justify-end gap-4 pt-6">
+          <ThemedButton
+            type="button"
+            onClick={onClose}
+            variant="secondary"
+          >
+            Cancel
+          </ThemedButton>
+          <ThemedButton
+            onClick={handleSubmit}
+            disabled={updateBookingMutation.isPending}
+            variant="primary"
+          >
+            <Save className="w-4 h-4 mr-2" />
+            {updateBookingMutation.isPending ? 'Updating...' : 'Save Changes'}
+          </ThemedButton>
         </div>
-      </div>
-    </Portal>
+      </form>
+    </ThemedModal>
   );
 };
 

@@ -2,6 +2,8 @@ import React from 'react';
 import { Settings as SettingsIcon, Save } from 'lucide-react';
 import { BACKUP_FREQUENCY_OPTIONS } from '../../../constants/settings';
 import ToggleSwitch from './ToggleSwitch';
+import { useTheme } from '../../../contexts/ThemeContext';
+import { cn } from '../../../lib/utils';
 import type { SystemSettings } from '../../../types/settings';
 
 interface SystemSettingsProps {
@@ -17,6 +19,8 @@ const SystemSettingsSection: React.FC<SystemSettingsProps> = ({
   onSave,
   isLoading,
 }) => {
+  const { theme } = useTheme();
+  
   const updateSetting = (field: keyof SystemSettings, value: any) => {
     onSettingsChange({ ...settings, [field]: value });
   };
@@ -42,18 +46,18 @@ const SystemSettingsSection: React.FC<SystemSettingsProps> = ({
     <div className="space-y-6">
       <div className="flex items-center gap-2 mb-6">
         <SettingsIcon className="h-5 w-5 text-orange-400" />
-        <h2 className="text-xl font-semibold text-slate-100">System Configuration</h2>
+        <h2 className={cn("text-xl font-semibold", theme.textPrimary)}>System Configuration</h2>
       </div>
 
       {/* Backup & Data */}
       <div>
-        <h3 className="text-lg font-medium text-slate-100 mb-4">Backup & Data Management</h3>
+        <h3 className={cn("text-lg font-medium mb-4", theme.textPrimary)}>Backup & Data Management</h3>
         <div className="space-y-4">
           {/* Auto Backup Toggle */}
-          <div className="flex items-center justify-between p-4 bg-slate-800/50 rounded-lg border border-slate-700/30">
+          <div className={cn("flex items-center justify-between p-4 rounded-lg", theme.backgroundSecondary, theme.border)}>
             <div>
-              <div className="font-medium text-slate-200">Auto Backup</div>
-              <div className="text-sm text-slate-400">Automatically backup data at scheduled intervals</div>
+              <div className={cn("font-medium", theme.textPrimary)}>Auto Backup</div>
+              <div className={cn("text-sm", theme.textSecondary)}>Automatically backup data at scheduled intervals</div>
             </div>
             <ToggleSwitch
               checked={settings.autoBackup}
@@ -63,15 +67,15 @@ const SystemSettingsSection: React.FC<SystemSettingsProps> = ({
 
           {/* Backup Settings */}
           {settings.autoBackup && (
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 p-4 bg-slate-800/30 rounded-lg border border-slate-700/20">
+            <div className={cn("grid grid-cols-1 md:grid-cols-2 gap-4 p-4 rounded-lg", theme.backgroundSecondary, theme.border)}>
               <div>
-                <label className="block text-sm font-medium text-slate-300 mb-2">
+                <label className={cn("block text-sm font-medium mb-2", theme.textSecondary)}>
                   Backup Frequency
                 </label>
                 <select
                   value={settings.backupFrequency}
                   onChange={(e) => updateSetting('backupFrequency', e.target.value)}
-                  className="w-full px-3 py-2 bg-slate-700/50 border border-slate-600/50 rounded-lg text-slate-200 focus:outline-none focus:ring-2 focus:ring-orange-500/50 focus:border-orange-500/50"
+                  className={cn("w-full px-3 py-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500/50 focus:border-orange-500/50", theme.components.input.base)}
                 >
                   {backupFrequencyOptions.map((option) => (
                     <option key={option.value} value={option.value}>
@@ -82,18 +86,18 @@ const SystemSettingsSection: React.FC<SystemSettingsProps> = ({
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-slate-300 mb-2">
+                <label className={cn("block text-sm font-medium mb-2", theme.textSecondary)}>
                   Data Retention (days)
                 </label>
                 <input
                   type="number"
                   value={settings.dataRetention}
                   onChange={(e) => updateSetting('dataRetention', parseInt(e.target.value))}
-                  className="w-full px-3 py-2 bg-slate-700/50 border border-slate-600/50 rounded-lg text-slate-200 focus:outline-none focus:ring-2 focus:ring-orange-500/50 focus:border-orange-500/50"
+                  className={cn("w-full px-3 py-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500/50 focus:border-orange-500/50", theme.components.input.base)}
                   min="1"
                   max="365"
                 />
-                <p className="text-xs text-slate-400 mt-1">
+                <p className={cn("text-xs mt-1", theme.textSecondary)}>
                   How long to keep backup files (1-365 days)
                 </p>
               </div>
@@ -103,22 +107,24 @@ const SystemSettingsSection: React.FC<SystemSettingsProps> = ({
       </div>
 
       {/* System Options */}
-      <div className="border-t border-slate-700/50 pt-6">
-        <h3 className="text-lg font-medium text-slate-100 mb-4">System Options</h3>
+      <div className={cn("border-t pt-6", theme.border)}>
+        <h3 className={cn("text-lg font-medium mb-4", theme.textPrimary)}>System Options</h3>
         <div className="space-y-4">
           {systemOptions.map((option) => (
             <div 
               key={option.key} 
-              className={`flex items-center justify-between p-4 rounded-lg border ${
+              className={cn(
+                "flex items-center justify-between p-4 rounded-lg border",
                 option.isDangerous 
-                  ? 'bg-red-900/20 border-red-600/30' 
-                  : 'bg-slate-800/50 border-slate-700/30'
-              }`}
+                  ? "bg-red-900/20 border-red-600/30" 
+                  : cn(theme.backgroundSecondary, theme.border)
+              )}
             >
               <div>
-                <div className={`font-medium ${
-                  option.isDangerous ? 'text-red-300' : 'text-slate-200'
-                }`}>
+                <div className={cn(
+                  "font-medium",
+                  option.isDangerous ? "text-red-300" : theme.textPrimary
+                )}>
                   {option.title}
                   {option.isDangerous && (
                     <span className="ml-2 text-xs px-2 py-1 bg-red-600/20 text-red-400 rounded-full">
@@ -126,7 +132,7 @@ const SystemSettingsSection: React.FC<SystemSettingsProps> = ({
                     </span>
                   )}
                 </div>
-                <div className="text-sm text-slate-400">{option.description}</div>
+                <div className={cn("text-sm", theme.textSecondary)}>{option.description}</div>
               </div>
               <ToggleSwitch
                 checked={settings[option.key]}
@@ -152,7 +158,7 @@ const SystemSettingsSection: React.FC<SystemSettingsProps> = ({
       )}
 
       {/* Save Button */}
-      <div className="flex justify-end border-t border-slate-700/50 pt-6">
+      <div className={cn("flex justify-end border-t pt-6", theme.border)}>
         <button
           onClick={onSave}
           disabled={isLoading}

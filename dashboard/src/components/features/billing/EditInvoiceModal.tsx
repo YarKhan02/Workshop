@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useTheme, cn, ThemedModal, ThemedInput, ThemedButton } from '../../ui';
 import { useUpdateInvoice } from '../../../hooks/useBilling';
 import type { 
   Invoice, 
@@ -8,7 +9,6 @@ import type {
 } from '../../../types/billing';
 import type { Customer } from '../../../types';
 import {
-  InvoiceModalWrapper,
   InvoiceStatusSelector,
   DueDateInput,
   EditableInvoiceItemsList,
@@ -33,6 +33,7 @@ const EditInvoiceModal: React.FC<EditInvoiceModalProps> = ({
   invoice,
   customers,
 }) => {
+  const { theme } = useTheme();
   const [formData, setFormData] = useState({
     customerId: '',
     subtotal: 0,
@@ -190,25 +191,27 @@ const EditInvoiceModal: React.FC<EditInvoiceModalProps> = ({
   if (!isOpen) return null;
 
   return (
-    <InvoiceModalWrapper
+    <ThemedModal
       isOpen={isOpen}
       onClose={onClose}
       title={`Edit Invoice #${invoice.invoiceNumber}`}
+      subtitle="Update invoice details and items"
+      size="xl"
     >
-      <form onSubmit={handleSubmit} className="p-6 space-y-6">
+      <form onSubmit={handleSubmit} className="space-y-6">
         {/* Basic Information */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          {/* Customer Selection - Custom implementation for now */}
+          {/* Customer Selection */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
+            <label className={cn("block text-sm font-medium mb-2", theme.textSecondary)}>
               Customer <span className="text-red-500">*</span>
             </label>
             <select
               value={formData.customerId}
               onChange={(e) => setFormData({ ...formData, customerId: e.target.value })}
-              className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent ${
-                errors.customerId ? 'border-red-500' : 'border-gray-300'
-              }`}
+              className={cn(`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-colors ${
+                errors.customerId ? 'border-red-500' : ''
+              }`, theme.background, theme.textPrimary, theme.border)}
             >
               <option value="">Select Customer</option>
               {customers.map((customer) => (
@@ -218,7 +221,7 @@ const EditInvoiceModal: React.FC<EditInvoiceModalProps> = ({
               ))}
             </select>
             {errors.customerId && (
-              <p className="mt-1 text-sm text-red-600">{errors.customerId}</p>
+              <p className="mt-1 text-sm text-red-400">{errors.customerId}</p>
             )}
           </div>
 
@@ -278,7 +281,7 @@ const EditInvoiceModal: React.FC<EditInvoiceModalProps> = ({
           isLoading={updateInvoiceMutation.isPending}
         />
       </form>
-    </InvoiceModalWrapper>
+    </ThemedModal>
   );
 };
 

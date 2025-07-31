@@ -1,9 +1,9 @@
 "use client";
 
 import React, { useState, useEffect, useMemo } from 'react';
-import { X, Package } from 'lucide-react';
+import { Package } from 'lucide-react';
 import toast from 'react-hot-toast';
-import Portal from '../../shared/utility/Portal';
+import { useTheme, cn, ThemedModal, ThemedButton } from '../../ui';
 import { 
   useCreateInvoice, 
   useInvoiceCustomers, 
@@ -39,6 +39,7 @@ const AddInvoiceModal: React.FC<AddInvoiceModalProps> = ({
   onClose, 
   onSuccess
 }) => {
+  const { theme } = useTheme();
   const [formData, setFormData] = useState({
     customerId: "",
     jobId: "",
@@ -260,55 +261,52 @@ const AddInvoiceModal: React.FC<AddInvoiceModalProps> = ({
   if (!isOpen) return null;
 
   return (
-    <Portal>
-      <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-        <div className="bg-gray-800 rounded-lg shadow-xl max-w-4xl w-full max-h-[90vh] overflow-y-auto border border-gray-700">
-          <div className="flex justify-between items-center p-6 border-b border-gray-700">
-            <h2 className="text-xl font-semibold text-white">Create New Invoice</h2>
-            <button onClick={handleClose} className="text-gray-400 hover:text-gray-200 transition-colors">
-              <X className="w-6 h-6" />
-            </button>
+    <ThemedModal
+      isOpen={isOpen}
+      onClose={handleClose}
+      title="Create New Invoice"
+      subtitle="Add invoice details and items"
+      size="xl"
+    >
+      <form onSubmit={handleSubmit} className="space-y-6">
+        {/* Basic Information */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <CustomerSelector
+            value={formData.customerId}
+            onChange={(customerId) => setFormData((prev) => ({ ...prev, customerId }))}
+            customers={customersData}
+            isLoading={isLoadingCustomers}
+            error={errors.customerId}
+            required
+          />
+
+          <InvoiceStatusSelector
+            value={formData.status}
+            onChange={(status) => setFormData({ ...formData, status })}
+          />
+
+          <DueDateInput
+            value={formData.dueDate}
+            onChange={(dueDate) => setFormData({ ...formData, dueDate })}
+            disabled={formData.status === "paid"}
+            error={errors.dueDate}
+            required
+          />
+        </div>
+
+        {/* Invoice Items */}
+        <div>
+          <div className="flex justify-between items-center mb-4">
+            <h3 className={cn("text-lg font-medium", theme.textPrimary)}>Invoice Items</h3>
+            <ThemedButton
+              type="button"
+              onClick={() => setShowProductSelector(!showProductSelector)}
+              variant="secondary"
+            >
+              <Package className="w-4 h-4 mr-2" />
+              Add Product
+            </ThemedButton>
           </div>
-          
-          <form onSubmit={handleSubmit} className="p-6 space-y-6 bg-gray-800">
-            {/* Basic Information */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <CustomerSelector
-                value={formData.customerId}
-                onChange={(customerId) => setFormData((prev) => ({ ...prev, customerId }))}
-                customers={customersData}
-                isLoading={isLoadingCustomers}
-                error={errors.customerId}
-                required
-              />
-
-              <InvoiceStatusSelector
-                value={formData.status}
-                onChange={(status) => setFormData({ ...formData, status })}
-              />
-
-              <DueDateInput
-                value={formData.dueDate}
-                onChange={(dueDate) => setFormData({ ...formData, dueDate })}
-                disabled={formData.status === "paid"}
-                error={errors.dueDate}
-                required
-              />
-            </div>
-
-            {/* Invoice Items */}
-            <div>
-              <div className="flex justify-between items-center mb-4">
-                <h3 className="text-lg font-medium text-white">Invoice Items</h3>
-                <button
-                  type="button"
-                  onClick={() => setShowProductSelector(!showProductSelector)}
-                  className="bg-blue-600 text-white hover:bg-blue-700 focus:ring-blue-500 px-4 py-2 rounded-lg font-medium transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 flex items-center gap-2"
-                >
-                  <Package className="w-4 h-4" />
-                  Add Product
-                </button>
-              </div>
 
               {/* Product Selector */}
               <ProductSelector
@@ -341,16 +339,14 @@ const AddInvoiceModal: React.FC<AddInvoiceModalProps> = ({
               formatCurrency={formatCurrency}
             />
 
-            {/* Form Actions */}
-            <FormActions
-              onCancel={handleClose}
-              onSubmit={handleSubmit}
-              isLoading={createInvoiceMutation.isPending}
-            />
-          </form>
-        </div>
-      </div>
-    </Portal>
+        {/* Form Actions */}
+        <FormActions
+          onCancel={handleClose}
+          onSubmit={handleSubmit}
+          isLoading={createInvoiceMutation.isPending}
+        />
+      </form>
+    </ThemedModal>
   );
 };
 

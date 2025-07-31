@@ -166,7 +166,7 @@ export const darkTheme: ThemeColors & { components: ThemeComponents } = {
     modal: {
       overlay: 'fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 z-50',
       container: 'bg-gradient-to-br from-gray-800/95 to-slate-800/95 rounded-2xl shadow-2xl border border-gray-700/30 backdrop-blur-md w-full max-w-4xl max-h-[90vh] overflow-hidden',
-      header: 'flex items-center justify-between p-6 border-b border-gray-700/30',
+      header: 'bg-gradient-to-r from-gray-900/80 to-slate-900/80 flex items-center justify-between px-6 py-4 border-b border-gray-700/50',
       content: 'p-6 overflow-y-auto max-h-[calc(90vh-140px)]',
       footer: 'flex justify-end gap-4 p-6 border-t border-gray-700/30',
     },
@@ -255,7 +255,7 @@ export const lightTheme: ThemeColors & { components: ThemeComponents } = {
     modal: {
       overlay: 'fixed inset-0 bg-black/30 backdrop-blur-sm flex items-center justify-center p-4 z-50',
       container: 'bg-white rounded-xl shadow-2xl border border-gray-200 w-full max-w-4xl max-h-[90vh] overflow-hidden',
-      header: 'flex items-center justify-between p-6 border-b border-gray-200',
+      header: 'bg-gray-50 flex items-center justify-between px-6 py-4 border-b border-gray-200',
       content: 'p-6 overflow-y-auto max-h-[calc(90vh-140px)]',
       footer: 'flex justify-end gap-4 p-6 border-t border-gray-200',
     },

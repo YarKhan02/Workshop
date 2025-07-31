@@ -2,11 +2,11 @@
 
 import React from 'react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { X, Calendar, Clock, User, Car, FileText, Banknote, Phone, Mail, CheckCircle } from 'lucide-react';
+import { Calendar, Clock, User, Car, FileText, Banknote, Phone, Mail, CheckCircle } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { bookingAPI } from '../../../api/booking';
+import { useTheme, cn, ThemedModal, ThemedButton } from '../../ui';
 import type { BookingDetailModalProps } from '../../../types/booking';
-import Portal from '../../shared/utility/Portal';
 import { formatCurrency } from '../../../utils/currency';
 
 // ==================== HELPER FUNCTIONS ====================
@@ -52,6 +52,7 @@ const formatTime = (timeString: string) => {
 
 const BookingDetailModal: React.FC<BookingDetailModalProps> = ({ isOpen, onClose, booking }) => {
   const queryClient = useQueryClient();
+  const { theme } = useTheme();
 
   // ==================== MUTATIONS ====================
   
@@ -96,37 +97,23 @@ const BookingDetailModal: React.FC<BookingDetailModalProps> = ({ isOpen, onClose
   // ==================== RENDER ====================
   
   return (
-    <Portal>
-      <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 z-50">
-        <div className="bg-gradient-to-br from-gray-800/95 to-slate-800/95 rounded-2xl shadow-2xl border border-gray-700/30 backdrop-blur-md w-full max-w-4xl max-h-[90vh] overflow-hidden flex flex-col">
-          
-          {/* Header */}
-          <div className="flex items-center justify-between p-6 border-b border-gray-700/30 flex-shrink-0">
-            <div>
-              <h2 className="text-2xl font-bold bg-gradient-to-r from-orange-400 to-red-500 bg-clip-text text-transparent">
-                Appointment Details
-              </h2>
-              <p className="text-gray-400 mt-1">Booking #{booking.id}</p>
-            </div>
-            <button
-              onClick={onClose}
-              className="p-2 hover:bg-gray-700/50 rounded-xl transition-colors text-gray-400 hover:text-gray-200"
-            >
-              <X size={24} />
-            </button>
-          </div>
-
-          {/* Content - Scrollable */}
-          <div className="flex-1 overflow-y-auto p-6">{/* Status */}
-            <div className="mb-6">
-              <label className="block text-sm font-medium text-gray-300 mb-3">Service Status</label>
-              <div className="flex items-center gap-4">
-                <span className={`inline-flex px-4 py-2 text-sm font-semibold rounded-xl ${getStatusColor(booking.status)}`}>
-                  {getStatusText(booking.status)}
-                </span>
-                <select
-                  value={booking.status}
-                  onChange={(e) => handleStatusChange(e.target.value)}
+    <ThemedModal
+      isOpen={isOpen}
+      onClose={onClose}
+      title="Appointment Details"
+      subtitle={`Booking #${booking.id}`}
+      size="xl"
+    >
+      {/* Status */}
+      <div className="mb-6">
+        <label className={cn("block text-sm font-medium mb-3", theme.textSecondary)}>Service Status</label>
+        <div className="flex items-center gap-4">
+          <span className={`inline-flex px-4 py-2 text-sm font-semibold rounded-xl ${getStatusColor(booking.status)}`}>
+            {getStatusText(booking.status)}
+          </span>
+          <select
+            value={booking.status}
+            onChange={(e) => handleStatusChange(e.target.value)}
                   className="px-4 py-2 bg-gray-900/50 border border-gray-600/50 rounded-xl text-gray-100 focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-all duration-300"
                   disabled={updateStatusMutation.isPending}
                 >
@@ -239,31 +226,26 @@ const BookingDetailModal: React.FC<BookingDetailModalProps> = ({ isOpen, onClose
               </div>
             )}
 
-          </div>
-
-          {/* Footer - Fixed at bottom */}
-          <div className="flex justify-end gap-4 p-6 border-t border-gray-700/30 flex-shrink-0 bg-gradient-to-br from-gray-800/95 to-slate-800/95">
-            <button
-              onClick={onClose}
-              className="px-6 py-3 bg-gray-700/50 hover:bg-gray-600/50 text-gray-300 rounded-xl transition-all duration-300"
-            >
-              Close
-            </button>
-            {booking.status !== 'completed' && booking.status !== 'cancelled' && (
-              <button
-                onClick={() => handleStatusChange('completed')}
-                disabled={updateStatusMutation.isPending}
-                className="px-6 py-3 bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 text-white rounded-xl font-semibold shadow-lg shadow-green-500/25 transition-all duration-300 disabled:opacity-50 flex items-center gap-2"
-              >
-                <CheckCircle className="w-4 h-4" />
-                {updateStatusMutation.isPending ? 'Updating...' : 'Mark Complete'}
-              </button>
-            )}
-          </div>
-
-        </div>
+      {/* Footer Actions */}
+      <div className="flex justify-end gap-4 pt-6 mt-6 border-t">
+        <ThemedButton
+          onClick={onClose}
+          variant="secondary"
+        >
+          Close
+        </ThemedButton>
+        {booking && booking.status !== 'completed' && booking.status !== 'cancelled' && (
+          <ThemedButton
+            onClick={() => handleStatusChange('completed')}
+            disabled={updateStatusMutation.isPending}
+            variant="primary"
+          >
+            <CheckCircle className="w-4 h-4 mr-2" />
+            {updateStatusMutation.isPending ? 'Updating...' : 'Mark Complete'}
+          </ThemedButton>
+        )}
       </div>
-    </Portal>
+    </ThemedModal>
   );
 };
 

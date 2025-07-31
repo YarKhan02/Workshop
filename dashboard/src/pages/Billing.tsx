@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { Plus, FileText, Banknote, Clock } from 'lucide-react';
+import { useTheme, cn } from '../components/ui';
 
 // Common Components
 import {
@@ -23,19 +24,34 @@ import {
   useBillingStats,
   useUpdateInvoiceStatus,
 } from '../hooks/useBilling';
+import { usePagination } from '../hooks/usePagination';
 import type { Invoice, InvoiceStatus, PaymentMethod, BillingFilters as BillingFiltersType } from '../types/billing';
 
 // Currency utility
 import { formatCurrency } from '../utils/currency';
 
 const Billing: React.FC = () => {
-  // State for filters and pagination
+  const { theme } = useTheme();
+  
+  // Use global pagination hook
+  const { currentPage, itemsPerPage, onPageChange, resetToFirstPage } = usePagination();
+  
+  // State for filters (without hardcoded pagination)
   const [filters, setFilters] = useState<BillingFiltersType>({
     search: '',
     status: undefined,
-    page: 1,
-    limit: 10,
+    page: currentPage,
+    limit: itemsPerPage,
   });
+
+  // Keep filters in sync with pagination state
+  useEffect(() => {
+    setFilters(prev => ({ 
+      ...prev, 
+      page: currentPage, 
+      limit: itemsPerPage 
+    }));
+  }, [currentPage, itemsPerPage]);
 
   // Modal states
   const [selectedInvoice, setSelectedInvoice] = useState<Invoice | null>(null);
@@ -44,35 +60,22 @@ const Billing: React.FC = () => {
   const [showEditModal, setShowEditModal] = useState(false);
 
   // React Query hooks
-  const { data: invoices = [], isLoading: loadingInvoices, refetch: refetchInvoices } = useInvoices(filters);
+  const { data: invoiceResponse, isLoading: loadingInvoices, refetch: refetchInvoices } = useInvoices(filters);
   const { data: stats, isLoading: loadingStats } = useBillingStats();
   const updateStatusMutation = useUpdateInvoiceStatus();
 
-  // Filter invoices based on current filters
-  const filteredInvoices = invoices.filter(invoice => {
-    const customerName = `${invoice.customer?.first_name || ''} ${invoice.customer?.last_name || ''}`;
-    const matchesSearch = !filters.search || 
-      customerName.toLowerCase().includes(filters.search.toLowerCase()) ||
-      invoice.id?.toString().includes(filters.search);
-    const matchesStatus = !filters.status || invoice.status === filters.status;
-    return matchesSearch && matchesStatus;
-  });
+  // Extract invoices and pagination from response
+  const invoices = invoiceResponse?.data || [];
+  const pagination = invoiceResponse?.pagination;
 
-  // Pagination state (would typically come from API response)
-  const [totalPages, setTotalPages] = useState(1);
-  const [totalItems, setTotalItems] = useState(0);
-
-  // Update pagination when invoices change
-  useEffect(() => {
-    if (filteredInvoices) {
-      setTotalItems(filteredInvoices.length);
-      setTotalPages(Math.ceil(filteredInvoices.length / (filters.limit || 10)));
-    }
-  }, [filteredInvoices, filters.limit]);
+  // Pagination state from server response
+  const totalPages = pagination?.total_pages || 1;
+  const totalItems = pagination?.total_count || 0;
 
   // Filter handlers
   const handleSearchChange = (search: string) => {
     setFilters(prev => ({ ...prev, search, page: 1 }));
+    resetToFirstPage(); // Reset pagination when searching
   };
 
   const handleStatusChange = (status: InvoiceStatus | '') => {
@@ -81,10 +84,12 @@ const Billing: React.FC = () => {
       status: status === '' ? undefined : status, 
       page: 1 
     }));
+    resetToFirstPage(); // Reset pagination when filtering
   };
 
   const handlePageChange = (page: number) => {
     setFilters(prev => ({ ...prev, page }));
+    onPageChange(page); // Update global pagination state
   };
 
   // Invoice actions
@@ -172,7 +177,7 @@ const Billing: React.FC = () => {
         />
 
         {/* Search and Filter Section */}
-        <div className="bg-slate-800/50 rounded-lg border border-slate-700/50 p-6">
+        <div className={cn("rounded-lg border p-6", theme.background, theme.border)}>
           <div className="flex flex-col sm:flex-row gap-4">
             <SearchBar
               searchTerm={filters.search || ''}
@@ -184,7 +189,7 @@ const Billing: React.FC = () => {
               <select
                 value={filters.status || ''}
                 onChange={(e) => handleStatusChange(e.target.value as InvoiceStatus | '')}
-                className="w-full px-4 py-2 bg-slate-700/50 border border-slate-600/50 rounded-lg text-slate-200 focus:outline-none focus:ring-2 focus:ring-orange-500/50 focus:border-orange-500/50"
+                className={cn("w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500/50 focus:border-orange-500/50 transition-colors", theme.background, theme.textPrimary, theme.border)}
               >
                 <option value="">All Status</option>
                 <option value="pending">Pending</option>
@@ -199,17 +204,17 @@ const Billing: React.FC = () => {
 
         {/* Invoices Table */}
         <BillingTable
-          invoices={filteredInvoices}
+          invoices={invoices}
           loading={loadingInvoices}
           onRowClick={handleViewInvoice}
         />
 
         {/* Pagination */}
         <Pagination
-          currentPage={filters.page || 1}
+          currentPage={currentPage}
           totalPages={totalPages}
           totalItems={totalItems}
-          itemsPerPage={filters.limit || 10}
+          itemsPerPage={itemsPerPage}
           onPageChange={handlePageChange}
           itemName="invoices"
         />

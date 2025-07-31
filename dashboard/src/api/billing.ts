@@ -11,13 +11,14 @@ import type {
   InvoiceStatus,
   PaymentMethod,
   InvoiceCustomer,
+  PaginatedInvoiceResponse,
 } from '../types/billing';
 
 // ==================== BILLING API SERVICE ====================
 
 export const billingAPI = {
-  // Get list of invoices with filters
-  getInvoices: async (filters: BillingFilters = {}): Promise<Invoice[]> => {
+  // Get list of invoices with filters and pagination
+  getInvoices: async (filters: BillingFilters = {}): Promise<PaginatedInvoiceResponse> => {
     const params = new URLSearchParams();
     if (filters.search) params.append('search', filters.search);
     if (filters.status) params.append('status', filters.status);
@@ -28,9 +29,32 @@ export const billingAPI = {
     
     // Handle different response formats from backend
     if (Array.isArray(response.data)) {
-      return response.data;
+      // Legacy format - no pagination
+      return {
+        data: response.data,
+        pagination: {
+          current_page: 1,
+          total_pages: 1,
+          total_count: response.data.length,
+          per_page: response.data.length,
+          has_next: false,
+          has_previous: false,
+        }
+      };
     }
-    return response.data.orders || response.data.invoices || [];
+    
+    // New paginated format
+    return {
+      data: response.data.data || response.data.orders || response.data.invoices || [],
+      pagination: response.data.pagination || {
+        current_page: 1,
+        total_pages: 1,
+        total_count: 0,
+        per_page: 10,
+        has_next: false,
+        has_previous: false,
+      }
+    };
   },
 
   // Get single invoice detail

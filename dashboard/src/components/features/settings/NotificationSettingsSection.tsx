@@ -1,6 +1,8 @@
 import React from 'react';
 import { Bell, Save } from 'lucide-react';
 import ToggleSwitch from './ToggleSwitch';
+import { useTheme } from '../../../contexts/ThemeContext';
+import { cn } from '../../../lib/utils';
 import type { UserSettings, NotificationPreferences } from '../../../types/settings';
 
 interface NotificationSettingsProps {
@@ -16,6 +18,8 @@ const NotificationSettingsSection: React.FC<NotificationSettingsProps> = ({
   onSave,
   isLoading,
 }) => {
+  const { theme } = useTheme();
+  
   const updateNotificationSetting = (field: keyof NotificationPreferences, value: boolean) => {
     onSettingsChange({
       ...settings,
@@ -63,18 +67,18 @@ const NotificationSettingsSection: React.FC<NotificationSettingsProps> = ({
     <div className="space-y-6">
       <div className="flex items-center gap-2 mb-6">
         <Bell className="h-5 w-5 text-orange-400" />
-        <h2 className="text-xl font-semibold text-slate-100">Notification Preferences</h2>
+        <h2 className={cn("text-xl font-semibold", theme.textPrimary)}>Notification Preferences</h2>
       </div>
 
       {/* Notification Channels */}
       <div>
-        <h3 className="text-lg font-medium text-slate-100 mb-4">Notification Channels</h3>
+        <h3 className={cn("text-lg font-medium mb-4", theme.textPrimary)}>Notification Channels</h3>
         <div className="space-y-4">
           {notificationChannels.map((channel) => (
-            <div key={channel.key} className="flex items-center justify-between p-4 bg-slate-800/50 rounded-lg border border-slate-700/30">
+            <div key={channel.key} className={cn("flex items-center justify-between p-4 rounded-lg", theme.backgroundSecondary, theme.border)}>
               <div>
-                <div className="font-medium text-slate-200">{channel.title}</div>
-                <div className="text-sm text-slate-400">{channel.description}</div>
+                <div className={cn("font-medium", theme.textPrimary)}>{channel.title}</div>
+                <div className={cn("text-sm", theme.textSecondary)}>{channel.description}</div>
               </div>
               <ToggleSwitch
                 checked={settings.notifications[channel.key]}
@@ -86,14 +90,14 @@ const NotificationSettingsSection: React.FC<NotificationSettingsProps> = ({
       </div>
 
       {/* Notification Types */}
-      <div className="border-t border-slate-700/50 pt-6">
-        <h3 className="text-lg font-medium text-slate-100 mb-4">Notification Types</h3>
+      <div className={cn("border-t pt-6", theme.border)}>
+        <h3 className={cn("text-lg font-medium mb-4", theme.textPrimary)}>Notification Types</h3>
         <div className="space-y-4">
           {notificationTypes.map((type) => (
-            <div key={type.key} className="flex items-center justify-between p-4 bg-slate-800/50 rounded-lg border border-slate-700/30">
+            <div key={type.key} className={cn("flex items-center justify-between p-4 rounded-lg", theme.backgroundSecondary, theme.border)}>
               <div>
-                <div className="font-medium text-slate-200">{type.title}</div>
-                <div className="text-sm text-slate-400">{type.description}</div>
+                <div className={cn("font-medium", theme.textPrimary)}>{type.title}</div>
+                <div className={cn("text-sm", theme.textSecondary)}>{type.description}</div>
               </div>
               <ToggleSwitch
                 checked={settings.notifications[type.key]}
@@ -105,7 +109,7 @@ const NotificationSettingsSection: React.FC<NotificationSettingsProps> = ({
       </div>
 
       {/* Save Button */}
-      <div className="flex justify-end border-t border-slate-700/50 pt-6">
+      <div className={cn("flex justify-end border-t pt-6", theme.border)}>
         <button
           onClick={onSave}
           disabled={isLoading}
