@@ -10,7 +10,7 @@ import {
   StatsGrid,
   SearchBar,
   Pagination,
-} from '../components/common';
+} from '../components';
 
 // Themed Components
 import { useTheme, cn } from '../components/ui';

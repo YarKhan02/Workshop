@@ -1,5 +1,6 @@
 # views/customer_view.py
 from rest_framework import viewsets, status
+from workshop.permissions.is_admin import IsAdmin
 from rest_framework.decorators import action
 from rest_framework.response import Response
 
@@ -7,10 +8,8 @@ from workshop.services.customer_service import CustomerService
 
 
 class CustomerView(viewsets.ViewSet):
-    """
-    Customer ViewSet handling HTTP requests and responses
-    Business logic is delegated to CustomerService
-    """
+    
+    permission_classes = [IsAdmin]
     
     def __init__(self, **kwargs):
         super().__init__(**kwargs)

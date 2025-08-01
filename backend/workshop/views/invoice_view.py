@@ -1,5 +1,6 @@
 import json
 from rest_framework import viewsets, status
+from workshop.permissions.is_admin import IsAdmin
 from rest_framework.response import Response
 from rest_framework.decorators import action
 
@@ -7,10 +8,7 @@ from workshop.services.invoice_service import InvoiceService
 
 
 class InvoiceView(viewsets.ViewSet):
-    """
-    Invoice ViewSet handling HTTP requests and responses
-    Business logic is delegated to InvoiceService
-    """
+    permission_classes = [IsAdmin]
     
     def __init__(self, **kwargs):
         super().__init__(**kwargs)

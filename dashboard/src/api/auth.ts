@@ -1,49 +1,7 @@
 import { apiClient } from './client';
-
-export interface LoginData {
-  username: string;
-  password: string;
-}
-
-export interface ChangePasswordData {
-  currentPassword: string;
-  newPassword: string;
-}
-
-export interface CreateUserData {
-  username: string;
-  email: string;
-  password: string;
-  firstName: string;
-  lastName: string;
-  role: 'admin' | 'accountant' | 'staff';
-  phone?: string;
-  isActive: boolean;
-}
-
-export interface UpdateUserData {
-  username?: string;
-  email?: string;
-  password?: string;
-  firstName?: string;
-  lastName?: string;
-  role?: 'admin' | 'accountant' | 'staff';
-  phone?: string;
-  isActive?: boolean;
-}
-
-export interface User {
-  id: number;
-  username: string;
-  email: string;
-  firstName: string;
-  lastName: string;
-  role: 'admin' | 'accountant' | 'staff';
-  phone?: string;
-  isActive: boolean;
-  lastLogin?: string;
-  createdAt?: string;
-}
+import type { LoginData, CreateUserData, UpdateUserData, User } from '../types/user';
+import type { ChangePasswordData } from '../types/settings';
+import { useRef, useCallback } from 'react';
 
 export interface LoginResponse {
   message: string;
@@ -57,43 +15,68 @@ export interface ProfileResponse {
 
 export const authApi = {
   login: async (data: LoginData): Promise<LoginResponse> => {
-    const response = await apiClient.post('/auth/login', data);
+    const response = await apiClient.post('/auth/login/', data);
     return response.data;
   },
 
   logout: async (): Promise<{ message: string }> => {
-    const response = await apiClient.post('/auth/logout');
+    const response = await apiClient.post('/auth/logout/');
     return response.data;
   },
 
   getProfile: async (): Promise<ProfileResponse> => {
-    const response = await apiClient.get('/auth/profile');
+    const response = await apiClient.get('/auth/profile/');
     return response.data;
   },
 
   changePassword: async (data: ChangePasswordData): Promise<{ message: string }> => {
-    const response = await apiClient.post('/auth/change-password', data);
+    const response = await apiClient.post('/auth/change-password/', data);
     return response.data;
   },
 
-  // Admin-only user management functions
-  getUsers: async (): Promise<{ users: User[] }> => {
-    const response = await apiClient.get('/auth/users');
+  refreshToken: async (): Promise<{ token: string }> => {
+    const response = await apiClient.post(
+      '/auth/token/refresh/',
+      {},
+      {
+        withCredentials: true, // Ensure cookies are sent
+      }
+    );
     return response.data;
   },
+}
 
-  createUser: async (data: CreateUserData): Promise<{ message: string; user: User }> => {
-    const response = await apiClient.post('/auth/users', data);
-    return response.data;
-  },
+export function useAuthSession() {
+  const accessTokenRef = useRef<string | null>(null);
+  const refreshTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  updateUser: async (userId: number, data: UpdateUserData): Promise<{ message: string; user: User }> => {
-    const response = await apiClient.put(`/auth/users/${userId}`, data);
-    return response.data;
-  },
+  // Call this after login
+  const setAccessToken = useCallback((token: string, expiresIn: number = 600) => {
+    accessTokenRef.current = token;
+    // Clear any previous timer
+    if (refreshTimeoutRef.current) clearTimeout(refreshTimeoutRef.current);
+    // Schedule silent refresh 1 minute before expiry
+    refreshTimeoutRef.current = setTimeout(async () => {
+      try {
+        const { token: newToken } = await authApi.refreshToken();
+        setAccessToken(newToken, expiresIn);
+      } catch (err) {
+        accessTokenRef.current = null;
+      }
+    }, (expiresIn - 60) * 1000); // expiresIn in seconds
+  }, []);
 
-  deleteUser: async (userId: number): Promise<{ message: string }> => {
-    const response = await apiClient.delete(`/auth/users/${userId}`);
-    return response.data;
-  }
-}; 
+  // Call this on logout
+  const clearSession = useCallback(() => {
+    accessTokenRef.current = null;
+    if (refreshTimeoutRef.current) clearTimeout(refreshTimeoutRef.current);
+    authApi.logout();
+  }, []);
+
+  // Optionally, expose accessTokenRef.current for API calls
+  return {
+    getAccessToken: () => accessTokenRef.current,
+    setAccessToken,
+    clearSession,
+  };
+}

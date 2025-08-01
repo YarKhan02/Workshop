@@ -1,4 +1,5 @@
 from rest_framework import viewsets, status
+from workshop.permissions.is_admin import IsAdmin
 from rest_framework.response import Response
 from rest_framework.decorators import action
 
@@ -6,6 +7,7 @@ from workshop.models.product import Product
 from workshop.serializers.product_serializer import ProductSerializer, ProductCreateSerializer
 
 class ProductView(viewsets.ViewSet):
+    permission_classes = [IsAdmin]
     
     # List all products
     @action(detail = False, methods = ['get'], url_path = 'details')
@@ -17,20 +19,17 @@ class ProductView(viewsets.ViewSet):
     # Add a new product
     @action(detail = False, methods = ['post'], url_path = 'add-product')
     def add_product(self, request):
-        serializer = ProductCreateSerializer(data=request.data)
-
-        if serializer.is_valid():
-            serializer.save()
-            return Response({"message": "Product and variant added successfully"}, status=201)
-        
-        return Response(serializer.errors, status = status.HTTP_400_BAD_REQUEST)
+        result, errors = self.product_service.create_product(request.data)
+        if result:
+            return Response(result, status=status.HTTP_201_CREATED)
+        return Response(errors, status=status.HTTP_400_BAD_REQUEST)
     
     # Delete a product by UUID
     @action(detail = True, methods = ['delete'], url_path = 'del-product')
     def delete_product(self, request, pk=None):
-        try:
-            product = Product.objects.get(uuid=pk)
-            product.delete()
-            return Response({"message": "Product deleted successfully"}, status=status.HTTP_204_NO_CONTENT)
-        except Product.DoesNotExist:
-            return Response({"error": "Product not found"}, status=status.HTTP_404_NOT_FOUND)   
+        result, errors = self.product_service.delete_product(pk)
+        if result:
+            return Response(result, status=status.HTTP_204_NO_CONTENT)
+        if errors and errors.get('error') == 'Product not found':
+            return Response(errors, status=status.HTTP_404_NOT_FOUND)
+        return Response(errors, status=status.HTTP_400_BAD_REQUEST)

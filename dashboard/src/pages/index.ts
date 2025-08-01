@@ -1,0 +1,9 @@
+export { default as Billing } from './Billing';
+export { default as Customers } from './Customers';
+export { default as Cars } from './Cars';
+export { default as Bookings } from './Bookings';
+export { default as DashboardHome } from './DashboardHome';
+export { default as Inventory } from './Inventory';
+export { default as Notifications } from './Notifications';
+export { default as Settings } from './Settings';
+export { default as Login } from './Login';

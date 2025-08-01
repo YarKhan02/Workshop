@@ -380,14 +380,3 @@ export interface TimeSlot {
   is_available: boolean;
   jobId?: string;
 }
-
-// User Types
-export interface User {
-  id: number;
-  name: string;
-  email: string;
-  role: 'admin' | 'staff';
-  isActive: boolean;
-  createdAt: string;
-  updatedAt: string;
-}

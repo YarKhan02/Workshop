@@ -3,10 +3,14 @@ from rest_framework import viewsets, status
 from rest_framework.decorators import action
 from rest_framework.response import Response
 
+from workshop.permissions.is_admin import IsAdmin
 from workshop.services.car_service import CarService
 
 
 class CarView(viewsets.ViewSet):
+
+    permission_classes = [IsAdmin]
+    
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
         self.car_service = CarService()

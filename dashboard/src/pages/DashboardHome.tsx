@@ -12,7 +12,7 @@ import {
 } from 'lucide-react';
 
 // Common Components
-import { PageHeader, StatsGrid } from '../components/common';
+import { PageHeader, StatsGrid } from '../components';
 
 // Themed Components
 import { ThemedButton, useTheme, cn } from '../components/ui';

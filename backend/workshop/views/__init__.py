@@ -1,4 +1,4 @@
-from .login_view import LoginView
+from ..auth.login import Login
 from .profile_view import ProfileView
 
 from .customer_view import CustomerView

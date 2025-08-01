@@ -8,7 +8,7 @@ import {
 } from 'lucide-react';
 
 // Common Components
-import { PageHeader, StatsGrid, SearchBar } from '../components/common';
+import { PageHeader, StatsGrid, SearchBar } from '../components';
 
 // Hooks
 import {

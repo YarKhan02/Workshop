@@ -1,5 +1,6 @@
 # workshop/views/service_view.py
 from rest_framework import viewsets, status
+from workshop.permissions.is_admin import IsAdmin
 from rest_framework.decorators import action
 from rest_framework.response import Response
 
@@ -10,9 +11,7 @@ from workshop.serializers.booking_serializer import (
 
 
 class ServiceView(viewsets.ViewSet):
-    """
-    ViewSet for managing services
-    """
+    permission_classes = [IsAdmin]
     
     @action(detail=False, methods=['get'], url_path='list')
     def get_services(self, request):

@@ -10,7 +10,7 @@ import {
   StatsGrid,
   SearchBar,
   Pagination,
-} from '../components/common';
+} from '../components';
 
 // Feature Components
 import {

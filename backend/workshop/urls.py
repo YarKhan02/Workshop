@@ -3,7 +3,8 @@
 from django.urls import path, include
 from rest_framework.routers import DefaultRouter
 
-from .views import LoginView, ProfileView, CustomerView, CarView, ProductView, ProductVariantView, InvoiceView, DashboardView
+from .auth.login import Login, TokenRefresh, Logout
+from .views import ProfileView, CustomerView, CarView, ProductView, ProductVariantView, InvoiceView, DashboardView
 from .views.booking_view import BookingView
 from .views.service_view import ServiceView
 from .views.notification_view import NotificationView
@@ -20,7 +21,9 @@ router.register(r'dashboard', DashboardView, basename='dashboard')
 router.register(r'notifications', NotificationView, basename='notification')
 
 urlpatterns = [
-    path('auth/login/', LoginView.as_view(), name = 'login'),
+    path('auth/login/', Login.as_view(), name = 'login'),
+    path('auth/token/refresh/', TokenRefresh.as_view(), name='token_refresh'),
+    path('auth/logout/', Logout.as_view(), name='logout'),
     path('auth/profile/', ProfileView.as_view(), name = 'profile'),
 
     path('', include(router.urls)),

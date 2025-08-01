@@ -8,7 +8,7 @@ import {
   PageHeader,
   SearchBar,
   Pagination,
-} from '../components/common'
+} from '../components'
 
 // Feature Components
 import AddInventoryModal from "../components/features/inventory/AddInventoryModal"
