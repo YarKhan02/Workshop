@@ -17,7 +17,7 @@ const carSchema = z.object({
   color: z.string().min(1, 'Color is required'),
   license_plate: z.string().min(1, 'License plate is required'),
   vin: z.string().optional(),
-  mileage: z.number().optional(),
+  mileage: z.string().optional().transform((val) => val?.trim() || undefined),
   notes: z.string().optional(),
 });
 
@@ -180,7 +180,7 @@ const AddCarModal: React.FC<AddCarModalProps> = ({
               </label>
               <ThemedInput
                 type="number"
-                {...register('mileage', { valueAsNumber: true })}
+                {...register('mileage')}
                 placeholder="e.g., 50000"
               />
             </div>

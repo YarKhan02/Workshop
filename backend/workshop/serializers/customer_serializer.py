@@ -1,4 +1,7 @@
 # workshop/serializers.py
+
+import uuid
+
 from rest_framework import serializers
 from workshop.serializers.car_serializer import CarSerializer
 from workshop.models.customer import Customer
@@ -49,6 +52,18 @@ class CustomerCreateSerializer(serializers.ModelSerializer):
             'state',
             'address',
         ]
+
+    def create(self, validated_data):
+        # Auto-generate a unique username
+        base = f"{validated_data['first_name'].lower()}{validated_data['last_name'].lower()}"
+        suffix = uuid.uuid4().hex[:6]
+        username = f"{base}_{suffix}"
+        
+        customer = Customer.objects.create(
+            username=username,
+            **validated_data
+        )
+        return customer
 
 class CustomerUpdateSerializer(serializers.ModelSerializer):
     class Meta:

@@ -80,8 +80,6 @@ export const useCreateCar = () => {
       
       // Update customers query as well (for car count)
       queryClient.invalidateQueries({ queryKey: ['customers'] });
-      
-      toast.success('Racing machine added to fleet successfully!');
     },
     onError: (error: Error) => {
       toast.error(`Failed to add racing machine: ${error.message}`);

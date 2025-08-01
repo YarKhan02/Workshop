@@ -78,7 +78,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       const data = await authApi.login({ email, password });
       setToken(data.token);
       setUser(data.user);
-      setAccessToken(data.token, 120); // 2 min expiry default
+      setAccessToken(data.token, 28800); // 2 min expiry default
     } catch (error) {
       throw error;
     }

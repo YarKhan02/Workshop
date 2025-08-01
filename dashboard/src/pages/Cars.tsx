@@ -24,9 +24,7 @@ import {
 } from '../components/features/cars';
 
 // Hooks
-import { useCars, useDeleteCar } from '../hooks/useCars';
-import { useTableData } from '../hooks/useTableData';
-import { usePagination } from '../hooks/usePagination';
+import { useCars, useDeleteCar, useTableData, usePagination } from '../hooks';
 
 // Utils
 import { filterCars, calculateCarStats } from '../utils/carUtils';

@@ -36,7 +36,7 @@ export const customerAPI = {
 
   // Create new customer
   createCustomer: async (customerData: CustomerCreateData): Promise<CustomerApiResponse> => {
-    const response = await apiClient.post('/customers', customerData);
+    const response = await apiClient.post('/customers/add-customer/', customerData);
     return response.data;
   },
 

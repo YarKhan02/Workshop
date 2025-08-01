@@ -22,7 +22,7 @@ export function useSearch<T extends Record<string, any>>(
 }
 
 // Generic pagination hook
-export function usePagination<T>(
+export function usePaginationData<T>(
   items: T[],
   itemsPerPage: number = 10
 ) {
@@ -100,7 +100,7 @@ export function useTableData<T extends Record<string, any>>(
   const sortedItems = useSort(searchedItems, sortKey, sortDirection);
   
   // Get pagination function
-  const paginateItems = usePagination(sortedItems, itemsPerPage);
+  const paginateItems = usePaginationData(sortedItems, itemsPerPage);
 
   return {
     searchedItems,

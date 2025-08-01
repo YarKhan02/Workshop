@@ -22,9 +22,7 @@ import {
 } from '../components/features/customers';
 
 // Hooks
-import { useCustomers, useUpdateCustomer } from '../hooks/useCustomers';
-import { useTableData } from '../hooks/useTableData';
-import { usePagination } from '../hooks/usePagination';
+import { useCustomers, useUpdateCustomer, useTableData, usePagination } from '../hooks';
 
 const Customers: React.FC = () => {
   const { theme } = useTheme();

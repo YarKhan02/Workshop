@@ -41,7 +41,6 @@ export const useCreateCustomer = () => {
       customerAPI.createCustomer(customerData),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: customerQueries.keys.all });
-      toast.success('Customer created successfully');
     },
     onError: (error: any) => {
       const errorMessage = error?.response?.data?.message || 'Failed to create customer';

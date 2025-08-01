@@ -7,41 +7,22 @@ from django.utils import timezone
 
 from workshop.models import Booking, Customer, Invoice
 
-
-class RecentBookingSerializer(serializers.ModelSerializer):
-    """Serializer for recent bookings in dashboard"""
+class RecentBookingSerializer(serializers.Serializer):
+    id = serializers.UUIDField()
     customer_name = serializers.SerializerMethodField()
-    service_type = serializers.SerializerMethodField()
+    service_type = serializers.CharField(source='service__name')
     amount = serializers.SerializerMethodField()
-    
-    class Meta:
-        model = Booking
-        fields = [
-            'id',
-            'customer_name', 
-            'service_type',
-            'status',
-            'amount',
-            'created_at'
-        ]
-    
+    created_at = serializers.DateTimeField()
+
     def get_customer_name(self, obj):
-        """Get full customer name"""
-        return f"{obj.customer.first_name} {obj.customer.last_name}"
-    
-    def get_service_type(self, obj):
-        """Get service name"""
-        return obj.service.name
-    
+        return f"{obj['customer__first_name']} {obj['customer__last_name']}"
+
     def get_amount(self, obj):
-        """Get booking amount (final price if available, otherwise quoted price)"""
-        if obj.final_price:
-            return float(obj.final_price - obj.discount_amount)
-        return float(obj.quoted_price - obj.discount_amount)
-
-
+        price = obj.get('final_price') or obj.get('quoted_price')
+        return float(price) - float(obj.get('discount_amount', 0))
+    
 class DashboardStatsSerializer(serializers.Serializer):
-    """Serializer for dashboard statistics"""
+    
     today_bookings = serializers.IntegerField()
     today_revenue = serializers.DecimalField(max_digits=10, decimal_places=2)
     total_customers = serializers.IntegerField()

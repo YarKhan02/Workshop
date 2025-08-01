@@ -5,6 +5,7 @@ from django.core.exceptions import ObjectDoesNotExist
 from rest_framework import status
 
 from workshop.models.customer import Customer
+from workshop.queries import customer_queries as cq
 from workshop.serializers.customer_serializer import (
     CustomerDetailSerializer, 
     CustomerCreateSerializer, 
@@ -91,7 +92,7 @@ class CustomerService(BaseService):
         Update an existing customer
         """
         try:
-            customer = Customer.objects.get(pk=customer_id)
+            customer = cq.get_customer_by_id(customer_id)
         except Customer.DoesNotExist:
             return self.error_response(
                 message="Customer not found",
