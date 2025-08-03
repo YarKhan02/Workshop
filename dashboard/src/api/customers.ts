@@ -1,75 +1,80 @@
 import { apiClient } from './client';
+import type {
+  Customer,
+  CustomerFilters,
+  CustomerResponse,
+  CustomerCreateData,
+  CustomerUpdateData,
+  CustomerApiResponse,
+} from '../types/customer';
 
-export interface Customer {
-  id: number;
-  firstName: string;
-  lastName: string;
-  email: string;
-  phone: string;
-  address?: string;
-  city?: string;
-  state?: string;
-  zipCode?: string;
-  dateOfBirth?: string;
-  gender?: string;
-  emergencyContact?: string;
-  emergencyPhone?: string;
-  notes?: string;
-  isActive: boolean;
-  totalSpent: number;
-  lastVisit?: string;
-  createdAt: string;
-  updatedAt: string;
-}
+// Customer API functions
+export const customerAPI = {
+  // Get customer details for listing (matches current endpoint)
+  getCustomerDetails: async (): Promise<Customer[]> => {
+    const response = await apiClient.get('/customers/details/');
+    return response.data || [];
+  },
 
-export interface CustomerFilters {
-  page?: number;
-  limit?: number;
-  search?: string;
-}
+  // Get all customers with filters (if available)
+  getCustomers: async (filters: CustomerFilters = {}): Promise<CustomerResponse> => {
+    const params = new URLSearchParams();
+    
+    if (filters.page) params.append('page', filters.page.toString());
+    if (filters.limit) params.append('limit', filters.limit.toString());
+    if (filters.search) params.append('search', filters.search);
 
-export interface CustomerResponse {
-  customers: Customer[];
-  pagination: {
-    currentPage: number;
-    totalPages: number;
-    totalItems: number;
-    itemsPerPage: number;
-  };
-}
+    const response = await apiClient.get(`/customers?${params.toString()}`);
+    return response.data;
+  },
 
-// Get all customers with filters
-export const getCustomers = async (filters: CustomerFilters = {}): Promise<CustomerResponse> => {
-  const params = new URLSearchParams();
-  
-  if (filters.page) params.append('page', filters.page.toString());
-  if (filters.limit) params.append('limit', filters.limit.toString());
-  if (filters.search) params.append('search', filters.search);
+  // Get single customer by ID
+  getCustomerById: async (id: number): Promise<{ customer: Customer }> => {
+    const response = await apiClient.get(`/customers/${id}`);
+    return response.data;
+  },
 
-  const response = await apiClient.get(`/customers?${params.toString()}`);
-  return response.data;
+  // Create new customer
+  createCustomer: async (customerData: CustomerCreateData): Promise<CustomerApiResponse> => {
+    const response = await apiClient.post('/customers/add-customer/', customerData);
+    return response.data;
+  },
+
+  // Update customer
+  updateCustomer: async (id: string, customerData: CustomerUpdateData): Promise<CustomerApiResponse> => {
+    const response = await apiClient.put(`/customers/${id}/update-customer/`, customerData);
+    return response.data;
+  },
 };
 
-// Get single customer by ID
-export const getCustomerById = async (id: number): Promise<{ customer: Customer }> => {
-  const response = await apiClient.get(`/customers/${id}`);
-  return response.data;
+// Customer query keys for React Query
+export const customerQueries = {
+  keys: {
+    all: ['customers'] as const,
+    lists: () => [...customerQueries.keys.all, 'list'] as const,
+    list: (filters: CustomerFilters) => [...customerQueries.keys.lists(), filters] as const,
+    details: () => [...customerQueries.keys.all, 'details'] as const,
+    detail: (id: number) => [...customerQueries.keys.details(), id] as const,
+  },
+
+  // Query functions for use with React Query
+  list: () => ({
+    queryKey: customerQueries.keys.details(),
+    queryFn: () => customerAPI.getCustomerDetails(),
+    staleTime: 1000 * 60 * 5, // 5 minutes
+  }),
+
+  detail: (customerId: number) => ({
+    queryKey: customerQueries.keys.detail(customerId),
+    queryFn: () => customerAPI.getCustomerById(customerId),
+    enabled: !!customerId,
+  }),
+
+  filtered: (filters: CustomerFilters) => ({
+    queryKey: customerQueries.keys.list(filters),
+    queryFn: () => customerAPI.getCustomers(filters),
+    staleTime: 1000 * 60 * 5, // 5 minutes
+  }),
 };
 
-// Create new customer
-export const createCustomer = async (customerData: Omit<Customer, 'id' | 'createdAt' | 'updatedAt'>): Promise<{ message: string; customer: Customer }> => {
-  const response = await apiClient.post('/customers', customerData);
-  return response.data;
-};
-
-// Update customer
-export const updateCustomer = async (id: number, customerData: Partial<Customer>): Promise<{ message: string; customer: Customer }> => {
-  const response = await apiClient.put(`/customers/${id}`, customerData);
-  return response.data;
-};
-
-// Delete customer
-export const deleteCustomer = async (id: number): Promise<{ message: string }> => {
-  const response = await apiClient.delete(`/customers/${id}`);
-  return response.data;
-}; 
+export default customerAPI; 

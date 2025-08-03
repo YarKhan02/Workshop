@@ -1,38 +1,97 @@
-// Customer Management Types
-export interface Customer {
-  id: number;
-  first_name: string;
-  last_name: string;
-  email: string;
-  phone_number: string;
-  address: string;
-  city?: string;
-  state?: string;
-  cars?: Car[];
-  date_joined: string;
-}
+// Customer Management Types - Re-exported from dedicated file
+export type {
+  Customer,
+  CustomerCar,
+  CustomerFormData,
+  CustomerCreateData,
+  CustomerUpdateData,
+  EditCustomerModalProps,
+  CustomerDetailModalProps,
+  AddCustomerModalProps,
+  CustomerTableProps,
+  CustomerFilters,
+  CustomerResponse,
+  CustomerApiResponse,
+  CustomerMutationVariables,
+  CustomerSearchFields,
+} from './customer';
 
-export interface Car {
-  id: number;
-  customerId: number;
-  make: string;
-  model: string;
-  year: number;
-  color: string;
-  licensePlate: string;
-  vin?: string;
-  mileage?: number;
-  notes?: string;
-  isActive: boolean;
-  createdAt: string;
-  updatedAt: string;
-}
+// Car Management Types - Re-exported from dedicated file
+export type {
+  Car,
+  CarCustomer,
+  CarFormData,
+  CarCreateData,
+  CarUpdateData,
+  AddCarModalProps,
+  EditCarModalProps,
+  CarDetailModalProps,
+  CarTableProps,
+  CarFilters,
+  CarsResponse,
+  CarStatsData,
+} from './car';
+
+// Booking Management Types - Re-exported from dedicated file
+export type {
+  Booking,
+  BookingTableProps,
+  BookingFiltersProps,
+  BookingStatsData,
+  BookingStatsProps,
+  AddBookingModalProps,
+  BookingDetailModalProps,
+  EditBookingModalProps,
+} from './booking';
+
+// Service Management Types - Re-exported from dedicated file
+export type {
+  Service,
+  ServiceFormData,
+  ServiceUpdateData,
+  ServiceFilters,
+  ServicesResponse,
+  ServiceStatsData,
+  ServiceCategory,
+  ServiceCategoryEnum,
+} from './service';
+
+// Inventory Management Types - Re-exported from dedicated file
+export type {
+  Product,
+  ProductVariant,
+  FlattenedInventoryVariant,
+  ProductFormData,
+  ProductCreateData,
+  ProductVariantFormData,
+  ProductVariantCreateData,
+  ProductVariantUpdateData,
+  AddInventoryModalProps,
+  EditInventoryModalProps,
+  AddVariantModalProps,
+  InventoryTableProps,
+  InventoryFilters,
+  InventoryStatsData,
+  InventoryStatsProps,
+  ProductsResponse,
+  ProductApiResponse,
+  ProductVariantApiResponse,
+  ProductSearchFields,
+  ProductMutationVariables,
+  ProductVariantMutationVariables,
+  ProductVariantUpdateMutationVariables,
+  ProductVariantDeleteMutationVariables,
+} from './inventory';
+
+// Import for internal use in this file (for other interfaces that reference Customer/Car)
+import type { Customer } from './customer';
+import type { Car } from './car';
 
 export interface Job {
-  id: number;
-  customerId: number;
-  carId: number;
-  assignedTo?: number;
+  id: string;
+  customerId: string;
+  carId: string;
+  assignedTo?: string;
   jobType: 'basic_wash' | 'full_detail' | 'interior_detail' | 'exterior_detail' | 'premium_detail' | 'custom';
   status: 'pending' | 'in_progress' | 'completed' | 'cancelled';
   priority: 'low' | 'medium' | 'high' | 'urgent';
@@ -124,6 +183,23 @@ export interface ServicePackage {
   updatedAt: Date;
 }
 
+export interface CreateInvoicePayload {
+  customerId: string;
+  subtotal: number;
+  taxAmount: number;
+  discountAmount: number;
+  totalAmount: number;
+  status: string;
+  dueDate: string;
+  isActive: boolean;
+  items: Array<{
+    variantId: string;
+    quantity: number;
+    unitPrice: number;
+    totalPrice: number;
+  }>;
+}
+
 export interface Invoice {
   id: number;
   invoiceNumber: string;
@@ -147,6 +223,7 @@ export interface Invoice {
   items?: InvoiceItem[];
 }
 
+// Define the InvoiceItem type based on its usage in AddInvoiceModal
 export interface InvoiceItem {
   id: number;
   invoiceId: number;
@@ -157,17 +234,6 @@ export interface InvoiceItem {
   isActive: boolean;
   createdAt: string;
   updatedAt: string;
-}
-
-export interface BillingStats {
-  totalInvoices: number;
-  paidInvoices: number;
-  pendingInvoices: number;
-  overdueInvoices: number;
-  totalRevenue: number;
-  monthlyRevenue: number;
-  yearlyRevenue: number;
-  outstandingAmount: number;
 }
 
 export enum PaymentStatus {
@@ -185,6 +251,41 @@ export enum PaymentMethod {
   UPI = 'UPI',
   WALLET = 'Wallet',
   CHECK = 'Check'
+}
+
+export interface CustomerInvoice {
+  id: string
+  email: string
+  first_name: string
+  last_name: string
+  phone_number: string
+}
+
+export interface OrderItem {
+  id: string
+  quantity: number
+  unit_price: string
+  total_price: string
+  product_name: string
+  product_variant: string
+}
+
+export interface Order {
+  id: string
+  total_amount: string
+  discount: string
+  tax: string
+  created_at: string
+  status: string
+  customer: Customer
+  items: OrderItem[]
+}
+
+export interface BillingStats {
+  totalRevenue: number
+  totalOrders: number
+  outstandingAmount: number
+  monthlyRevenue: number
 }
 
 // Staff Management Types
@@ -272,55 +373,10 @@ export interface DashboardStats {
 // Booking Types
 export interface TimeSlot {
   id: string;
-  date: Date;
-  startTime: string;
-  endTime: string;
-  isAvailable: boolean;
+  date: string;
+  start_time: string;
+  end_time: string;
+  available_slots?: number;
+  is_available: boolean;
   jobId?: string;
 }
-
-export interface Booking {
-  id: string;
-  customerId: string;
-  carId: string;
-  serviceType: ServiceType;
-  preferredDate: Date;
-  preferredTime: string;
-  notes?: string;
-  status: BookingStatus;
-  createdAt: Date;
-  updatedAt: Date;
-}
-
-export enum BookingStatus {
-  PENDING = 'Pending',
-  CONFIRMED = 'Confirmed',
-  CANCELLED = 'Cancelled',
-  COMPLETED = 'Completed'
-}
-
-// User Types
-export interface User {
-  id: number;
-  name: string;
-  email: string;
-  role: 'admin' | 'staff';
-  isActive: boolean;
-  createdAt: string;
-  updatedAt: string;
-}
-
-export interface Inventory {
-  id: number;
-  name: string;
-  price: number;
-  quantity: number;
-  description?: string;
-  sku?: string;
-  category?: string;
-  isActive: boolean;
-  createdAt: string;
-  updatedAt: string;
-}
-
-

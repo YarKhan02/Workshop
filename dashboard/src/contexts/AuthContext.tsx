@@ -1,16 +1,11 @@
 import React, { createContext, useContext, useState, useEffect, type ReactNode } from 'react';
-
-export interface User {
-  id: number;
-  username: string;
-  email: string;
-  role: 'admin' | 'accountant' | 'staff';
-}
+import { authApi, useAuthSession } from '../api/auth';
+import type { User } from '../types/user';
 
 interface AuthContextType {
   user: User | null;
   token: string | null;
-  login: (username: string, password: string) => Promise<void>;
+  login: (email: string, password: string) => Promise<void>;
   logout: () => void;
   isLoading: boolean;
   isAuthenticated: boolean;
@@ -30,72 +25,70 @@ interface AuthProviderProps {
   children: ReactNode;
 }
 
+// Add a global getter for the current access token
+let globalAccessToken: string | null = null;
+
+export function setGlobalAccessToken(token: string | null) {
+  globalAccessToken = token;
+}
+
+export function getAccessTokenFromContext() {
+  return globalAccessToken;
+}
+
 export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const [user, setUser] = useState<User | null>(null);
-  const [token, setToken] = useState<string | null>(localStorage.getItem('token'));
+  const [token, setToken] = useState<string | null>(null); // Only in memory
   const [isLoading, setIsLoading] = useState(true);
-
-  const API_BASE_URL = 'http://localhost:8000';
+  const { setAccessToken, clearSession } = useAuthSession();
 
   useEffect(() => {
     const initializeAuth = async () => {
-      if (token && !user) {
-        setIsLoading(true);
-        try {
-          const response = await fetch(`${API_BASE_URL}/auth/profile/`, {
-            headers: {
-              'Authorization': `Bearer ${token}`,
-              'Content-Type': 'application/json',
-            },
-          });
+      try {
+        // Try to get access token from refresh cookie
+        const refreshRes = await authApi.refreshToken(); // GETs /token/refresh/
+        const newAccessToken = refreshRes.token;
 
-          if (response.ok) {
-            const data = await response.json();
-            setUser(data.user);
-          } else {
-            localStorage.removeItem('token');
-            setToken(null);
-          }
-        } catch (error) {
-          console.error('Auth initialization error:', error);
-          localStorage.removeItem('token');
-          setToken(null);
-        }
+        setToken(newAccessToken);
+        setGlobalAccessToken(newAccessToken);
+        setAccessToken(newAccessToken, 120); // for polling or auto-refresh
+
+        // Fetch user info
+        const data = await authApi.getProfile();
+        setUser(data.user);
+      } catch (error) {
+        setToken(null);
+        setUser(null);
+      } finally {
+        setIsLoading(false);
       }
-      setIsLoading(false);
     };
 
     initializeAuth();
+  }, []);
+
+  // Update global token whenever it changes
+  useEffect(() => {
+    setGlobalAccessToken(token);
   }, [token]);
 
-  const login = async (username: string, password: string) => {
+  // Login: store access token in memory, start auto-refresh
+  const login = async (email: string, password: string) => {
     try {
-      const response = await fetch(`${API_BASE_URL}/auth/login/`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ username, password }),
-      });
-
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.error || 'Login failed');
-      }
-
-      const data = await response.json();
+      const data = await authApi.login({ email, password });
       setToken(data.token);
       setUser(data.user);
-      localStorage.setItem('token', data.token);
+      setAccessToken(data.token, 28800); // 2 min expiry default
     } catch (error) {
       throw error;
     }
   };
 
+  // Logout: clear session, clear token from memory
   const logout = () => {
     setUser(null);
     setToken(null);
-    localStorage.removeItem('token');
+    clearSession();
   };
 
   const value: AuthContextType = {
@@ -112,4 +105,4 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       {children}
     </AuthContext.Provider>
   );
-}; 
+};

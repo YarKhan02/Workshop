@@ -6,14 +6,16 @@ import {
   Eye,
   Edit,
   Trash2,
-  DollarSign,
+  Banknote,
   Calendar,
   Clock,
   FileText,
   CheckCircle,
 } from 'lucide-react';
 import toast from 'react-hot-toast';
+import { formatCurrency } from '../utils/currency';
 import { useAuth } from '../contexts/AuthContext';
+import { usePagination } from '../hooks/usePagination';
 import type { Job, JobStats } from '../types';
 import AddJobModal from '../components/job/AddJobModal';
 import EditJobModal from '../components/job/EditJobModal';
@@ -28,13 +30,13 @@ const Jobs: React.FC = () => {
   const [statusFilter, setStatusFilter] = useState('');
   const [priorityFilter, setPriorityFilter] = useState('');
   const [jobTypeFilter, setJobTypeFilter] = useState('');
-  const [currentPage, setCurrentPage] = useState(1);
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [isDetailModalOpen, setIsDetailModalOpen] = useState(false);
   const [selectedJob, setSelectedJob] = useState<Job | null>(null);
 
-  const itemsPerPage = 10;
+  // Use global pagination hook
+  const { currentPage, itemsPerPage, onPageChange } = usePagination();
 
   // Fetch jobs
   const { data: jobsData, isLoading } = useQuery({
@@ -195,65 +197,67 @@ const Jobs: React.FC = () => {
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-8">
       {/* Header */}
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
-          <h1 className="text-3xl font-bold text-gray-900">Job Management</h1>
-          <p className="text-gray-600 mt-1">Manage and track car detailing jobs</p>
+          <h1 className="text-3xl font-bold bg-gradient-to-r from-orange-400 to-red-500 bg-clip-text text-transparent">
+            Service Bay
+          </h1>
+          <p className="text-gray-400 mt-1">Track elite detailing operations</p>
         </div>
         <button
           onClick={() => setIsAddModalOpen(true)}
-          className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+          className="flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-orange-500 to-red-600 text-white rounded-xl hover:from-orange-600 hover:to-red-700 transition-all duration-300 shadow-lg hover:shadow-xl transform hover:scale-105"
         >
           <Plus size={20} />
-          Add New Job
+          Create Job
         </button>
       </div>
 
       {/* Statistics Cards */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        <div className="bg-white p-6 rounded-lg shadow-sm border">
+        <div className="bg-gradient-to-br from-gray-800/50 to-slate-800/50 p-6 rounded-xl shadow-2xl border border-gray-700/30 backdrop-blur-md">
           <div className="flex items-center">
-            <div className="p-2 bg-blue-100 rounded-lg">
-              <Calendar className="text-blue-600" size={24} />
+            <div className="p-3 bg-gradient-to-br from-orange-500 to-red-600 rounded-xl shadow-lg">
+              <Calendar className="text-white" size={24} />
             </div>
             <div className="ml-4">
-              <p className="text-sm font-medium text-gray-600">Total Jobs</p>
-              <p className="text-2xl font-bold text-gray-900">{stats?.totalJobs || 0}</p>
+              <p className="text-sm font-medium text-gray-400">Total Operations</p>
+              <p className="text-2xl font-bold text-gray-100">{stats?.totalJobs || 0}</p>
             </div>
           </div>
         </div>
-        <div className="bg-white p-6 rounded-lg shadow-sm border">
+        <div className="bg-gradient-to-br from-gray-800/50 to-slate-800/50 p-6 rounded-xl shadow-2xl border border-gray-700/30 backdrop-blur-md">
           <div className="flex items-center">
-            <div className="p-2 bg-yellow-100 rounded-lg">
-              <Clock className="text-yellow-600" size={24} />
+            <div className="p-3 bg-gradient-to-br from-yellow-500 to-orange-600 rounded-xl shadow-lg">
+              <Clock className="text-white" size={24} />
             </div>
             <div className="ml-4">
-              <p className="text-sm font-medium text-gray-600">Pending</p>
-              <p className="text-2xl font-bold text-gray-900">{stats?.pendingJobs || 0}</p>
+              <p className="text-sm font-medium text-gray-400">In Queue</p>
+              <p className="text-2xl font-bold text-gray-100">{stats?.pendingJobs || 0}</p>
             </div>
           </div>
         </div>
-        <div className="bg-white p-6 rounded-lg shadow-sm border">
+        <div className="bg-gradient-to-br from-gray-800/50 to-slate-800/50 p-6 rounded-xl shadow-2xl border border-gray-700/30 backdrop-blur-md">
           <div className="flex items-center">
-            <div className="p-2 bg-green-100 rounded-lg">
-              <CheckCircle className="text-green-600" size={24} />
+            <div className="p-3 bg-gradient-to-br from-emerald-500 to-green-600 rounded-xl shadow-lg">
+              <CheckCircle className="text-white" size={24} />
             </div>
             <div className="ml-4">
-              <p className="text-sm font-medium text-gray-600">Completed</p>
-              <p className="text-2xl font-bold text-gray-900">{stats?.completedJobs || 0}</p>
+              <p className="text-sm font-medium text-gray-400">Race Ready</p>
+              <p className="text-2xl font-bold text-gray-100">{stats?.completedJobs || 0}</p>
             </div>
           </div>
         </div>
-        <div className="bg-white p-6 rounded-lg shadow-sm border">
+        <div className="bg-gradient-to-br from-gray-800/50 to-slate-800/50 p-6 rounded-xl shadow-2xl border border-gray-700/30 backdrop-blur-md">
           <div className="flex items-center">
-            <div className="p-2 bg-purple-100 rounded-lg">
-              <DollarSign className="text-purple-600" size={24} />
+            <div className="p-3 bg-gradient-to-br from-purple-500 to-violet-600 rounded-xl shadow-lg">
+              <Banknote className="text-white" size={24} />
             </div>
             <div className="ml-4">
-              <p className="text-sm font-medium text-gray-600">Total Revenue</p>
-              <p className="text-2xl font-bold text-gray-900">{stats?.totalRevenue?.toLocaleString('en-PK', { style: 'currency', currency: 'PKR' }) || '₨0'}</p>
+              <p className="text-sm font-medium text-gray-400">Total Earnings</p>
+              <p className="text-2xl font-bold text-gray-100">{formatCurrency(stats?.totalRevenue || 0)}</p>
             </div>
           </div>
         </div>
@@ -363,7 +367,7 @@ const Jobs: React.FC = () => {
                       <td className="px-6 py-4 whitespace-nowrap">
                         <div>
                           <div className="text-sm font-medium text-gray-900">
-                            {job.customer?.firstName} {job.customer?.lastName}
+                            {job.customer?.first_name} {job.customer?.last_name}
                           </div>
                           <div className="text-sm text-gray-500">
                             {job.car?.year} {job.car?.make} {job.car?.model}
@@ -394,11 +398,11 @@ const Jobs: React.FC = () => {
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
                         <div className="text-sm font-medium text-gray-900">
-                          ${job.totalPrice.toFixed(2)}
+                          {formatCurrency(job.totalPrice)}
                         </div>
                         {job.discount && job.discount > 0 && (
                           <div className="text-sm text-green-600">
-                            -${job.discount.toFixed(2)} discount
+                            -{formatCurrency(job.discount)} discount
                           </div>
                         )}
                       </td>
@@ -460,7 +464,7 @@ const Jobs: React.FC = () => {
                   </div>
                   <div className="flex items-center gap-2">
                     <button
-                      onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
+                      onClick={() => onPageChange(Math.max(currentPage - 1, 1))}
                       disabled={currentPage === 1}
                       className="px-3 py-1 text-sm border rounded-md disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-100"
                     >
@@ -470,7 +474,7 @@ const Jobs: React.FC = () => {
                       Page {currentPage} of {totalPages}
                     </span>
                     <button
-                      onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
+                      onClick={() => onPageChange(Math.min(currentPage + 1, totalPages))}
                       disabled={currentPage === totalPages}
                       className="px-3 py-1 text-sm border rounded-md disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-100"
                     >

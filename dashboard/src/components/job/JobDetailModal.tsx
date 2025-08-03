@@ -1,7 +1,8 @@
 import React from 'react';
-import { X, Edit, Trash2, Calendar, Clock, DollarSign, User, Car, Users } from 'lucide-react';
+import { X, Edit, Trash2, Calendar, Clock, Banknote, User, Car, Users } from 'lucide-react';
 import type { Job } from '../../types';
-import Portal from '../ui/Portal';
+import Portal from '../shared/utility/Portal';
+import { formatCurrency } from '../../utils/currency';
 
 interface JobDetailModalProps {
   job: Job | null;
@@ -206,12 +207,12 @@ const JobDetailModal: React.FC<JobDetailModalProps> = ({
 
               <div className="bg-white border border-gray-200 rounded-lg p-4">
                 <div className="flex items-center gap-2 mb-2">
-                  <DollarSign className="text-green-600" size={20} />
+                  <Banknote className="text-green-600" size={20} />
                   <span className="font-medium text-gray-900">Total Price</span>
                 </div>
-                <p className="text-lg font-semibold text-gray-900">${job.totalPrice.toFixed(2)}</p>
+                <p className="text-lg font-semibold text-gray-900">{formatCurrency(job.totalPrice)}</p>
                 {job.discount && job.discount > 0 && (
-                  <p className="text-sm text-green-600">-${job.discount.toFixed(2)} discount applied</p>
+                  <p className="text-sm text-green-600">-{formatCurrency(job.discount)} discount applied</p>
                 )}
               </div>
             </div>

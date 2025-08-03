@@ -1,10 +1,14 @@
 import axios from 'axios';
 
-const API_BASE_URL = 'http://localhost:5000/api';
+// Helper to get access token from AuthContext
+import { getAccessTokenFromContext } from '../contexts/AuthContext';
+
+const API_BASE_URL = 'http://localhost:8000/';
 
 // Create axios instance
 export const apiClient = axios.create({
   baseURL: API_BASE_URL,
+  withCredentials: true, // Include cookies in requests
   headers: {
     'Content-Type': 'application/json',
   },
@@ -13,7 +17,7 @@ export const apiClient = axios.create({
 // Request interceptor to add auth token
 apiClient.interceptors.request.use(
   (config) => {
-    const token = localStorage.getItem('token');
+    const token = getAccessTokenFromContext(); // Should return current in-memory token
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
     }
@@ -31,10 +35,8 @@ apiClient.interceptors.response.use(
   },
   (error) => {
     if (error.response?.status === 401) {
-      // Token expired or invalid
-      localStorage.removeItem('token');
-      window.location.href = '/login';
+      return Promise.reject(error)
     }
     return Promise.reject(error);
   }
-); 
+);
