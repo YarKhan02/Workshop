@@ -55,9 +55,10 @@ class Command(BaseCommand):
 
             invoice = Invoice.objects.create(
                 customer=customer,  # Pass the Customer instance directly
+                subtotal=total_amount,
                 total_amount=grand_total,
-                discount=discount,
-                tax=tax,
+                discount_amount=discount,  # Updated field name
+                tax_amount=tax,           # Updated field name
                 status=random.choice(["paid", "pending", "partially_paid"]),
                 payment_method=random.choice(["cash", "credit_card", "bank_transfer"]),
                 due_date=due_date.date()  # Add due_date

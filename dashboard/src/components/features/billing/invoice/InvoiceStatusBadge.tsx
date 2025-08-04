@@ -54,6 +54,8 @@ const InvoiceStatusBadge: React.FC<InvoiceStatusBadgeProps> = ({
   };
 
   const formatStatus = (status: InvoiceStatus) => {
+    if (!status) return 'Unknown';
+    
     switch (status) {
       case 'partially_paid':
         return 'Partially Paid';

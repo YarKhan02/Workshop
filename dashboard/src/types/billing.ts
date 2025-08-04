@@ -5,24 +5,40 @@
 export interface Invoice {
   id: string;
   invoiceNumber?: string;
-  customerId: string;
+  invoice_number?: string; // Backend field
+  customerId?: string;
   customer: InvoiceCustomer;
   jobId?: string;
   job?: InvoiceJob;
   subtotal: number;
   taxAmount: number;
+  tax_amount?: number; // Backend field
   discountAmount: number;
+  discount_amount?: number; // Backend field
   totalAmount: number;
+  total_amount?: string; // Backend field (sometimes string)
   status: InvoiceStatus;
+  payment_status?: InvoiceStatus; // Backend field for booking invoices
   paymentMethod?: PaymentMethod;
-  dueDate: string;
+  dueDate?: string;
+  due_date?: string; // Backend field
   paidDate?: string;
+  paid_date?: string; // Backend field
   notes?: string;
   terms?: string;
-  isActive: boolean;
+  isActive?: boolean;
   createdAt: string;
+  created_at?: string; // Backend field
   updatedAt: string;
+  updated_at?: string; // Backend field
   items: InvoiceItem[];
+  invoice_type?: 'inventory' | 'booking'; // Added to distinguish invoice types
+  // Legacy fields for inventory invoices
+  discount?: number;
+  tax?: number;
+  service_name?: string; // For booking invoices
+  amount_due?: number | string; // For booking invoices
+  is_overdue?: boolean; // For booking invoices
 }
 
 export interface InvoiceItem {

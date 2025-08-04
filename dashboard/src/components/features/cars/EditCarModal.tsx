@@ -50,7 +50,13 @@ const EditCarModal: React.FC<EditCarModalProps> = ({
   }, [car, reset]);
 
   const onSubmit = async (data: CarFormData) => {
-    if (!car) return;
+    if (!car || !car.id) {
+      console.error('Car or car ID is missing');
+      toast.error('Unable to update car: missing car information');
+      return;
+    }
+
+    console.log('Car ID:', car.id);
     
     try {
       if (onSave) {
@@ -59,7 +65,7 @@ const EditCarModal: React.FC<EditCarModalProps> = ({
       } else {
         // Use internal save logic
         await updateCarMutation.mutateAsync({
-          carId: parseInt(car.id),
+          carId: car.id,
           data: {
             make: data.make,
             model: data.model,
@@ -81,7 +87,7 @@ const EditCarModal: React.FC<EditCarModalProps> = ({
     }
   };
 
-  if (!isOpen || !car) return null;
+  if (!isOpen || !car || !car.id) return null;
 
   return (
     <ThemedModal

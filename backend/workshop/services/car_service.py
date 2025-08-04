@@ -1,7 +1,8 @@
 # services/car_service.py
 from typing import Dict, Any, Optional
 from workshop.models.car import Car
-from workshop.serializers.car_serializer import CarSerializer, DetailSerializer
+from workshop.serializers.car_serializer import CarSerializer, DetailSerializer, CarCreateSerializer, CarUpdateSerializer
+from workshop.queries.car_queries import get_all_cars_query, get_car_by_id
 from .base_service import BaseService
 
 class CarService(BaseService):
@@ -10,7 +11,7 @@ class CarService(BaseService):
     """
     def get_all_cars(self) -> Dict[str, Any]:
         try:
-            queryset = Car.objects.all()
+            queryset = get_all_cars_query()
             serializer = CarSerializer(queryset, many=True)
             return self.success_response(
                 message="Cars retrieved successfully",
@@ -51,5 +52,50 @@ class CarService(BaseService):
         except Exception as e:
             return self.error_response(
                 message="Failed to fetch cars for customer",
+                details=str(e)
+            )
+        
+    def add_car(self, data: Dict[str, Any]) -> Dict[str, Any]:
+        try:
+            serializer = CarCreateSerializer(data=data)
+            if serializer.is_valid():
+                car = serializer.save()
+                return self.success_response(
+                    message="Car added successfully",
+                    data=CarSerializer(car).data
+                )
+            print("Serializer errors:", serializer.errors)
+            return self.error_response(
+                message="Invalid data",
+                details=serializer.errors
+            )
+        except Exception as e:
+            print("Error while adding car:", str(e))
+            return self.error_response(
+                message="Failed to add car",
+                details=str(e)
+            )
+        
+    def update_car(self, car_id: str, data: Dict[str, Any]) -> Dict[str, Any]:
+        try:
+            car = get_car_by_id(car_id)
+            serializer = CarUpdateSerializer(car, data=data, partial=True)
+            if serializer.is_valid():
+                updated_car = serializer.save()
+                return self.success_response(
+                    message="Car updated successfully",
+                    data=CarSerializer(updated_car).data
+                )
+            return self.error_response(
+                message="Invalid data",
+                details=serializer.errors
+            )
+        except Car.DoesNotExist:
+            return self.error_response(
+                message="Car not found"
+            )
+        except Exception as e:
+            return self.error_response(
+                message="Failed to update car",
                 details=str(e)
             )

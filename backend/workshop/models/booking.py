@@ -130,11 +130,14 @@ class Booking(models.Model):
     customer = models.ForeignKey(Customer, on_delete=models.CASCADE, related_name='bookings')
     car = models.ForeignKey(Car, on_delete=models.CASCADE, related_name='bookings')
     service = models.ForeignKey(Service, on_delete=models.CASCADE, related_name='bookings')
-    time_slot = models.ForeignKey('BookingTimeSlot', on_delete=models.CASCADE, related_name='bookings')
     assigned_staff = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True, related_name='assigned_bookings')
     created_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True, related_name='created_bookings')
     
-    # Scheduling (derived from time_slot but can be overridden for flexibility)
+    # Billing relationship
+    invoice = models.OneToOneField('Invoice', on_delete=models.SET_NULL, null=True, blank=True, related_name='booking')
+    
+    # Scheduling - simplified to just a date
+    booking_date = models.DateField()
     estimated_duration_minutes = models.PositiveIntegerField()  # Can be different from service default
     actual_start_time = models.DateTimeField(null=True, blank=True)
     actual_end_time = models.DateTimeField(null=True, blank=True)
@@ -188,9 +191,9 @@ class Booking(models.Model):
     
     class Meta:
         db_table = 'booking'
-        ordering = ['-time_slot__date', '-time_slot__start_time']
+        ordering = ['-booking_date', '-created_at']
         indexes = [
-            models.Index(fields=['time_slot']),
+            models.Index(fields=['booking_date']),
             models.Index(fields=['status']),
             models.Index(fields=['customer']),
             models.Index(fields=['car']),
@@ -198,22 +201,12 @@ class Booking(models.Model):
         ]
 
     def __str__(self):
-        return f"Booking {self.id} - {self.customer.first_name} {self.customer.last_name} - {self.time_slot.date}"
+        return f"Booking {self.id} - {self.customer.first_name} {self.customer.last_name} - {self.booking_date}"
     
     @property
     def scheduled_date(self):
-        """Get scheduled date from time slot"""
-        return self.time_slot.date
-    
-    @property
-    def scheduled_time(self):
-        """Get scheduled time from time slot"""
-        return self.time_slot.start_time
-    
-    @property
-    def scheduled_end_time(self):
-        """Get scheduled end time from time slot"""
-        return self.time_slot.end_time
+        """Get scheduled date"""
+        return self.booking_date
     
     def get_total_amount(self):
         """Calculate total amount after discount"""
@@ -232,11 +225,68 @@ class Booking(models.Model):
         """Check if booking is overdue"""
         from django.utils import timezone
         if self.status in ['pending', 'confirmed']:
-            scheduled_datetime = timezone.datetime.combine(self.time_slot.date, self.time_slot.start_time)
-            if timezone.is_naive(scheduled_datetime):
-                scheduled_datetime = timezone.make_aware(scheduled_datetime)
-            return timezone.now() > scheduled_datetime
+            # For simplified date-based system, consider a booking overdue if it's past the booking date
+            return timezone.now().date() > self.booking_date
         return False
+    
+    def generate_invoice(self):
+        """Generate an invoice when booking is completed"""
+        if self.invoice:
+            return self.invoice  # Invoice already exists
+            
+        from workshop.models.invoice import Invoice
+        from workshop.models.invoice_items import InvoiceItems
+        from decimal import Decimal
+        
+        # Calculate amounts
+        subtotal = self.final_price if self.final_price else self.quoted_price
+        tax_rate = Decimal('0.10')  # 10% tax rate, make this configurable
+        tax_amount = subtotal * tax_rate
+        total_amount = subtotal + tax_amount - self.discount_amount
+        
+        # Create invoice
+        invoice = Invoice.objects.create(
+            customer=self.customer,
+            subtotal=subtotal,
+            tax_amount=tax_amount,
+            discount_amount=self.discount_amount,
+            total_amount=total_amount,
+            notes=f"Invoice for {self.service.name} service on {self.booking_date}",
+            terms="Payment due within 30 days."
+        )
+        
+        # Create invoice item for the service
+        InvoiceItems.objects.create(
+            invoice=invoice,
+            description=f"{self.service.name} - {self.car_make} {self.car_model} ({self.car_license_plate})",
+            quantity=1,
+            unit_price=subtotal,
+        )
+        
+        # Link invoice to booking
+        self.invoice = invoice
+        self.save(update_fields=['invoice'])
+        
+        return invoice
+    
+    @property
+    def payment_status(self):
+        """Get payment status from linked invoice"""
+        if not self.invoice:
+            return 'not_generated'
+        return self.invoice.status
+    
+    @property
+    def is_paid(self):
+        """Check if booking has been paid"""
+        return self.payment_status == 'paid'
+    
+    @property
+    def can_edit(self):
+        """Check if booking can be edited (not paid and not completed)"""
+        if self.is_paid:
+            return False
+        return self.status not in ['completed', 'cancelled']
 
 
 class BookingStatusHistory(models.Model):

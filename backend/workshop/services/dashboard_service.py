@@ -38,6 +38,8 @@ class DashboardService:
                 'bookings_growth': Decimal(str(bookings_growth)),
                 'recent_jobs': recent_bookings
             }
+
+            print("Dashboard stats data:", stats_data)
             
             serializer = DashboardStatsSerializer(stats_data)
             

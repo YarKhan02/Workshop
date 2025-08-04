@@ -43,7 +43,52 @@ export const billingAPI = {
       };
     }
     
-    // New paginated format
+    // New combined format with inventory and booking invoices
+    if (response.data.data && typeof response.data.data === 'object') {
+      const { inventory_invoices = [], booking_invoices = [], total_count = 0 } = response.data.data;
+      
+      // Combine both types of invoices into a single array with field normalization
+      const combinedInvoices = [
+        ...inventory_invoices.map((invoice: any) => ({
+          ...invoice,
+          invoice_type: 'inventory',
+          // Normalize field names for frontend compatibility
+          invoiceNumber: invoice.invoice_number || invoice.id,
+          subtotal: parseFloat(invoice.total_amount) - parseFloat(invoice.tax || invoice.tax_amount || 0) + parseFloat(invoice.discount || invoice.discount_amount || 0),
+          taxAmount: parseFloat(invoice.tax || invoice.tax_amount || 0),
+          discountAmount: parseFloat(invoice.discount || invoice.discount_amount || 0),
+          totalAmount: parseFloat(invoice.total_amount),
+          // Map legacy status field
+          status: invoice.status
+        })),
+        ...booking_invoices.map((invoice: any) => ({
+          ...invoice,
+          invoice_type: 'booking',
+          // Normalize field names for frontend compatibility
+          invoiceNumber: invoice.invoice_number,
+          subtotal: parseFloat(invoice.subtotal),
+          taxAmount: parseFloat(invoice.tax_amount),
+          discountAmount: parseFloat(invoice.discount_amount),
+          totalAmount: parseFloat(invoice.total_amount),
+          // Map payment_status to status for consistency
+          status: invoice.payment_status
+        }))
+      ];
+      
+      return {
+        data: combinedInvoices,
+        pagination: response.data.pagination || {
+          current_page: 1,
+          total_pages: 1,
+          total_count: total_count,
+          per_page: total_count,
+          has_next: false,
+          has_previous: false,
+        }
+      };
+    }
+    
+    // Fallback for other formats
     return {
       data: response.data.data || response.data.orders || response.data.invoices || [],
       pagination: response.data.pagination || {

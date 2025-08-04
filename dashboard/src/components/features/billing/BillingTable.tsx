@@ -51,6 +51,19 @@ const BillingTable: React.FC<BillingTableProps> = ({ invoices, onRowClick, loadi
       )
     },
     {
+      key: 'type',
+      header: 'Type',
+      render: (invoice: any) => (
+        <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium border ${
+          invoice.invoice_type === 'booking' 
+            ? 'bg-blue-500/20 text-blue-400 border-blue-500/30'
+            : 'bg-purple-500/20 text-purple-400 border-purple-500/30'
+        }`}>
+          {invoice.invoice_type === 'booking' ? 'Service' : 'Product'}
+        </span>
+      )
+    },
+    {
       key: 'date',
       header: 'Date',
       render: (invoice: any) => (
@@ -73,7 +86,7 @@ const BillingTable: React.FC<BillingTableProps> = ({ invoices, onRowClick, loadi
       header: 'Status',
       render: (invoice: any) => (
         <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium border ${getStatusColor(invoice.status)}`}>
-          {invoice.status.charAt(0).toUpperCase() + invoice.status.slice(1)}
+          {invoice.status ? invoice.status.charAt(0).toUpperCase() + invoice.status.slice(1) : 'Unknown'}
         </span>
       )
     }

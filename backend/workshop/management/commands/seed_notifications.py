@@ -43,7 +43,7 @@ class Command(BaseCommand):
             elif booking.status == 'confirmed':
                 Notification.objects.create(
                     title='Booking Confirmed',
-                    message=f'{customer_name} has confirmed their {booking.service.name} appointment scheduled for {booking.time_slot.date}.',
+                    message=f'{customer_name} has confirmed their {booking.service.name} appointment scheduled for {booking.booking_date}.',
                     notification_type='booking',
                     priority='low',
                     is_read=True,
@@ -135,7 +135,7 @@ class Command(BaseCommand):
         # Daily summary notification
         if Booking.objects.exists():
             today_bookings = Booking.objects.filter(
-                time_slot__date=timezone.now().date()
+                booking_date=timezone.now().date()
             ).count()
             
             Notification.objects.create(

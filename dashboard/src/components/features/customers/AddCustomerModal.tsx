@@ -1,17 +1,25 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { UserPlus } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { useCreateCustomer } from '../../../hooks/useCustomers';
+import { formatNIC, stripNicDashes } from '../../../helper/nicFormatter';
 import { useTheme, cn, ThemedModal, ThemedInput, ThemedButton } from '../../ui';
 
 const customerSchema = z.object({
+  nic: z
+    .string()
+    .length(13, 'NIC must be exactly 13 digits')
+    .regex(/^\d+$/, 'NIC must be numeric'),
   first_name: z.string().min(1, 'First name is required'),
   last_name: z.string().min(1, 'Last name is required'),
   email: z.string().email('Invalid email address'),
-  phone_number: z.string().min(1, 'Phone number is required'),
+  phone_number: z
+    .string()
+    .length(11, 'Phone number must be exactly 11 digits')
+    .regex(/^03\d{9}$/, 'Phone number must start with 03 and be numeric'),
   address: z.string().min(1, 'Address is required'),
   city: z.string().optional(),
   state: z.string().optional(),
@@ -30,15 +38,18 @@ const AddCustomerModal: React.FC<AddCustomerModalProps> = ({
 }) => {
   const { theme } = useTheme();
   const createCustomerMutation = useCreateCustomer();
+  const [nicDisplay, setNicDisplay] = useState('');
   
   const {
     register,
     handleSubmit,
+    setValue,
     formState: { errors, isSubmitting },
     reset
   } = useForm<CustomerFormData>({
     resolver: zodResolver(customerSchema),
     defaultValues: {
+      nic: '',
       first_name: '',
       last_name: '',
       email: '',
@@ -53,6 +64,7 @@ const AddCustomerModal: React.FC<AddCustomerModalProps> = ({
     try {
       const cleanData = {
         ...data,
+        nic: stripNicDashes(nicDisplay),
         city: data.city || undefined,
         state: data.state || undefined,
       };
@@ -78,6 +90,23 @@ const AddCustomerModal: React.FC<AddCustomerModalProps> = ({
       <form onSubmit={handleSubmit(onSubmit)} className="p-6">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div className="space-y-4">
+            <div>
+              <label className={cn("block text-sm font-medium mb-1", theme.textSecondary)}>
+                NIC *
+              </label>
+              <ThemedInput
+                type="text"
+                value={formatNIC(nicDisplay)}
+                onChange={(e) => {
+                  const cleanValue = stripNicDashes(e.target.value);
+                  setNicDisplay(cleanValue);
+                  setValue('nic', cleanValue);
+                }}
+                placeholder="Enter NIC without dashes"
+                error={errors.nic?.message}
+              />
+            </div>
+
             <div>
               <label className={cn("block text-sm font-medium mb-1", theme.textSecondary)}>
                 First Name *
@@ -120,8 +149,9 @@ const AddCustomerModal: React.FC<AddCustomerModalProps> = ({
               </label>
               <ThemedInput
                 type="tel"
+                maxLength={11}
                 {...register('phone_number')}
-                placeholder="Enter phone number"
+                placeholder="03XXXXXXXXX"
                 error={errors.phone_number?.message}
               />
             </div>

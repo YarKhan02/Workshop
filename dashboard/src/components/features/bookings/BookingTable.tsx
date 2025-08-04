@@ -92,7 +92,6 @@ const BookingTable: React.FC<BookingTableProps> = ({
       render: (booking: Booking) => (
         <div>
           <div className={cn("text-sm", theme.textPrimary)}>{formatDate(booking.scheduledDate)}</div>
-          <div className={cn("text-sm", theme.textSecondary)}>{formatTime(booking.scheduledTime)}</div>
         </div>
       ),
     },

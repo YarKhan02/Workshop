@@ -8,6 +8,7 @@ class Command(BaseCommand):
     def handle(self, *args, **kwargs):
         customers_data = [
             {
+                'nic': '4210112345671',
                 'email': 'ali.khan@example.com',
                 'username': 'alikhan90',
                 'password': 'securepass1',
@@ -19,6 +20,7 @@ class Command(BaseCommand):
                 'address': '123 Clifton Block 5, Karachi',
             },
             {
+                'nic': '4210212345672',
                 'email': 'amna.emaan@example.com',
                 'username': 'amnaemaan95',
                 'password': 'securepass2',
@@ -30,6 +32,7 @@ class Command(BaseCommand):
                 'address': 'House 45, DHA Phase 6, Karachi',
             },
             {
+                'nic': '4210312345673',
                 'email': 'wali.yar@example.com',
                 'username': 'waliyar92',
                 'password': 'securepass3',
@@ -41,6 +44,7 @@ class Command(BaseCommand):
                 'address': 'Flat 8, Gulshan Block 13D, Karachi',
             },
             {
+                'nic': '4210412345674',
                 'email': 'osaid.rehman@example.com',
                 'username': 'osaidrehman88',
                 'password': 'securepass4',
@@ -52,6 +56,7 @@ class Command(BaseCommand):
                 'address': 'Villa 7, Bahria Town, Karachi',
             },
             {
+                'nic': '4210512345675',
                 'email': 'fatima.mirza@example.com',
                 'username': 'fatimam88',
                 'password': 'securepass5',
@@ -68,6 +73,7 @@ class Command(BaseCommand):
             customer, created = Customer.objects.get_or_create(
                 username=data['username'],
                 defaults={
+                    'nic': data['nic'],
                     'email': data['email'],
                     'first_name': data['first_name'],
                     'last_name': data['last_name'],

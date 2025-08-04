@@ -1,11 +1,11 @@
 // ==================== BOOKING DETAIL MODAL COMPONENT ====================
 
-import React from 'react';
+import React, { useState } from 'react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { Calendar, Clock, User, Car, FileText, Banknote, Phone, Mail, CheckCircle } from 'lucide-react';
+import { Calendar, User, Car, FileText, Banknote, Phone, Mail, CheckCircle, CreditCard, AlertCircle } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { bookingAPI } from '../../../api/booking';
-import { useTheme, cn, ThemedModal, ThemedButton } from '../../ui';
+import { useTheme, cn, ThemedModal, ThemedButton, ConfirmationModal } from '../../ui';
 import type { BookingDetailModalProps } from '../../../types/booking';
 import { formatCurrency } from '../../../utils/currency';
 
@@ -18,17 +18,21 @@ const getStatusColor = (status: string) => {
     case 'in_progress': return 'bg-orange-500/20 text-orange-400 border border-orange-500/30';
     case 'completed': return 'bg-green-500/20 text-green-400 border border-green-500/30';
     case 'cancelled': return 'bg-red-500/20 text-red-400 border border-red-500/30';
+    case 'no_show': return 'bg-purple-500/20 text-purple-400 border border-purple-500/30';
+    case 'rescheduled': return 'bg-indigo-500/20 text-indigo-400 border border-indigo-500/30';
     default: return 'bg-gray-500/20 text-gray-400 border border-gray-500/30';
   }
 };
 
 const getStatusText = (status: string) => {
   switch (status) {
-    case 'pending': return 'Scheduled';
+    case 'pending': return 'Pending';
     case 'confirmed': return 'Confirmed';
-    case 'in_progress': return 'In Service';
+    case 'in_progress': return 'In Progress';
     case 'completed': return 'Completed';
     case 'cancelled': return 'Cancelled';
+    case 'no_show': return 'No Show';
+    case 'rescheduled': return 'Rescheduled';
     default: return status.replace('_', ' ').toUpperCase();
   }
 };
@@ -41,18 +45,26 @@ const formatDate = (dateString: string) => {
   });
 };
 
-const formatTime = (timeString: string) => {
-  return new Date(`2000-01-01T${timeString}`).toLocaleTimeString('en-US', {
-    hour: '2-digit',
-    minute: '2-digit',
-  });
-};
-
 // ==================== COMPONENT ====================
 
 const BookingDetailModal: React.FC<BookingDetailModalProps> = ({ isOpen, onClose, booking }) => {
   const queryClient = useQueryClient();
   const { theme } = useTheme();
+  
+  // Confirmation modal state
+  const [confirmationModal, setConfirmationModal] = useState<{
+    isOpen: boolean;
+    title: string;
+    message: string;
+    action: () => void;
+    type?: 'warning' | 'success' | 'danger';
+  }>({
+    isOpen: false,
+    title: '',
+    message: '',
+    action: () => {},
+    type: 'warning'
+  });
 
   // ==================== MUTATIONS ====================
   
@@ -63,7 +75,7 @@ const BookingDetailModal: React.FC<BookingDetailModalProps> = ({ isOpen, onClose
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['bookings'] });
       queryClient.invalidateQueries({ queryKey: ['bookingStats'] });
-      toast.success('🔧 Service status updated successfully!');
+      toast.success('Service status updated successfully!');
     },
     onError: (error: any) => {
       const errorMessage = error?.response?.data?.message || 'Failed to update service status';
@@ -75,21 +87,57 @@ const BookingDetailModal: React.FC<BookingDetailModalProps> = ({ isOpen, onClose
   
   const handleStatusChange = (newStatus: string) => {
     if (!booking || newStatus === booking.status) return;
+    
+    // Prevent status changes if payment has been received
+    if (booking.isPaid) {
+      toast.error('Cannot change status for paid bookings. Please contact billing to make changes.');
+      return;
+    }
 
     const statusLabels: { [key: string]: string } = {
-      'pending': 'Scheduled',
+      'pending': 'Pending',
       'confirmed': 'Confirmed', 
-      'in_progress': 'In Service',
+      'in_progress': 'In Progress',
       'completed': 'Completed',
-      'cancelled': 'Cancelled'
+      'cancelled': 'Cancelled',
+      'no_show': 'No Show',
+      'rescheduled': 'Rescheduled'
     };
 
     const currentStatusLabel = statusLabels[booking.status] || booking.status;
     const newStatusLabel = statusLabels[newStatus] || newStatus;
 
-    if (window.confirm(`Change service status from "${currentStatusLabel}" to "${newStatusLabel}"?`)) {
-      updateStatusMutation.mutate({ bookingId: booking.id, status: newStatus });
+    setConfirmationModal({
+      isOpen: true,
+      title: 'Confirm Status Change',
+      message: `Change service status from "${currentStatusLabel}" to "${newStatusLabel}"?`,
+      action: () => {
+        updateStatusMutation.mutate({ bookingId: booking.id, status: newStatus });
+        setConfirmationModal(prev => ({ ...prev, isOpen: false }));
+      },
+      type: newStatus === 'cancelled' ? 'danger' : 'warning'
+    });
+  };
+
+  const handleMarkComplete = () => {
+    if (!booking) return;
+    
+    // Prevent completion if payment has been received
+    if (booking.isPaid) {
+      toast.error('Cannot change status for paid bookings. Please contact billing to make changes.');
+      return;
     }
+    
+    setConfirmationModal({
+      isOpen: true,
+      title: 'Mark Service Complete',
+      message: 'Are you sure you want to mark this service as completed? This will generate an invoice for billing.',
+      action: () => {
+        updateStatusMutation.mutate({ bookingId: booking.id, status: 'completed' });
+        setConfirmationModal(prev => ({ ...prev, isOpen: false }));
+      },
+      type: 'success'
+    });
   };
 
   if (!isOpen || !booking) return null;
@@ -114,17 +162,25 @@ const BookingDetailModal: React.FC<BookingDetailModalProps> = ({ isOpen, onClose
           <select
             value={booking.status}
             onChange={(e) => handleStatusChange(e.target.value)}
-                  className="px-4 py-2 bg-gray-900/50 border border-gray-600/50 rounded-xl text-gray-100 focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-all duration-300"
-                  disabled={updateStatusMutation.isPending}
-                >
-                  <option value="pending">Scheduled</option>
-                  <option value="confirmed">Confirmed</option>
-                  <option value="in_progress">In Service</option>
-                  <option value="completed">Completed</option>
-                  <option value="cancelled">Cancelled</option>
-                </select>
-              </div>
-            </div>
+            className={cn("px-4 py-2 border rounded-xl transition-all duration-300", theme.background, theme.textPrimary, theme.border, "focus:ring-2 focus:ring-orange-500 focus:border-orange-500", booking.isPaid && "opacity-50 cursor-not-allowed")}
+            disabled={updateStatusMutation.isPending || booking.isPaid}
+          >
+            <option value="pending">Pending</option>
+            <option value="confirmed">Confirmed</option>
+            <option value="in_progress">In Progress</option>
+            <option value="completed">Completed</option>
+            <option value="cancelled">Cancelled</option>
+            <option value="no_show">No Show</option>
+            <option value="rescheduled">Rescheduled</option>
+          </select>
+          {booking.isPaid && (
+            <span className="text-sm text-orange-400 flex items-center">
+              <CreditCard className="w-4 h-4 mr-1" />
+              Status locked (paid)
+            </span>
+          )}
+        </div>
+      </div>
 
             {/* Client & Machine Info */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
@@ -195,10 +251,6 @@ const BookingDetailModal: React.FC<BookingDetailModalProps> = ({ isOpen, onClose
                     <Calendar className="w-4 h-4 mr-2" />
                     {formatDate(booking.scheduledDate)}
                   </div>
-                  <div className="flex items-center text-gray-200">
-                    <Clock className="w-4 h-4 mr-2" />
-                    {formatTime(booking.scheduledTime)}
-                  </div>
                 </div>
               </div>
 
@@ -212,6 +264,44 @@ const BookingDetailModal: React.FC<BookingDetailModalProps> = ({ isOpen, onClose
               </h3>
               <div className="text-2xl font-bold text-green-400">
                 {formatCurrency(booking.totalAmount)}
+              </div>
+            </div>
+
+            {/* Payment Status */}
+            <div className="bg-gray-900/30 rounded-xl p-4 border border-gray-700/30 mb-6">
+              <h3 className="text-lg font-semibold text-orange-400 mb-3 flex items-center">
+                <CreditCard className="w-5 h-5 mr-2" />
+                Payment Status
+              </h3>
+              <div className="space-y-3">
+                <div className="flex items-center justify-between">
+                  <span className="text-gray-300">Status:</span>
+                  <span className={`px-3 py-1 rounded-full text-sm font-medium ${
+                    booking.isPaid
+                      ? 'bg-green-900/50 text-green-300 border border-green-600/30'
+                      : booking.paymentStatus === 'pending'
+                      ? 'bg-yellow-900/50 text-yellow-300 border border-yellow-600/30'
+                      : 'bg-red-900/50 text-red-300 border border-red-600/30'
+                  }`}>
+                    {booking.isPaid ? 'Paid' : booking.paymentStatus === 'pending' ? 'Pending' : 'Unpaid'}
+                  </span>
+                </div>
+                
+                {booking.invoiceNumber && (
+                  <div className="flex items-center justify-between">
+                    <span className="text-gray-300">Invoice:</span>
+                    <span className="text-gray-200 font-mono">#{booking.invoiceNumber}</span>
+                  </div>
+                )}
+                
+                {booking.isPaid && (
+                  <div className="bg-orange-900/30 rounded-lg p-3 border border-orange-600/30">
+                    <div className="flex items-center text-orange-300">
+                      <AlertCircle className="w-4 h-4 mr-2" />
+                      <span className="text-sm">This booking cannot be edited as payment has been received.</span>
+                    </div>
+                  </div>
+                )}
               </div>
             </div>
 
@@ -234,9 +324,9 @@ const BookingDetailModal: React.FC<BookingDetailModalProps> = ({ isOpen, onClose
         >
           Close
         </ThemedButton>
-        {booking && booking.status !== 'completed' && booking.status !== 'cancelled' && (
+        {booking && booking.status !== 'completed' && booking.status !== 'cancelled' && !booking.isPaid && (
           <ThemedButton
-            onClick={() => handleStatusChange('completed')}
+            onClick={handleMarkComplete}
             disabled={updateStatusMutation.isPending}
             variant="primary"
           >
@@ -244,7 +334,30 @@ const BookingDetailModal: React.FC<BookingDetailModalProps> = ({ isOpen, onClose
             {updateStatusMutation.isPending ? 'Updating...' : 'Mark Complete'}
           </ThemedButton>
         )}
+        {booking && booking.isPaid && (
+          <ThemedButton
+            disabled
+            variant="secondary"
+            className="opacity-50 cursor-not-allowed"
+          >
+            <CreditCard className="w-4 h-4 mr-2" />
+            Payment Received
+          </ThemedButton>
+        )}
       </div>
+
+      {/* Confirmation Modal */}
+      <ConfirmationModal
+        isOpen={confirmationModal.isOpen}
+        onClose={() => setConfirmationModal(prev => ({ ...prev, isOpen: false }))}
+        onConfirm={confirmationModal.action}
+        title={confirmationModal.title}
+        message={confirmationModal.message}
+        type={confirmationModal.type}
+        isLoading={updateStatusMutation.isPending}
+        confirmText="Confirm"
+        cancelText="Cancel"
+      />
     </ThemedModal>
   );
 };

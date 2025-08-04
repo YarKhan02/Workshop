@@ -12,18 +12,29 @@ from workshop.serializers.customer_serializer import CustomerInvoiceSerializer
 class InvoiceSerializer(serializers.ModelSerializer):
     customer = CustomerInvoiceSerializer(read_only=True)
     items = InvoiceItemSerializer(many=True, read_only=True)
+    amount_due = serializers.ReadOnlyField()
+    is_overdue = serializers.ReadOnlyField()
 
     class Meta:
         model = Invoice
         fields = [
             'id',
-            'total_amount',
-            'discount',
-            'tax',
-            'created_at',
-            'status',
+            'invoice_number',
             'customer',
             'items',
+            'subtotal',
+            'tax_amount',
+            'discount_amount',
+            'total_amount',
+            'amount_due',
+            'payment_status',
+            'payment_method',
+            'due_date',
+            'paid_date',
+            'is_overdue',
+            'notes',
+            'created_at',
+            'updated_at',
         ]
 
 # This serializer is used for creating an invoice with items
@@ -35,12 +46,14 @@ class InvoiceCreateSerializer(serializers.ModelSerializer):
         model = Invoice
         fields = [
             'customer_id',
+            'subtotal',
+            'tax_amount',
+            'discount_amount',
             'total_amount',
-            'tax',
-            'discount',
-            'grand_total',
-            'status',
+            'payment_status',
+            'payment_method',
             'due_date',
+            'notes',
             'items',
         ]
 

@@ -94,3 +94,30 @@ class InvoiceView(viewsets.ViewSet):
             {"message": result['message']}, 
             status=status.HTTP_204_NO_CONTENT
         )
+
+    @action(detail=False, methods=['get'], url_path='billing-stats')
+    def billing_stats(self, request):
+        """Get billing statistics"""
+        result = self.invoice_service.get_billing_stats()
+        
+        if 'error' in result:
+            return Response(result, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        
+        return Response(result['data'], status=status.HTTP_200_OK)
+
+    @action(detail=True, methods=['patch'], url_path='update-payment-status')
+    def update_payment_status(self, request, pk=None):
+        """Update payment status of an invoice"""
+        result = self.invoice_service.update_payment_status(pk, request.data)
+        
+        if 'error' in result:
+            if 'not found' in result['error']:
+                return Response(result, status=status.HTTP_404_NOT_FOUND)
+            elif 'Invalid' in result['error']:
+                return Response(result, status=status.HTTP_400_BAD_REQUEST)
+            return Response(result, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        
+        return Response(
+            {"message": result['message']}, 
+            status=status.HTTP_200_OK
+        )

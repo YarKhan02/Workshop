@@ -6,17 +6,17 @@ from decimal import Decimal
 from datetime import date
 
 def get_bookings(today: date) -> int:
-    return Booking.objects.filter(time_slot__date=today).count()
+    return Booking.objects.filter(booking_date=today).count()
 
 def get_revenue(target_date: date) -> Decimal:
     revenue = Booking.objects.filter(
-        time_slot__date=target_date,
+        booking_date=target_date,
         status='completed'
     ).aggregate(total=Sum('final_price'))['total'] or Decimal('0.00')
 
     if revenue == 0:
         revenue = Booking.objects.filter(
-            time_slot__date=target_date,
+            booking_date=target_date,
             status='completed'
         ).aggregate(total=Sum('quoted_price'))['total'] or Decimal('0.00')
 

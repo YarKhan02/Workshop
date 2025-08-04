@@ -9,9 +9,9 @@ class Car(models.Model):
     make = models.CharField(max_length=20)
     model = models.CharField(max_length=20)
     year = models.CharField(max_length=4)
-    license_plate = models.CharField(max_length=20)
+    license_plate = models.CharField(max_length=20, null=False, unique=True)
     color = models.CharField(max_length=20)
-    vin = models.CharField(max_length=20)
+    vin = models.CharField(max_length=20, null=True, blank=True)
 
     customer = models.ForeignKey(Customer, on_delete=models.CASCADE, related_name='cars')
 
