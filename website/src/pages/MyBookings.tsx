@@ -1,12 +1,13 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
+import Layout from '../components/layout/Layout';
 import { useAuth } from '../contexts/AuthContext';
 
 const MyBookings: React.FC = () => {
   const { user } = useAuth();
 
   return (
-    <div className="min-h-screen bg-black text-white">
+    <Layout>
       <div className="container mx-auto px-4 py-16">
         <div className="bg-black/50 border border-orange-900/30 rounded-lg shadow-xl p-8">
           <h2 className="text-3xl font-bold mb-6 text-white">
@@ -35,7 +36,7 @@ const MyBookings: React.FC = () => {
           </div>
         </div>
       </div>
-    </div>
+    </Layout>
   );
 };
 

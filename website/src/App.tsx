@@ -1,8 +1,6 @@
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
-import Header from './components/layout/Header';
-import Footer from './components/layout/Footer';
 import Home from './pages/Home';
 import Services from './pages/Services';
 import Pricing from './pages/Pricing';
@@ -29,7 +27,6 @@ const ProtectedRoute: React.FC<{ children: React.ReactNode }> = ({ children }) =
 function AppContent() {
   return (
     <div className="min-h-screen bg-black">
-      <Header />
       <main>
         <Routes>
           <Route path="/" element={<Home />} />
@@ -49,7 +46,6 @@ function AppContent() {
           <Route path="/contact" element={<Contact />} />
         </Routes>
       </main>
-      <Footer />
     </div>
   );
 }
