@@ -15,7 +15,7 @@ export const carQueryKeys = {
   lists: () => [...carQueryKeys.all, 'list'] as const,
   list: (filters: Record<string, unknown>) => [...carQueryKeys.lists(), { filters }] as const,
   details: () => [...carQueryKeys.all, 'detail'] as const,
-  detail: (id: number) => [...carQueryKeys.details(), id] as const,
+  detail: (id: string) => [...carQueryKeys.details(), id] as const,
   byCustomer: (customerId: string) => [...carQueryKeys.all, 'customer', customerId] as const,
 };
 
@@ -36,7 +36,7 @@ export const useCars = () => {
 /**
  * Hook to fetch a single car by ID
  */
-export const useCar = (carId: number | null) => {
+export const useCar = (carId: string | null) => {
   return useQuery({
     queryKey: carQueryKeys.detail(carId!),
     queryFn: () => carApi.fetchCarById(carId!),
@@ -82,7 +82,6 @@ export const useCreateCar = () => {
       queryClient.invalidateQueries({ queryKey: ['customers'] });
     },
     onError: (error: Error) => {
-      toast.error(`Failed to add racing machine: ${error.message}`);
       console.error('Error creating car:', error);
     },
   });
@@ -95,7 +94,7 @@ export const useUpdateCar = () => {
   const queryClient = useQueryClient();
   
   return useMutation({
-    mutationFn: ({ carId, data }: { carId: number; data: CarUpdateData }) =>
+    mutationFn: ({ carId, data }: { carId: string; data: CarUpdateData }) =>
       carApi.updateCar(carId, data),
     onSuccess: (updatedCar, { carId }) => {
       // Update the specific car in cache
@@ -110,11 +109,8 @@ export const useUpdateCar = () => {
           queryKey: carQueryKeys.byCustomer(updatedCar.customer_id) 
         });
       }
-      
-      toast.success('Racing machine updated successfully!');
     },
     onError: (error: Error) => {
-      toast.error(`Failed to update racing machine: ${error.message}`);
       console.error('Error updating car:', error);
     },
   });
@@ -130,7 +126,7 @@ export const useDeleteCar = () => {
     mutationFn: (carId: string) => carApi.deleteCar(carId),
     onSuccess: (_, carId) => {
       // Remove the specific car from cache
-      queryClient.removeQueries({ queryKey: carQueryKeys.detail(parseInt(carId)) });
+      queryClient.removeQueries({ queryKey: carQueryKeys.detail(carId) });
       
       // Invalidate cars list
       queryClient.invalidateQueries({ queryKey: carQueryKeys.lists() });
@@ -140,11 +136,8 @@ export const useDeleteCar = () => {
       
       // Update customers query as well (for car count)
       queryClient.invalidateQueries({ queryKey: ['customers'] });
-      
-      toast.success('Racing machine removed from fleet successfully!');
     },
     onError: (error: Error) => {
-      toast.error(`Failed to remove racing machine: ${error.message}`);
       console.error('Error deleting car:', error);
     },
   });

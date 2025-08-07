@@ -83,25 +83,16 @@ const AddInventoryModal: React.FC<AddInventoryModalProps> = ({ open, onClose }) 
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {/* Product Name */}
-            <div className="space-y-2">
-              <label className={cn("block text-sm font-semibold", theme.textSecondary)}>
-                Product Name <span className="text-red-400">*</span>
-              </label>
-              <div className="relative">
-                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                  <Package className={cn("h-5 w-5", theme.textSecondary)} />
-                </div>
-                <ThemedInput
-                  type="text"
-                  name="name"
-                  value={formData.name}
-                  onChange={handleChange}
-                  className="pl-10"
-                  placeholder="Enter product name"
-                  required
-                />
-              </div>
-            </div>
+            <ThemedInput
+              label="Product Name"
+              type="text"
+              name="name"
+              value={formData.name}
+              onChange={handleChange}
+              placeholder="Enter product name"
+              leftIcon={<Package className="h-5 w-5" />}
+              required
+            />
 
             {/* Category */}
             <div className="space-y-2">
@@ -146,71 +137,44 @@ const AddInventoryModal: React.FC<AddInventoryModalProps> = ({ open, onClose }) 
           </div>
 
           {/* Variant Name */}
-          <div className="space-y-2">
-            <label className={cn("block text-sm font-semibold", theme.textSecondary)}>
-              Variant Name <span className="text-red-400">*</span>
-            </label>
-            <div className="relative">
-              <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                <Tag className={cn("h-5 w-5", theme.textSecondary)} />
-              </div>
-              <ThemedInput
-                type="text"
-                name="variant_name"
-                value={formData.variant_name}
-                onChange={handleChange}
-                className="pl-10"
-                placeholder="e.g., Standard, Premium, 1L Bottle"
-                required
-              />
-            </div>
-          </div>
+          <ThemedInput
+            label="Variant Name"
+            type="text"
+            name="variant_name"
+            value={formData.variant_name}
+            onChange={handleChange}
+            placeholder="e.g., Standard, Premium, 1L Bottle"
+            leftIcon={<Tag className="h-5 w-5" />}
+            required
+          />
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {/* Price */}
-            <div className="space-y-2">
-              <label className={cn("block text-sm font-semibold", theme.textSecondary)}>
-                Price <span className="text-red-400">*</span>
-              </label>
-              <div className="relative">
-                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                  <Banknote className={cn("h-5 w-5", theme.textSecondary)} />
-                </div>
-                <ThemedInput
-                  type="number"
-                  name="price"
-                  value={formData.price}
-                  onChange={handleChange}
-                  className="pl-10"
-                  placeholder="0.00"
-                  min={0}
-                  step="0.01"
-                  required
-                />
-              </div>
-            </div>
+            <ThemedInput
+              label="Price"
+              type="number"
+              name="price"
+              value={formData.price}
+              onChange={handleChange}
+              placeholder="0.00"
+              leftIcon={<Banknote className="h-5 w-5" />}
+              min={0}
+              step="0.01"
+              required
+            />
 
             {/* Quantity */}
-            <div className="space-y-2">
-              <label className={cn("block text-sm font-semibold", theme.textSecondary)}>
-                Initial Quantity <span className="text-red-400">*</span>
-              </label>
-              <div className="relative">
-                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                  <Hash className={cn("h-5 w-5", theme.textSecondary)} />
-                </div>
-                <ThemedInput
-                  type="number"
-                  name="quantity"
-                  value={formData.quantity}
-                  onChange={handleChange}
-                  className="pl-10"
-                  placeholder="0"
-                  min={0}
-                  required
-                />
-              </div>
-            </div>
+            <ThemedInput
+              label="Initial Quantity"
+              type="number"
+              name="quantity"
+              value={formData.quantity}
+              onChange={handleChange}
+              placeholder="0"
+              leftIcon={<Hash className="h-5 w-5" />}
+              min={0}
+              required
+            />
           </div>
 
           {/* Stock Level Preview */}

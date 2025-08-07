@@ -15,6 +15,7 @@ import AddInventoryModal from "../components/features/inventory/AddInventoryModa
 import EditInventoryModal from "../components/features/inventory/EditInventoryModal"
 import AddVariantModal from "../components/features/inventory/AddVariantModal"
 import InventoryTable from "../components/features/inventory/InventoryTable"
+import ConfirmationModal from "../components/ui/modals/ConfirmationModal"
 
 // Hooks
 import { useProducts, useDeleteVariant } from "../hooks/useInventory"
@@ -32,6 +33,21 @@ const InventoryPage: React.FC = () => {
     id: string
     name: string
   } | null>(null)
+  
+  // Confirmation modal state
+  const [confirmationModal, setConfirmationModal] = useState<{
+    isOpen: boolean
+    title: string
+    message: string
+    onConfirm: () => void
+    type?: 'warning' | 'danger' | 'success'
+  }>({
+    isOpen: false,
+    title: '',
+    message: '',
+    onConfirm: () => {},
+    type: 'warning'
+  })
   
   // Search state
   const [searchTerm, setSearchTerm] = useState("")
@@ -70,13 +86,23 @@ const InventoryPage: React.FC = () => {
   }
 
   const handleDelete = async (variantId: string) => {
-    if (!window.confirm("Delete this variant?")) return
-    
+    setConfirmationModal({
+      isOpen: true,
+      title: 'Delete Variant',
+      message: 'Are you sure you want to delete this variant? This action cannot be undone.',
+      type: 'danger',
+      onConfirm: () => confirmDelete(variantId)
+    })
+  }
+
+  const confirmDelete = async (variantId: string) => {
     try {
       await deleteVariantMutation.mutateAsync(variantId)
+      setConfirmationModal(prev => ({ ...prev, isOpen: false }))
     } catch (error) {
       // Error handling is done in the hook
       console.error('Delete variant error:', error)
+      setConfirmationModal(prev => ({ ...prev, isOpen: false }))
     }
   }
 
@@ -152,6 +178,16 @@ const InventoryPage: React.FC = () => {
         }}
         productId={selectedProductForVariant?.id || null}
         productName={selectedProductForVariant?.name}
+      />
+
+      {/* Confirmation Modal */}
+      <ConfirmationModal
+        isOpen={confirmationModal.isOpen}
+        onClose={() => setConfirmationModal(prev => ({ ...prev, isOpen: false }))}
+        onConfirm={confirmationModal.onConfirm}
+        title={confirmationModal.title}
+        message={confirmationModal.message}
+        type={confirmationModal.type}
       />
     </div>
   )

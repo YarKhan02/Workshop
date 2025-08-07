@@ -56,6 +56,25 @@ export default {
           900: '#0f172a',
           950: '#020617',
         }
+      },
+      animation: {
+        'slow-zoom': 'slowZoom 20s ease-in-out infinite alternate',
+        'float': 'float 6s ease-in-out infinite',
+        'float-delayed': 'float 6s ease-in-out infinite 2s',
+        'float-slow': 'float 8s ease-in-out infinite 1s',
+      },
+      keyframes: {
+        slowZoom: {
+          '0%': { transform: 'scale(1.0)' },
+          '100%': { transform: 'scale(1.1)' },
+        },
+        float: {
+          '0%, 100%': { transform: 'translateY(0px)' },
+          '50%': { transform: 'translateY(-20px)' },
+        }
+      },
+      backgroundImage: {
+        'gradient-radial': 'radial-gradient(var(--tw-gradient-stops))',
       }
     },
   },

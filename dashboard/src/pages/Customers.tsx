@@ -22,7 +22,7 @@ import {
 } from '../components/features/customers';
 
 // Hooks
-import { useCustomers, useUpdateCustomer, useTableData, usePagination } from '../hooks';
+import { useCustomers, useCustomerStats, useUpdateCustomer, useTableData, usePagination } from '../hooks';
 
 const Customers: React.FC = () => {
   const { theme } = useTheme();
@@ -38,7 +38,8 @@ const Customers: React.FC = () => {
   // Use custom hooks
   const { data: customersData, isLoading, error } = useCustomers();
   const updateCustomerMutation = useUpdateCustomer();
-  
+  const { data: stats } = useCustomerStats();
+
   // Ensure customers is always an array
   const customers = Array.isArray(customersData) ? customersData : [];
   
@@ -81,29 +82,27 @@ const Customers: React.FC = () => {
   const statsData = [
     {
       label: 'Total Customers',
-      value: customers.length,
+      value: stats?.total || 0,
       icon: <Users className="h-8 w-8" />,
       color: 'blue' as const,
     },
     {
-      label: 'Active This Month',
-      value: 28,
+      label: 'Returning Customers',
+      value: stats?.returning || 0,
       icon: <UserCheck className="h-8 w-8" />,
       color: 'green' as const,
-      change: {
-        value: '+12%',
-        type: 'increase' as const,
-      },
     },
     {
       label: 'New This Week',
-      value: 5,
+      value: stats?.new_this_week || 0,
       icon: <UserPlus className="h-8 w-8" />,
       color: 'purple' as const,
-      change: {
-        value: '+2',
-        type: 'increase' as const,
-      },
+      ...(stats?.new_this_week_percentage && stats.new_this_week_percentage > 0 && {
+        change: {
+          value: `${stats.new_this_week_percentage}%`,
+          type: 'increase' as const,
+        },
+      }),
     },
   ];
 

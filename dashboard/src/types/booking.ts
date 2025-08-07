@@ -19,6 +19,13 @@ export interface Booking {
   customer_notes?: string;
   totalAmount: number;
   createdAt: string;
+  
+  // Payment and Invoice related
+  paymentStatus?: 'not_generated' | 'pending' | 'paid' | 'cancelled' | 'partially_paid' | 'refunded' | 'overdue';
+  invoiceId?: string;
+  invoiceNumber?: string;
+  isPaid?: boolean;
+  canEdit?: boolean;
 }
 
 // ==================== COMPONENT PROPS INTERFACES ====================

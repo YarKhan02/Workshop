@@ -5,7 +5,8 @@ from django.contrib.auth.hashers import make_password, check_password
 
 class Customer(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    email = models.EmailField(unique=True)
+    nic = models.CharField(max_length=15, unique=True, editable=False, null=False)
+    email = models.EmailField(unique=True, null=False)
     username = models.CharField(max_length=30, unique=True)
     password = models.CharField(max_length=128)
     first_name = models.CharField(max_length=30)

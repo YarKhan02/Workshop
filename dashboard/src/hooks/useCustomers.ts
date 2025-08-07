@@ -1,7 +1,7 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import toast from 'react-hot-toast';
 import { customerAPI, customerQueries } from '../api/customers';
-import type { Customer, CustomerUpdateData, CustomerCreateData, CustomerMutationVariables } from '../types/customer';
+import type { Customer, CustomerStats, CustomerUpdateData, CustomerCreateData, CustomerMutationVariables } from '../types/customer';
 
 // Hook for fetching customers list
 export const useCustomers = () => {
@@ -11,6 +11,16 @@ export const useCustomers = () => {
 // Hook for fetching single customer
 export const useCustomer = (customerId: number) => {
   return useQuery(customerQueries.detail(customerId));
+};
+
+export const useCustomerStats = () => {
+  return useQuery<CustomerStats>({
+    queryKey: ['customer-stats'],
+    queryFn: async () => {
+      return await customerAPI.getCustomerStats();
+    },
+    staleTime: 1000 * 60 * 5, // 5 minutes
+  });
 };
 
 // Hook for updating customer
@@ -43,8 +53,6 @@ export const useCreateCustomer = () => {
       queryClient.invalidateQueries({ queryKey: customerQueries.keys.all });
     },
     onError: (error: any) => {
-      const errorMessage = error?.response?.data?.message || 'Failed to create customer';
-      toast.error(errorMessage);
       console.error('Error creating customer:', error);
     },
   });

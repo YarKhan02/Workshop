@@ -81,82 +81,55 @@ const AddVariantModal: React.FC<AddVariantModalProps> = ({ open, onClose, produc
               <div className="space-y-4">
                 <div className="flex items-center space-x-2 mb-4">
                   <div className="w-1 h-6 bg-emerald-500 rounded-full"></div>
-                  <h3 className="text-lg font-semibold text-gray-100">Variant Details</h3>
+                  <h3 className={cn("text-lg font-semibold", theme.textPrimary)}>Variant Details</h3>
                 </div>
 
                 {/* Variant Name */}
-                <div className="space-y-2">
-                  <label className="block text-sm font-semibold text-gray-300">
-                    Variant Name <span className="text-red-400">*</span>
-                  </label>
-                  <div className="relative">
-                    <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                      <Tag className="h-5 w-5 text-gray-400" />
-                    </div>
-                    <input
-                      type="text"
-                      name="variant_name"
-                      value={formData.variant_name}
-                      onChange={handleChange}
-                      className="w-full pl-10 pr-4 py-3 bg-gray-700/50 border border-gray-600/50 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-colors text-gray-100 placeholder-gray-400"
-                      placeholder="e.g., Premium, Large, 2L Bottle"
-                      required
-                    />
-                  </div>
-                </div>
+                <ThemedInput
+                  label="Variant Name"
+                  type="text"
+                  name="variant_name"
+                  value={formData.variant_name}
+                  onChange={handleChange}
+                  placeholder="e.g., Premium, Large, 2L Bottle"
+                  leftIcon={<Tag className="h-5 w-5" />}
+                  required
+                />
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   {/* Price */}
-                  <div className="space-y-2">
-                    <label className="block text-sm font-semibold text-gray-300">
-                      Price <span className="text-red-400">*</span>
-                    </label>
-                    <div className="relative">
-                      <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                        <Banknote className="h-5 w-5 text-gray-400" />
-                      </div>
-                      <input
-                        type="number"
-                        name="price"
-                        value={formData.price}
-                        onChange={handleChange}
-                        className="w-full pl-10 pr-4 py-3 bg-gray-700/50 border border-gray-600/50 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-colors text-gray-100 placeholder-gray-400"
-                        placeholder="0.00"
-                        min={0}
-                        step="0.01"
-                        required
-                      />
-                    </div>
-                  </div>
+                  <ThemedInput
+                    label="Price"
+                    type="number"
+                    name="price"
+                    value={formData.price}
+                    onChange={handleChange}
+                    placeholder="0.00"
+                    leftIcon={<Banknote className="h-5 w-5" />}
+                    min={0}
+                    step="0.01"
+                    required
+                  />
 
                   {/* Quantity */}
-                  <div className="space-y-2">
-                    <label className="block text-sm font-semibold text-gray-300">
-                      Quantity <span className="text-red-400">*</span>
-                    </label>
-                    <div className="relative">
-                      <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                        <Hash className="h-5 w-5 text-gray-400" />
-                      </div>
-                      <input
-                        type="number"
-                        name="quantity"
-                        value={formData.quantity}
-                        onChange={handleChange}
-                        className="w-full pl-10 pr-4 py-3 bg-gray-700/50 border border-gray-600/50 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-colors text-gray-100 placeholder-gray-400"
-                        placeholder="0"
-                        min={0}
-                        required
-                      />
-                    </div>
-                  </div>
+                  <ThemedInput
+                    label="Quantity"
+                    type="number"
+                    name="quantity"
+                    value={formData.quantity}
+                    onChange={handleChange}
+                    placeholder="0"
+                    leftIcon={<Hash className="h-5 w-5" />}
+                    min={0}
+                    required
+                  />
                 </div>
 
                 {/* Stock Level Preview */}
                 {formData.quantity > 0 && (
-                  <div className="bg-emerald-500/10 rounded-xl p-4 border border-emerald-500/30">
+                  <div className={cn("rounded-xl p-4 border", theme.backgroundSecondary, theme.border)}>
                     <div className="flex items-center justify-between">
-                      <span className="text-sm font-medium text-emerald-400">Stock Level Preview</span>
+                      <span className={cn("text-sm font-medium", theme.textSecondary)}>Stock Level Preview</span>
                       <div className="flex items-center space-x-2">
                         <div
                           className={`w-2 h-2 rounded-full ${

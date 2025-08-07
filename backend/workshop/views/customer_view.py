@@ -25,6 +25,16 @@ class CustomerView(viewsets.ViewSet):
         
         return Response(result['data'], status=status.HTTP_200_OK)
     
+    @action(detail=False, methods=['get'], url_path='stats')
+    def get_stats(self, request):
+        """Get customer statistics"""
+        result = self.customer_service.get_customer_stats()
+        
+        if 'error' in result:
+            return Response(result, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        
+        return Response(result, status=status.HTTP_200_OK)
+    
     @action(detail=False, methods=['get'], url_path='customer-invoices')
     def customer_for_invoices(self, request):
         """Fetch customers for invoice selection with optional search"""

@@ -17,9 +17,7 @@ export interface BookingCreateData {
   car: string;
   service?: string;
   service_code?: string;
-  time_slot?: string;
-  scheduled_date?: string; // For backward compatibility
-  scheduled_time?: string; // For backward compatibility
+  booking_date: string; // The date for the booking
   estimated_duration_minutes?: number;
   status?: string;
   customer_notes?: string;
@@ -142,6 +140,14 @@ export const bookingAPI = {
     }
     const response = await apiClient.get('/bookings/available-slots/', {
       params
+    });
+    return response.data;
+  },
+
+  // Get availability for a specific date (new simplified system)
+  getAvailabilityForDate: async (date: string) => {
+    const response = await apiClient.get('/bookings/availability/', {
+      params: { date }
     });
     return response.data;
   }

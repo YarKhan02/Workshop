@@ -16,7 +16,7 @@ export const fetchCars = async (): Promise<Car[]> => {
 /**
  * Fetch a single car by ID
  */
-export const fetchCarById = async (carId: number): Promise<Car> => {
+export const fetchCarById = async (carId: string): Promise<Car> => {
   const response = await apiClient.get(`/cars/${carId}/`);
   return response.data;
 };
@@ -25,7 +25,7 @@ export const fetchCarById = async (carId: number): Promise<Car> => {
  * Create a new car
  */
 export const createCar = async (carData: CarFormData): Promise<Car> => {
-  const response = await apiClient.post('/cars/', carData);
+  const response = await apiClient.post('/cars/add-car/', carData);
   return response.data;
 };
 
@@ -33,10 +33,10 @@ export const createCar = async (carData: CarFormData): Promise<Car> => {
  * Update an existing car
  */
 export const updateCar = async (
-  carId: number, 
+  carId: string, 
   carData: CarUpdateData
 ): Promise<Car> => {
-  const response = await apiClient.patch(`/cars/${carId}/`, carData);
+  const response = await apiClient.patch(`/cars/${carId}/update/`, carData);
   return response.data;
 };
 
@@ -87,7 +87,7 @@ export const carQueries = {
     lists: () => [...carQueries.keys.all, 'list'] as const,
     list: (filters?: Record<string, unknown>) => [...carQueries.keys.lists(), filters] as const,
     details: () => [...carQueries.keys.all, 'details'] as const,
-    detail: (id: number) => [...carQueries.keys.details(), id] as const,
+    detail: (id: string) => [...carQueries.keys.details(), id] as const,
     byCustomer: (customerId: string) => [...carQueries.keys.all, 'customer', customerId] as const,
   },
 
@@ -98,7 +98,7 @@ export const carQueries = {
     staleTime: 1000 * 60 * 5, // 5 minutes
   }),
 
-  detail: (carId: number) => ({
+  detail: (carId: string) => ({
     queryKey: carQueries.keys.detail(carId),
     queryFn: () => carAPI.getCarById(carId),
     enabled: !!carId,

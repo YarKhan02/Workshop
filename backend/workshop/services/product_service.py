@@ -1,6 +1,6 @@
 # workshop/services/product_service.py
 from workshop.models.product import Product
-from workshop.serializers.product_serializer import ProductSerializer
+from workshop.serializers.product_serializer import ProductSerializer, ProductCreateSerializer
 
 class ProductService:
     def get_products(self, params):
@@ -19,10 +19,12 @@ class ProductService:
             return None, {'error': 'Product not found'}
 
     def create_product(self, data):
-        serializer = ProductSerializer(data=data)
+        serializer = ProductCreateSerializer(data=data)
         if serializer.is_valid():
-            serializer.save()
-            return {'message': 'Product created successfully', 'data': serializer.data}, None
+            product = serializer.save()
+            # Return the created product with variants
+            response_serializer = ProductSerializer(product)
+            return {'message': 'Product created successfully', 'data': response_serializer.data}, None
         return None, serializer.errors
 
     def update_product(self, pk, data):

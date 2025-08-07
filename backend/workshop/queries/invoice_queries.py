@@ -2,12 +2,15 @@
 
 from workshop.models.invoice import Invoice
 
+# workshop/queries/invoice_queries.py
+
+from workshop.models.invoice import Invoice
+
 def get_optimized_invoices():
+    """Simple fallback query for backward compatibility"""
     return Invoice.objects.select_related('customer').prefetch_related('items__product_variant').only(
         'id',
         'total_amount',
-        'discount',
-        'tax',
         'created_at',
         'status',
         'customer__email',
@@ -18,5 +21,4 @@ def get_optimized_invoices():
         'items__quantity',
         'items__unit_price',
         'items__total_price',
-        'items__product_variant__variant_name',  # Updated to use product_variant
     )

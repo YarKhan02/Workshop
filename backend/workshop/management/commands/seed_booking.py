@@ -1,15 +1,16 @@
 from django.core.management.base import BaseCommand
-from workshop.models.booking import Booking, Service, BookingTimeSlot
+from workshop.models.booking import Booking, Service
 from workshop.models.customer import Customer
 from workshop.models.car import Car
 from workshop.models.user import User
+from workshop.models.daily_availability import DailyAvailability
 from django.utils import timezone
 from decimal import Decimal
 import random
 from datetime import date, time, timedelta, datetime
 
 class Command(BaseCommand):
-    help = 'Seeds the database with demo bookings and time slots'
+    help = 'Seeds the database with demo bookings and daily availability'
 
     def handle(self, *args, **kwargs):
         # Check if required data exists
@@ -33,9 +34,9 @@ class Command(BaseCommand):
         cars = list(Car.objects.all())
         services = list(Service.objects.all())
 
-        # First, create time slots for the next 30 days
-        self.stdout.write("Creating time slots...")
-        self.create_time_slots()
+        # First, create daily availability for the next 30 days
+        self.stdout.write("Creating daily availability...")
+        self.create_daily_availability()
 
         # Sample booking data matching your frontend test data
         bookings_data = [
@@ -43,8 +44,7 @@ class Command(BaseCommand):
                 'customer_index': 0,
                 'car_index': 0,
                 'service_code': 'full_detail',
-                'scheduled_date': date.today() + timedelta(days=1),
-                'scheduled_time': time(10, 0),
+                'booking_date': date.today() + timedelta(days=1),
                 'status': 'confirmed',
                 'customer_notes': 'Customer requested extra attention to interior stains',
                 'quoted_price': Decimal('8500.00'),
@@ -53,8 +53,7 @@ class Command(BaseCommand):
                 'customer_index': 1,
                 'car_index': 1,
                 'service_code': 'basic_wash',
-                'scheduled_date': date.today(),
-                'scheduled_time': time(14, 30),
+                'booking_date': date.today(),
                 'status': 'in_progress',
                 'customer_notes': 'Express service requested',
                 'quoted_price': Decimal('2500.00'),
@@ -63,8 +62,7 @@ class Command(BaseCommand):
                 'customer_index': 2,
                 'car_index': 2,
                 'service_code': 'interior_detail',
-                'scheduled_date': date.today() + timedelta(days=2),
-                'scheduled_time': time(9, 0),
+                'booking_date': date.today() + timedelta(days=2),
                 'status': 'pending',
                 'customer_notes': 'Pet hair removal needed',
                 'quoted_price': Decimal('4500.00'),
@@ -73,8 +71,7 @@ class Command(BaseCommand):
                 'customer_index': 3,
                 'car_index': 3,
                 'service_code': 'premium_detail',
-                'scheduled_date': date.today() - timedelta(days=3),
-                'scheduled_time': time(11, 0),
+                'booking_date': date.today() - timedelta(days=3),
                 'status': 'completed',
                 'customer_notes': 'Ceramic coating applied',
                 'quoted_price': Decimal('15000.00'),
@@ -86,8 +83,7 @@ class Command(BaseCommand):
                 'customer_index': 4,
                 'car_index': 4,
                 'service_code': 'exterior_detail',
-                'scheduled_date': date.today() + timedelta(days=3),
-                'scheduled_time': time(15, 0),
+                'booking_date': date.today() + timedelta(days=3),
                 'status': 'confirmed',
                 'customer_notes': 'Paint correction requested',
                 'quoted_price': Decimal('6500.00'),
@@ -96,8 +92,7 @@ class Command(BaseCommand):
                 'customer_index': 0,
                 'car_index': 1,
                 'service_code': 'basic_wash',
-                'scheduled_date': date.today() - timedelta(days=2),
-                'scheduled_time': time(16, 30),
+                'booking_date': date.today() - timedelta(days=2),
                 'status': 'cancelled',
                 'customer_notes': 'Customer cancelled due to rain',
                 'quoted_price': Decimal('2500.00'),
@@ -107,8 +102,7 @@ class Command(BaseCommand):
                 'customer_index': 1,
                 'car_index': 2,
                 'service_code': 'full_detail',
-                'scheduled_date': date.today(),
-                'scheduled_time': time(8, 0),
+                'booking_date': date.today(),
                 'status': 'in_progress',
                 'customer_notes': 'Leather conditioning included',
                 'quoted_price': Decimal('8500.00'),
@@ -117,8 +111,7 @@ class Command(BaseCommand):
                 'customer_index': 2,
                 'car_index': 3,
                 'service_code': 'interior_detail',
-                'scheduled_date': date.today() + timedelta(days=4),
-                'scheduled_time': time(13, 0),
+                'booking_date': date.today() + timedelta(days=4),
                 'status': 'pending',
                 'customer_notes': 'Deep vacuum and sanitization',
                 'quoted_price': Decimal('4500.00'),
@@ -145,34 +138,23 @@ class Command(BaseCommand):
                     self.stdout.write(self.style.WARNING(f"Service not found: {data['service_code']}"))
                     continue
                 
-                # Get or create time slot for this booking
-                scheduled_date = data['scheduled_date']
-                scheduled_time = data['scheduled_time']
-                
-                # Calculate end time based on service duration
-                duration_minutes = service.estimated_duration_minutes
-                start_datetime = datetime.combine(scheduled_date, scheduled_time)
-                end_datetime = start_datetime + timedelta(minutes=duration_minutes)
-                
-                time_slot, slot_created = BookingTimeSlot.objects.get_or_create(
-                    date=scheduled_date,
-                    start_time=scheduled_time,
+                # Ensure daily availability exists for the booking date
+                booking_date = data['booking_date']
+                availability, created = DailyAvailability.objects.get_or_create(
+                    date=booking_date,
                     defaults={
-                        'end_time': end_datetime.time(),
-                        'max_concurrent_bookings': 1,
+                        'total_slots': 7,
+                        'available_slots': 7,
                         'is_available': True
                     }
                 )
                 
-                if slot_created:
-                    self.stdout.write(f"Created time slot: {scheduled_date} {scheduled_time}-{end_datetime.time()}")
-                
-                # Create booking with time_slot instead of scheduled_date/time
+                # Create booking with booking_date instead of time_slot
                 booking_defaults = {
                     'customer': customer,
                     'car': car,
                     'service': service,
-                    'time_slot': time_slot,
+                    'booking_date': booking_date,
                     'estimated_duration_minutes': service.estimated_duration_minutes,
                     'status': data['status'],
                     'quoted_price': data['quoted_price'],
@@ -201,10 +183,12 @@ class Command(BaseCommand):
                     booking_defaults['assigned_staff'] = random.choice(staff_users)
                     booking_defaults['created_by'] = random.choice(staff_users)
                 
-                # Set timestamps based on status
+                # Set timestamps for different statuses
                 now = timezone.now()
-                if data['status'] in ['confirmed', 'in_progress', 'completed']:
+                if data['status'] == 'confirmed':
                     booking_defaults['confirmed_at'] = now - timedelta(hours=random.randint(1, 48))
+                elif data['status'] == 'completed':
+                    booking_defaults['confirmed_at'] = now - timedelta(hours=random.randint(24, 72))
                 if data['status'] == 'cancelled':
                     booking_defaults['cancelled_at'] = now - timedelta(hours=random.randint(1, 24))
                 
@@ -212,18 +196,22 @@ class Command(BaseCommand):
                     customer=customer,
                     car=car,
                     service=service,
-                    time_slot=time_slot,
+                    booking_date=booking_date,
                     defaults=booking_defaults
                 )
                 
                 if created:
                     created_count += 1
+                    # Update daily availability based on booking status
+                    if data['status'] in ['confirmed', 'in_progress']:
+                        availability.book_slot()
+                    
                     self.stdout.write(self.style.SUCCESS(
-                        f"Created booking: {customer.first_name} {customer.last_name} - {service.name} - {data['scheduled_date']}"
+                        f"Created booking: {customer.first_name} {customer.last_name} - {service.name} - {booking_date}"
                     ))
                 else:
                     self.stdout.write(self.style.WARNING(
-                        f"Booking already exists: {customer.first_name} {customer.last_name} - {service.name} - {data['scheduled_date']}"
+                        f"Booking already exists: {customer.first_name} {customer.last_name} - {service.name} - {booking_date}"
                     ))
                     
             except Exception as e:
@@ -231,30 +219,26 @@ class Command(BaseCommand):
         
         self.stdout.write(self.style.SUCCESS(f"\nCreated {created_count} new bookings out of {len(bookings_data)} total bookings."))
 
-    def create_time_slots(self):
-        """Create time slots for the next 30 days (9 AM to 5 PM, 1-hour slots)"""
+    def create_daily_availability(self):
+        """Create daily availability for the next 30 days"""
         today = date.today()
-        slots_created = 0
+        availability_created = 0
         
         for days_ahead in range(-7, 31):  # 7 days in past, 30 days in future
             target_date = today + timedelta(days=days_ahead)
             
-            # Skip weekends for this demo (optional)
-            if target_date.weekday() >= 5:  # 5=Saturday, 6=Sunday
-                continue
-            
-            # Create slots using the model's class method
-            created_slots = BookingTimeSlot.create_daily_slots(
+            # Create daily availability record
+            availability, created = DailyAvailability.objects.get_or_create(
                 date=target_date,
-                start_hour=9,
-                end_hour=17,
-                slot_duration_minutes=60,
-                max_concurrent=1
+                defaults={
+                    'total_slots': 7,  # 7 appointments per day
+                    'available_slots': 7,
+                    'is_available': True
+                }
             )
             
-            slots_created += len(created_slots)
-            
-            if created_slots:
-                self.stdout.write(f"Created {len(created_slots)} slots for {target_date}")
+            if created:
+                availability_created += 1
+                self.stdout.write(f"Created availability for {target_date}: {availability.available_slots}/{availability.total_slots} slots")
         
-        self.stdout.write(self.style.SUCCESS(f"Total time slots created: {slots_created}"))
+        self.stdout.write(self.style.SUCCESS(f"Total daily availability records created: {availability_created}"))

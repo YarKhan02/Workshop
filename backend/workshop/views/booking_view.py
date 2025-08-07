@@ -32,6 +32,7 @@ class BookingView(viewsets.ViewSet):
     
     @action(detail=False, methods=['post'], url_path='create')
     def create_booking(self, request):
+        print("Creating booking with data:", request.data)
         result, errors = self.booking_service.create_booking(request.data, request)
         if result:
             return Response(result, status=status.HTTP_201_CREATED)
@@ -76,11 +77,19 @@ class BookingView(viewsets.ViewSet):
             return Response(result)
         return Response(errors, status=status.HTTP_400_BAD_REQUEST)
 
-    @action(detail=False, methods=['get'], url_path='available-slots')
-    def get_available_time_slots(self, request):
+    @action(detail=False, methods=['get'], url_path='available-dates')
+    def get_available_dates(self, request):
+        start_date = request.query_params.get('start_date')
+        days = int(request.query_params.get('days', 14))
+        result, errors = self.booking_service.get_available_dates(start_date, days)
+        if result is not None:
+            return Response(result)
+        return Response(errors, status=status.HTTP_400_BAD_REQUEST)
+
+    @action(detail=False, methods=['get'], url_path='availability')
+    def get_date_availability(self, request):
         date_param = request.query_params.get('date')
-        exclude_booking_id = request.query_params.get('exclude_booking')
-        result, errors = self.booking_service.get_available_time_slots(date_param, exclude_booking_id)
+        result, errors = self.booking_service.get_availability_for_date(date_param)
         if result:
             return Response(result)
         return Response(errors, status=status.HTTP_400_BAD_REQUEST)

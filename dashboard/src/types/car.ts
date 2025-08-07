@@ -12,10 +12,6 @@ export interface Car {
   vin?: string;
   mileage?: number;
   customer_id: string;
-  customer_name?: string;
-  customer_email?: string;
-  customer_phone?: string;
-  display_name?: string; // For UI display purposes: "BMW M3 (ABC-123)"
   created_at?: string;
   updated_at?: string;
 }

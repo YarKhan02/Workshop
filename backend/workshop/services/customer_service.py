@@ -2,6 +2,7 @@
 from typing import Dict, Any, List, Optional
 from django.db.models import Q
 from django.core.exceptions import ObjectDoesNotExist
+from django.db.models import Count
 from rest_framework import status
 
 from workshop.models.customer import Customer
@@ -10,8 +11,10 @@ from workshop.serializers.customer_serializer import (
     CustomerDetailSerializer, 
     CustomerCreateSerializer, 
     CustomerInvoiceSerializer, 
-    CustomerUpdateSerializer
+    CustomerUpdateSerializer,
+    CustomerStatsSerializer
 )
+from ..helper.date_utils import get_start_of_week, get_start_of_week_percentage
 from .base_service import BaseService
 
 
@@ -34,6 +37,23 @@ class CustomerService(BaseService):
         except Exception as e:
             return self.error_response(
                 message="Failed to retrieve customers",
+                details=str(e)
+            )
+        
+    def get_customer_stats(self) -> Dict[str, Any]:
+        """
+        Retrieve customer statistics
+        """
+        try:
+            stats = cq.get_customer_stats_data()
+
+            serializer = CustomerStatsSerializer(instance=stats)
+
+            return serializer.data
+            
+        except Exception as e:
+            return self.error_response(
+                message="Failed to retrieve customer statistics",
                 details=str(e)
             )
     

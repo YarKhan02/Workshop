@@ -1,9 +1,19 @@
 // Customer Management Types - Centralized location for all customer-related interfaces
 
+// ==================== CUSTOMER STATS ====================
+
+export interface CustomerStats {
+  total: number;
+  returning: number;
+  new_this_week: number;
+  new_this_week_percentage: number;
+}
+
 // ==================== CORE CUSTOMER INTERFACES ====================
 
 export interface Customer {
   id: string;
+  nic: string;
   first_name: string;
   last_name: string;
   email: string;
@@ -34,6 +44,7 @@ export interface CustomerCar {
 // ==================== FORM DATA INTERFACES ====================
 
 export interface CustomerFormData {
+  nic: string;
   first_name: string;
   last_name: string;
   email: string;

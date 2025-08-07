@@ -1,6 +1,7 @@
 import { apiClient } from './client';
 import type {
   Customer,
+  CustomerStats,
   CustomerFilters,
   CustomerResponse,
   CustomerCreateData,
@@ -25,6 +26,12 @@ export const customerAPI = {
     if (filters.search) params.append('search', filters.search);
 
     const response = await apiClient.get(`/customers?${params.toString()}`);
+    return response.data;
+  },
+
+  // Get Customer stats (e.g., total, returning, new)
+  getCustomerStats: async (): Promise<CustomerStats> => {
+    const response = await apiClient.get('/customers/stats/');
     return response.data;
   },
 

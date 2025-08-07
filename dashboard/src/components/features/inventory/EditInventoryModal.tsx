@@ -2,7 +2,7 @@
 
 import type React from "react"
 import { useState, useEffect } from "react"
-import { Edit3, Banknote, Hash, Loader2, Save } from "lucide-react"
+import { Banknote, Hash, Loader2, Save } from "lucide-react"
 import { useTheme, cn, ThemedModal, ThemedInput, ThemedButton } from "../../ui"
 import { useUpdateVariant } from "../../../hooks/useInventory"
 import type { EditInventoryModalProps, ProductVariantUpdateData } from "../../../types/inventory"
@@ -70,49 +70,31 @@ const EditInventoryModal: React.FC<EditInventoryModalProps> = ({ open, onClose, 
       <form onSubmit={handleSubmit} className="space-y-6">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           {/* Price */}
-          <div className="space-y-2">
-            <label className={cn("block text-sm font-semibold", theme.textSecondary)}>
-              Price <span className="text-red-400">*</span>
-            </label>
-            <div className="relative">
-              <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                <Banknote className={cn("h-5 w-5", theme.textSecondary)} />
-              </div>
-              <ThemedInput
-                type="number"
-                name="price"
-                value={formData.price}
-                onChange={handleChange}
-                className="pl-10"
-                placeholder="0.00"
-                min={0}
-                step="0.01"
-                required
-              />
-            </div>
-          </div>
+          <ThemedInput
+            label="Price"
+            type="number"
+            name="price"
+            value={formData.price}
+            onChange={handleChange}
+            placeholder="0.00"
+            leftIcon={<Banknote className="h-5 w-5" />}
+            min={0}
+            step="0.01"
+            required
+          />
 
           {/* Quantity */}
-          <div className="space-y-2">
-            <label className={cn("block text-sm font-semibold", theme.textSecondary)}>
-              Quantity <span className="text-red-400">*</span>
-            </label>
-            <div className="relative">
-              <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                <Hash className={cn("h-5 w-5", theme.textSecondary)} />
-              </div>
-              <ThemedInput
-                type="number"
-                name="quantity"
-                value={formData.quantity}
-                onChange={handleChange}
-                className="pl-10"
-                placeholder="0"
-                min={0}
-                required
-              />
-            </div>
-          </div>
+          <ThemedInput
+            label="Quantity"
+            type="number"
+            name="quantity"
+            value={formData.quantity}
+            onChange={handleChange}
+            placeholder="0"
+            leftIcon={<Hash className="h-5 w-5" />}
+            min={0}
+            required
+          />
         </div>
 
         {/* Stock Level Preview */}

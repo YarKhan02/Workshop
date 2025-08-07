@@ -5,9 +5,14 @@ from rest_framework.decorators import action
 
 from workshop.models.product import Product
 from workshop.serializers.product_serializer import ProductSerializer, ProductCreateSerializer
+from workshop.services.product_service import ProductService
 
 class ProductView(viewsets.ViewSet):
     permission_classes = [IsAdmin]
+    
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+        self.product_service = ProductService()
     
     # List all products
     @action(detail = False, methods = ['get'], url_path = 'details')

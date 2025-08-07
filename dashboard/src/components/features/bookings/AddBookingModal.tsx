@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { X, Calendar, Clock, User, Car as CarIcon, FileText, Banknote } from 'lucide-react';
+import { X, Calendar, User, Car as CarIcon, FileText, Banknote } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { bookingAPI, serviceAPI, customerAPI } from '../../../api/booking';
 import { useCarsByCustomer } from '../../../hooks/useCars';
@@ -12,8 +12,7 @@ import type {
   AddBookingModalProps, 
   Customer, 
   Car, 
-  Service, 
-  TimeSlot 
+  Service
 } from '../../../types';
 import { formatCurrency } from '../../../utils/currency';
 
@@ -27,17 +26,19 @@ const AddBookingModal: React.FC<AddBookingModalProps> = ({ isOpen, onClose }) =>
     customer_id: '',
     car_id: '',
     service: '',
-    scheduled_date: '',
-    time_slot: '',
+    booking_date: '',
     estimated_duration_minutes: 60,
     customer_notes: '',
     quoted_price: 0,
     discount_amount: 0
   });
 
-  // Loading states
-  const [availableTimeSlots, setAvailableTimeSlots] = useState<TimeSlot[]>([]);
-  const [isLoadingTimeSlots, setIsLoadingTimeSlots] = useState(false);
+  // Availability state
+  const [availabilityInfo, setAvailabilityInfo] = useState<{
+    available_slots: number;
+    total_slots: number;
+  } | null>(null);
+  const [isLoadingAvailability, setIsLoadingAvailability] = useState(false);
 
   // ==================== API QUERIES ====================
   
@@ -75,7 +76,7 @@ const AddBookingModal: React.FC<AddBookingModalProps> = ({ isOpen, onClose }) =>
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['bookings'] });
       queryClient.invalidateQueries({ queryKey: ['bookingStats'] });
-      toast.success('🔧 Appointment scheduled successfully!');
+      toast.success('Appointment scheduled successfully!');
       onClose();
       resetForm();
     },
@@ -92,29 +93,30 @@ const AddBookingModal: React.FC<AddBookingModalProps> = ({ isOpen, onClose }) =>
       customer_id: '',
       car_id: '',
       service: '',
-      scheduled_date: '',
-      time_slot: '',
+      booking_date: '',
       estimated_duration_minutes: 60,
       customer_notes: '',
       quoted_price: 0,
       discount_amount: 0
     });
-    setAvailableTimeSlots([]);
+    setAvailabilityInfo(null);
   };
 
-  const fetchTimeSlots = async (date: string) => {
-    if (!date) return;
+  const fetchAvailability = async (date: string) => {
+    if (!date) {
+      setAvailabilityInfo(null);
+      return;
+    }
     
-    setIsLoadingTimeSlots(true);
+    setIsLoadingAvailability(true);
     try {
-      const slots = await bookingAPI.getAvailableTimeSlots(date);
-      setAvailableTimeSlots(slots);
+      const response = await bookingAPI.getAvailabilityForDate(date);
+      setAvailabilityInfo(response);
     } catch (error) {
-      console.error('Error fetching time slots:', error);
-      setAvailableTimeSlots([]);
-      toast.error('Failed to load available time slots');
+      console.error('Error fetching availability:', error);
+      setAvailabilityInfo(null);
     } finally {
-      setIsLoadingTimeSlots(false);
+      setIsLoadingAvailability(false);
     }
   };
 
@@ -123,9 +125,9 @@ const AddBookingModal: React.FC<AddBookingModalProps> = ({ isOpen, onClose }) =>
   const handleInputChange = (field: string, value: any) => {
     setFormData(prev => ({ ...prev, [field]: value }));
 
-    // Fetch time slots when date is selected
-    if (field === 'scheduled_date' && value) {
-      fetchTimeSlots(value);
+    // Fetch availability when date changes
+    if (field === 'booking_date' && value) {
+      fetchAvailability(value);
     }
 
     // Update price when service is selected
@@ -145,7 +147,7 @@ const AddBookingModal: React.FC<AddBookingModalProps> = ({ isOpen, onClose }) =>
     e.preventDefault();
 
     // Validation
-    if (!formData.customer_id || !formData.car_id || !formData.service || !formData.scheduled_date || !formData.time_slot) {
+    if (!formData.customer_id || !formData.car_id || !formData.service || !formData.booking_date) {
       toast.error('Please fill in all required fields');
       return;
     }
@@ -154,8 +156,7 @@ const AddBookingModal: React.FC<AddBookingModalProps> = ({ isOpen, onClose }) =>
       customer: formData.customer_id,
       car: formData.car_id,
       service: formData.service,
-      scheduled_date: formData.scheduled_date,
-      time_slot: formData.time_slot,
+      booking_date: formData.booking_date,
       estimated_duration_minutes: formData.estimated_duration_minutes,
       customer_notes: formData.customer_notes,
       quoted_price: formData.quoted_price,
@@ -233,7 +234,7 @@ const AddBookingModal: React.FC<AddBookingModalProps> = ({ isOpen, onClose }) =>
               </option>
               {customerCars.map((car: Car) => (
                 <option key={car.id} value={car.id}>
-                  {car.display_name || `${car.make} ${car.model} (${car.license_plate})`}
+                  {`${car.make} ${car.model} (${car.license_plate})`}
                 </option>
               ))}
             </select>
@@ -270,41 +271,39 @@ const AddBookingModal: React.FC<AddBookingModalProps> = ({ isOpen, onClose }) =>
             </label>
             <ThemedInput
               type="date"
-              value={formData.scheduled_date}
-              onChange={(e) => handleInputChange('scheduled_date', e.target.value)}
+              value={formData.booking_date}
+              onChange={(e) => handleInputChange('booking_date', e.target.value)}
               min={new Date().toISOString().split('T')[0]}
               required
             />
+            {/* Availability Display */}
+            {formData.booking_date && (
+              <div className="mt-2">
+                {isLoadingAvailability ? (
+                  <p className={cn("text-sm", theme.textSecondary)}>
+                    Loading availability...
+                  </p>
+                ) : availabilityInfo ? (
+                  <p className={cn("text-sm", 
+                    availabilityInfo.available_slots > 0 ? "text-green-600" : "text-red-600"
+                  )}>
+                    {availabilityInfo.available_slots > 0 
+                      ? `${availabilityInfo.available_slots} of ${availabilityInfo.total_slots} slots available`
+                      : `Fully booked (${availabilityInfo.total_slots} total slots)`
+                    }
+                  </p>
+                ) : (
+                  <p className={cn("text-sm", theme.textSecondary)}>
+                    No availability data
+                  </p>
+                )}
+              </div>
+            )}
           </div>
         </div>
 
-        {/* Time Slot */}
-        <div>
-          <label className={cn("block text-sm font-medium mb-2", theme.textSecondary)}>
-            <Clock className="inline-block w-4 h-4 mr-2" />
-            Appointment Time *
-          </label>
-          <select
-            value={formData.time_slot}
-            onChange={(e) => handleInputChange('time_slot', e.target.value)}
-            className={cn("w-full px-4 py-3 border rounded-xl transition-all duration-300", theme.background, theme.textPrimary, theme.border)}
-            required
-            disabled={!formData.scheduled_date || isLoadingTimeSlots}
-          >
-            <option value="">
-              {isLoadingTimeSlots ? 'Loading slots...' : 'Select time slot...'}
-            </option>
-            {availableTimeSlots.map((slot: TimeSlot) => (
-              <option key={slot.id} value={slot.id} disabled={!slot.is_available}>
-                      {slot.start_time} - {slot.end_time} 
-                      {(slot.available_slots ?? 0) > 0 ? ` (${slot.available_slots} available)` : ' (Full)'}
-                    </option>
-                  ))}
-                </select>
-              </div>
-
-              {/* Pricing */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        {/* Pricing */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
                   <label className="block text-sm font-medium text-gray-300 mb-2">
                     <Banknote className="inline-block w-4 h-4 mr-2" />

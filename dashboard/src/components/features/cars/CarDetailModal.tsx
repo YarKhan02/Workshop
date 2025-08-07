@@ -27,23 +27,6 @@ const CarDetailModal: React.FC<CarDetailModalProps> = ({
               {car.year} {car.make} {car.model}
             </h3>
           </div>
-          <div className="flex gap-2">
-            <ThemedButton
-              variant="primary"
-              onClick={() => onEdit(car)}
-            >
-              <Edit className="w-4 h-4 mr-2" />
-              Edit
-            </ThemedButton>
-            <ThemedButton
-              variant="primary"
-              onClick={() => onDelete(car.id)}
-              className="bg-red-600 hover:bg-red-700"
-            >
-              <Trash2 className="w-4 h-4 mr-2" />
-              Delete
-            </ThemedButton>
-          </div>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">

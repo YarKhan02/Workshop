@@ -1,6 +1,7 @@
 import React from 'react';
 import { Edit, Phone, Mail, MapPin, Car, Calendar, User } from 'lucide-react';
 import type { CustomerDetailModalProps, CustomerCar } from '../../../types';
+import { formatNIC } from '../../../helper/nicFormatter';
 import { useTheme, cn, ThemedModal, ThemedButton, ThemedCard } from '../../ui';
 
 const CustomerDetailModal: React.FC<CustomerDetailModalProps> = ({
@@ -23,7 +24,7 @@ const CustomerDetailModal: React.FC<CustomerDetailModalProps> = ({
         <div className="flex items-center justify-between mb-6">
           <div>
             <h3 className={cn("text-xl font-semibold", theme.textPrimary)}>
-              {customer.first_name} {customer.last_name}
+              {customer.first_name} {customer.last_name} | {formatNIC(customer.nic)}
             </h3>
           </div>
           <div className="flex gap-2">
