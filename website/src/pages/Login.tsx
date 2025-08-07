@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import { User, Mail, Lock, Eye, EyeOff, Car, Loader } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 
@@ -248,14 +248,14 @@ const Login: React.FC = () => {
         </div>
 
         <div className="mt-8 text-center">
-          <p className="text-gray-400">
-            {isLogin ? "Don't have an account? " : 'Already have an account? '}
-            <button
-              onClick={() => setIsLogin(!isLogin)}
+          <p className="text-white/60">
+            Don't have an account?{' '}
+            <Link
+              to="/register"
               className="text-orange-400 hover:text-orange-300 font-semibold transition-colors duration-300"
             >
-              {isLogin ? 'Sign up' : 'Sign in'}
-            </button>
+              Sign up
+            </Link>
           </p>
         </div>
       </div>

@@ -78,10 +78,10 @@ const Home: React.FC = () => {
         {/* Animated Background Elements */}
         <div className="absolute inset-0 opacity-20">
           <div className="absolute top-20 left-10 w-20 h-20 border-2 border-orange-500 rounded-full animate-pulse"></div>
-          <div className="absolute top-40 right-20 w-16 h-16 border-2 border-orange-400 rounded-full animate-bounce"></div>
+          <div className="absolute top-40 right-20 w-16 h-16 border-2 border-orange-400 rounded-full animate-pulse"></div>
           <div className="absolute bottom-32 left-1/4 w-12 h-12 border-2 border-orange-600 rounded-full animate-ping"></div>
           <div className="absolute top-1/2 right-1/3 w-8 h-8 bg-orange-500 rounded-full opacity-50 animate-pulse"></div>
-          <div className="absolute bottom-1/4 right-10 w-6 h-6 bg-orange-400 rounded-full opacity-30 animate-bounce"></div>
+          <div className="absolute bottom-1/4 right-10 w-6 h-6 bg-orange-400 rounded-full opacity-30 animate-pulse"></div>
         </div>
 
         {/* Gradient Orbs */}
@@ -92,7 +92,7 @@ const Home: React.FC = () => {
           <div className="max-w-5xl mx-auto text-center">
             <div className="flex justify-center mb-8">
               <div className="inline-flex items-center px-6 py-3 bg-gradient-to-r from-orange-500/20 to-orange-600/20 border border-orange-500/30 rounded-full text-orange-300 text-sm font-medium backdrop-blur-sm">
-                <Sparkles className="w-5 h-5 mr-2 animate-spin" />
+                <Sparkles className="w-5 h-5 mr-2" />
                 Premium Car Detailing Service
               </div>
             </div>
@@ -116,7 +116,7 @@ const Home: React.FC = () => {
               >
                 <span className="flex items-center">
                   Book Service Now
-                  <Sparkles className="w-5 h-5 ml-2 group-hover:animate-spin" />
+                  <Sparkles className="w-5 h-5 ml-2" />
                 </span>
               </Link>
               <Link
@@ -277,26 +277,26 @@ const Home: React.FC = () => {
           <div className="grid grid-cols-2 md:grid-cols-4 gap-8 text-center">
             <div className="group">
               <div className="text-5xl font-bold text-orange-400 mb-2 group-hover:scale-110 transition-transform duration-300">15+</div>
-              <div className="text-gray-300 font-medium">Years Experience</div>
+              <div className="text-white/70 font-medium">Years Experience</div>
             </div>
             <div className="group">
               <div className="text-5xl font-bold text-orange-400 mb-2 group-hover:scale-110 transition-transform duration-300">50+</div>
-              <div className="text-gray-300 font-medium">Expert Technicians</div>
+              <div className="text-white/70 font-medium">Expert Technicians</div>
             </div>
             <div className="group">
               <div className="text-5xl font-bold text-orange-400 mb-2 group-hover:scale-110 transition-transform duration-300">5000+</div>
-              <div className="text-gray-300 font-medium">Cars Detailed</div>
+              <div className="text-white/70 font-medium">Cars Detailed</div>
             </div>
             <div className="group">
               <div className="text-5xl font-bold text-orange-400 mb-2 group-hover:scale-110 transition-transform duration-300">100%</div>
-              <div className="text-gray-300 font-medium">Eco-Friendly</div>
+              <div className="text-white/70 font-medium">Eco-Friendly</div>
             </div>
           </div>
         </div>
       </section>
 
       {/* Testimonials Section */}
-      <section className="py-24 bg-gradient-to-b from-gray-900 to-black">
+      <section className="py-24 bg-black">
         <div className="container mx-auto px-4">
           <div className="text-center mb-20">
             <h2 className="text-5xl lg:text-6xl font-bold text-white mb-6">
@@ -305,21 +305,21 @@ const Home: React.FC = () => {
                 Say
               </span>
             </h2>
-            <p className="text-xl text-gray-300">
+            <p className="text-xl text-white/70">
               Real reviews from real customers who love our service
             </p>
           </div>
 
           <div className="grid md:grid-cols-3 gap-8">
             {testimonials.map((testimonial, index) => (
-              <div key={index} className="bg-gradient-to-br from-gray-800 to-gray-900 rounded-3xl p-8 shadow-2xl border border-gray-700 hover:border-orange-500/50 transition-all duration-500 hover:-translate-y-2 group">
+              <div key={index} className="bg-gradient-to-br from-black/70 to-black/90 rounded-3xl p-8 shadow-2xl border border-orange-900/30 hover:border-orange-500/50 transition-all duration-500 hover:-translate-y-2 group">
                 <div className="flex items-center mb-6">
                   {[...Array(testimonial.rating)].map((_, i) => (
                     <Star key={i} className="w-6 h-6 text-yellow-400 fill-current group-hover:animate-pulse" />
                   ))}
                 </div>
-                <p className="text-gray-300 mb-8 italic text-lg leading-relaxed">"{testimonial.comment}"</p>
-                <div className="border-t border-gray-700 pt-6">
+                <p className="text-white/70 mb-8 italic text-lg leading-relaxed">"{testimonial.comment}"</p>
+                <div className="border-t border-orange-900/30 pt-6">
                   <div className="font-bold text-white text-lg">{testimonial.name}</div>
                   <div className="text-orange-400 text-sm font-medium">{testimonial.location}</div>
                 </div>
@@ -347,7 +347,7 @@ const Home: React.FC = () => {
                 Your Vehicle?
               </span>
             </h2>
-            <p className="text-xl text-gray-300 mb-12 max-w-3xl mx-auto leading-relaxed">
+            <p className="text-xl text-white/70 mb-12 max-w-3xl mx-auto leading-relaxed">
               Book your detailing service today and experience the difference professional care makes. 
               Your car will thank you!
             </p>

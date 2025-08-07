@@ -232,12 +232,12 @@ const Contact: React.FC = () => {
                   <div className="text-center">
                     <MapPin className="w-12 h-12 text-orange-400 mx-auto mb-4" />
                     <h3 className="text-xl font-bold text-white mb-2">Find Us Here</h3>
-                    <p className="text-gray-400">Interactive map coming soon</p>
+                    <p className="text-white/60">Interactive map coming soon</p>
                   </div>
                 </div>
                 <div className="p-6">
                   <h4 className="font-bold text-white mb-2">Detailing Hub Location</h4>
-                  <p className="text-gray-400">
+                  <p className="text-white/60">
                     123 Auto Street, Car City<br />
                     Mumbai, Maharashtra 400001
                   </p>
@@ -245,35 +245,35 @@ const Contact: React.FC = () => {
               </div>
 
               {/* Why Choose Us */}
-              <div className="bg-gray-900 rounded-2xl shadow-xl p-8 border border-gray-800">
+              <div className="bg-black/50 border border-orange-900/30 rounded-2xl shadow-xl p-8">
                 <h3 className="text-2xl font-bold text-white mb-6">Why Choose Us?</h3>
                 <div className="space-y-4">
                   <div className="flex items-start">
                     <CheckCircle className="w-5 h-5 text-green-400 mr-3 mt-1 flex-shrink-0" />
                     <div>
                       <h4 className="font-semibold text-white">Free Pickup & Delivery</h4>
-                      <p className="text-gray-400 text-sm">Convenient service at your location</p>
+                      <p className="text-white/60 text-sm">Convenient service at your location</p>
                     </div>
                   </div>
                   <div className="flex items-start">
                     <CheckCircle className="w-5 h-5 text-green-400 mr-3 mt-1 flex-shrink-0" />
                     <div>
                       <h4 className="font-semibold text-white">Same Day Service</h4>
-                      <p className="text-gray-400 text-sm">Quick turnaround when you need it</p>
+                      <p className="text-white/60 text-sm">Quick turnaround when you need it</p>
                     </div>
                   </div>
                   <div className="flex items-start">
                     <CheckCircle className="w-5 h-5 text-green-400 mr-3 mt-1 flex-shrink-0" />
                     <div>
                       <h4 className="font-semibold text-white">100% Satisfaction Guarantee</h4>
-                      <p className="text-gray-400 text-sm">Your happiness is our priority</p>
+                      <p className="text-white/60 text-sm">Your happiness is our priority</p>
                     </div>
                   </div>
                   <div className="flex items-start">
                     <CheckCircle className="w-5 h-5 text-green-400 mr-3 mt-1 flex-shrink-0" />
                     <div>
                       <h4 className="font-semibold text-white">Premium Products</h4>
-                      <p className="text-gray-400 text-sm">Only the best for your vehicle</p>
+                      <p className="text-white/60 text-sm">Only the best for your vehicle</p>
                     </div>
                   </div>
                 </div>
@@ -284,12 +284,12 @@ const Contact: React.FC = () => {
       </section>
 
       {/* CTA Section */}
-      <section className="py-20 bg-gray-900 text-white">
+      <section className="py-20 bg-black text-white">
         <div className="container mx-auto px-4 text-center">
           <h2 className="text-4xl lg:text-5xl font-bold mb-6">
             Ready to Book?
           </h2>
-          <p className="text-xl text-gray-300 mb-8 max-w-3xl mx-auto">
+          <p className="text-xl text-white/70 mb-8 max-w-3xl mx-auto">
             Don't wait any longer. Book your service online and experience the 
             Detailing Hub difference today!
           </p>
