@@ -1,8 +1,8 @@
 import React from 'react';
 import { Check } from 'lucide-react';
-import { useServices } from '../../hooks/useBooking';
-import { themeClasses } from '../../config/theme';
-import type { BookingStepProps, Service } from '../../services/interfaces/booking';
+import { useServices } from '../../../hooks/useBooking';
+import { themeClasses } from '../../../config/theme';
+import type { BookingStepProps, Service } from '../../../services/interfaces/booking';
 
 interface ServiceSelectionProps extends BookingStepProps {
   onServiceSelect: (service: Service) => void;

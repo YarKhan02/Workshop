@@ -1,19 +1,19 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Car, Calendar, User, CheckCircle, ArrowLeft, ArrowRight } from 'lucide-react';
-import { useAuth } from '../../contexts/AuthContext';
-import { useBookingFlow } from '../../hooks/useBooking';
-import { themeClasses } from '../../config/theme';
-import Layout from '../layout/Layout';
+import { useAuth } from '../../../contexts/AuthContext';
+import { useBookingFlow } from '../../../hooks/useBooking';
+import { themeClasses } from '../../../config/theme';
+import Layout from '../../layout/Layout';
 import BookingStepper from './BookingStepper';
-import ServiceSelection from './ServiceSelection';
-import CarDetails from './CarDetails';
-import TimeSlotSelection from './TimeSlotSelection';
-import BookingReview from './BookingReview';
-import { bookingQueries } from '../../services/api/booking';
+import ServiceSelection from '../steps/ServiceSelection';
+import CarDetails from '../steps/CarDetails';
+import TimeSlotSelection from '../steps/TimeSlotSelection';
+import BookingReview from '../steps/BookingReview';
+import { bookingQueries } from '../../../services/api/booking';
 import toast from 'react-hot-toast';
 
-import type { Service, TimeSlot, Car as CarType } from '../../services/interfaces/booking';
+import type { Service, TimeSlot, Car as CarType } from '../../../services/interfaces/booking';
 
 const BookingFlow: React.FC = () => {
   const navigate = useNavigate();

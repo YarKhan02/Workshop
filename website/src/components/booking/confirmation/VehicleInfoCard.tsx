@@ -1,7 +1,7 @@
 import React from 'react';
 import { Car } from 'lucide-react';
-import { themeClasses } from '../../config/theme';
-import type { Car as CarType } from '../../services/interfaces/booking';
+import { themeClasses } from '../../../config/theme';
+import type { Car as CarType } from '../../../services/interfaces/booking';
 
 interface VehicleInfoCardProps {
   car: CarType;

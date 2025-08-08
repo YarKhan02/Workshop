@@ -79,7 +79,7 @@ class Command(BaseCommand):
             if invoice.status == 'paid':
                 Notification.objects.create(
                     title='Payment Received',
-                    message=f'Payment of ${invoice.grand_total} received from {customer_name} via {invoice.get_payment_method_display()}.',
+                    message=f'Payment of ${invoice.total_amount} received from {customer_name} via {invoice.get_payment_method_display()}.',
                     notification_type='payment',
                     priority='normal',
                     is_read=True,
@@ -106,7 +106,7 @@ class Command(BaseCommand):
             elif invoice.status == 'pending':
                 Notification.objects.create(
                     title='New Invoice Generated',
-                    message=f'Invoice #{str(invoice.id)[:8]} created for {customer_name}. Amount: ${invoice.grand_total}',
+                    message=f'Invoice #{str(invoice.id)[:8]} created for {customer_name}. Amount: ${invoice.total_amount}',
                     notification_type='payment',
                     priority='low',
                     is_read=True,

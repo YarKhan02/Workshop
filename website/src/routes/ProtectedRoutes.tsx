@@ -1,16 +1,8 @@
-import React from 'react';
 import { Route } from 'react-router-dom';
 import { ProtectedRoute } from '../components';
-import { 
-  Book, 
-  Checkout, 
-  BookingConfirmation, 
-  MyBookings, 
-  Profile, 
-  Invoice 
-} from '../pages';
+import { Book, Checkout, BookingConfirmation, MyBookings, Profile, Invoice } from '../pages';
 
-export const ProtectedRoutes: React.FC = () => (
+export const ProtectedRoutes = (
   <>
     <Route 
       path="/book" 

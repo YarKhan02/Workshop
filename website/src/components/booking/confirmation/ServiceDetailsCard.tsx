@@ -1,8 +1,8 @@
 import React from 'react';
 import { Car } from 'lucide-react';
-import { themeClasses } from '../../config/theme';
-import { formatCurrency } from '../../utils/bookingUtils';
-import type { Service } from '../../services/interfaces/booking';
+import { themeClasses } from '../../../config/theme';
+import { formatCurrency } from '../../../utils/bookingUtils';
+import type { Service } from '../../../services/interfaces/booking';
 
 interface ServiceDetailsCardProps {
   service: Service;

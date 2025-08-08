@@ -1,4 +1,3 @@
-from ..auth.login import Login
 from .profile_view import ProfileView
 
 from .customer_view import CustomerView
@@ -10,3 +9,5 @@ from .booking_view import BookingView
 from .service_view import ServiceView
 from .dashboard_view import DashboardView
 from .notification_view import NotificationView
+
+from .customer_interface_views.my_bookings_view import MyBookingsView

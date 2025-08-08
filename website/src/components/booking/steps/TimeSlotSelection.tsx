@@ -1,8 +1,8 @@
 import React from 'react';
 import { Calendar, Clock, Check } from 'lucide-react';
-import { useTimeSlots } from '../../hooks/useBooking';
-import { themeClasses } from '../../config/theme';
-import type { BookingStepProps, TimeSlot, Service } from '../../services/interfaces/booking';
+import { useTimeSlots } from '../../../hooks/useBooking';
+import { themeClasses } from '../../../config/theme';
+import type { BookingStepProps, TimeSlot, Service } from '../../../services/interfaces/booking';
 
 interface TimeSlotSelectionProps extends BookingStepProps {
   onTimeSlotSelect: (timeSlot: TimeSlot) => void;

@@ -1,6 +1,7 @@
 import React from 'react';
-import { User, Mail, Phone, Lock, Eye, EyeOff } from 'lucide-react';
+import { User, Mail, Phone, Lock, Eye, EyeOff, CreditCard } from 'lucide-react';
 import { RegisterFormData } from '../../services/interfaces/auth';
+import { formatNIC } from '../../utils/nicValidation';
 
 interface RegisterFormFieldsProps {
   formData: RegisterFormData;
@@ -19,8 +20,43 @@ const RegisterFormFields: React.FC<RegisterFormFieldsProps> = ({
   onChange,
   onTogglePassword,
 }) => {
+  // Custom NIC handler using the utility function
+  const handleNICChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    // Only allow digits, max 13
+    const raw = e.target.value.replace(/\D/g, '').slice(0, 13);
+    const formatted = formatNIC(raw);
+    // Create a synthetic event to pass to parent
+    const syntheticEvent = {
+      ...e,
+      target: {
+        ...e.target,
+        value: formatted,
+        name: 'nic',
+      },
+    } as React.ChangeEvent<HTMLInputElement>;
+    onChange(syntheticEvent);
+  };
+
   return (
     <div className="space-y-6">
+      {/* NIC */}
+      <div className="relative">
+        <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+          <CreditCard className="w-5 h-5 text-orange-400" />
+        </div>
+        <input
+          type="text"
+          name="nic"
+          value={formData.nic}
+          onChange={handleNICChange}
+          maxLength={15} // 13 digits + 2 dashes
+          placeholder="National Identity Card (NIC)"
+          required
+          disabled={isLoading}
+          className="w-full pl-12 pr-4 py-4 bg-black/50 border border-orange-900/30 rounded-xl text-white placeholder-white/50 focus:border-orange-500 focus:outline-none transition-colors disabled:opacity-50"
+        />
+      </div>
+
       {/* Name Fields */}
       <div className="grid grid-cols-2 gap-4">
         <div className="relative">

@@ -1,8 +1,8 @@
 import React from 'react';
 import { Calendar } from 'lucide-react';
-import { themeClasses } from '../../config/theme';
-import { formatDate, formatTime } from '../../utils/bookingUtils';
-import type { TimeSlot } from '../../services/interfaces/booking';
+import { themeClasses } from '../../../config/theme';
+import { formatDate, formatTime } from '../../../utils/bookingUtils';
+import type { TimeSlot } from '../../../services/interfaces/booking';
 
 interface AppointmentDetailsCardProps {
   timeSlot: TimeSlot;

@@ -1,6 +1,6 @@
 import React from 'react';
 import { CheckCircle } from 'lucide-react';
-import { themeClasses } from '../../config/theme';
+import { themeClasses } from '../../../config/theme';
 
 interface ConfirmationHeaderProps {
   title: string;

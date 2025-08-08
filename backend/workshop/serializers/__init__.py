@@ -17,3 +17,4 @@ from .notification_serializer import (
     NotificationStatsSerializer,
     MarkAsReadSerializer
 )
+from .customer_interface_serializers.my_bookings_serializer import MyBookingsSerializer

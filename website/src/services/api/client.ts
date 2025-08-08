@@ -1,5 +1,7 @@
 // API client configuration for the website
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000';
+import { handleAuthError } from '../../utils/authErrorHandler';
+
+const API_BASE_URL = 'http://localhost:8000';
 
 interface ApiResponse<T> {
   data?: T;
@@ -19,14 +21,11 @@ class ApiClient {
   }
 
   private getAuthHeaders(): Record<string, string> {
-    const token = localStorage.getItem('authToken');
+    // Don't get token from localStorage anymore since we're using HTTP-only cookies
+    // The browser will automatically include the HTTP-only cookies
     const headers: Record<string, string> = {
       'Content-Type': 'application/json',
     };
-
-    if (token) {
-      headers.Authorization = `Bearer ${token}`;
-    }
 
     return headers;
   }
@@ -39,6 +38,7 @@ class ApiClient {
     
     const config: RequestInit = {
       ...options,
+      credentials: 'include', // Include HTTP-only cookies
       headers: {
         ...this.getAuthHeaders(),
         ...options.headers,
@@ -69,6 +69,16 @@ class ApiClient {
       };
     } catch (error) {
       console.error('API request failed:', error);
+      
+      // Handle authentication errors globally
+      const wasHandled = handleAuthError(error);
+      if (!wasHandled) {
+        // Re-throw error if not an auth error
+        throw error;
+      }
+      
+      // For auth errors, still throw to let calling code handle it
+      // but the auto-logout will already be triggered
       throw error;
     }
   }

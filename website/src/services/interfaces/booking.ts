@@ -39,6 +39,44 @@ export interface Customer {
   phone?: string;
 }
 
+// Customer booking interface for MyBookings page
+export interface MyBooking {
+  id: string;
+  booking_date: string;
+  status: 'pending' | 'confirmed' | 'in_progress' | 'completed' | 'cancelled' | 'no_show' | 'rescheduled';
+  created_at: string;
+  quoted_price: string;
+  estimated_duration_minutes: number;
+  // Car fields
+  car_make: string;
+  car_model: string;
+  car_license_plate: string;
+  // Service fields
+  service_name: string;
+  service_base_price: string;
+  rating?: number;
+}
+
+export interface MyBookingFilters {
+  status: string;
+  dateFrom?: string;
+  dateTo?: string;
+}
+
+export interface BookingActionResponse {
+  success: boolean;
+  message: string;
+  data?: any;
+}
+
+export type MyBookingStatus = MyBooking['status'];
+
+export interface MyBookingActions {
+  reschedule: (bookingId: string) => Promise<BookingActionResponse>;
+  cancel: (bookingId: string) => Promise<BookingActionResponse>;
+  rate: (bookingId: string, rating: number) => Promise<BookingActionResponse>;
+}
+
 export interface BookingData {
   service: string | Service;
   car: Car;

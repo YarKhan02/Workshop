@@ -53,6 +53,8 @@ class CustomerCreateSerializer(serializers.ModelSerializer):
     email = serializers.EmailField()
     nic = serializers.CharField(max_length=13, required=True)
     phone_number = serializers.CharField(max_length=11, required=True)
+    password = serializers.CharField(write_only=True, min_length=6)
+    
     class Meta:
         model = Customer
         fields = [
@@ -61,12 +63,16 @@ class CustomerCreateSerializer(serializers.ModelSerializer):
             'first_name',
             'last_name',
             'phone_number',
+            'password',
             'city',
             'state',
             'address',
         ]
 
     def create(self, validated_data):
+        # Extract password and handle it separately
+        password = validated_data.pop('password')
+        
         # Auto-generate a unique username
         base = f"{validated_data['first_name'].lower()}{validated_data['last_name'].lower()}"
         suffix = uuid.uuid4().hex[:6]
@@ -76,6 +82,11 @@ class CustomerCreateSerializer(serializers.ModelSerializer):
             username=username,
             **validated_data
         )
+        
+        # Set the password using the model's method
+        customer.set_password(password)
+        customer.save()
+        
         return customer
     
     def validate_email(self, value):

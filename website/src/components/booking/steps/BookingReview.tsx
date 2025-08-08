@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
 import { Car, Calendar, User, Mail, FileText, CreditCard } from 'lucide-react';
-import { useAuth } from '../../contexts/AuthContext';
-import { themeClasses } from '../../config/theme';
-import type { BookingStepProps, Service, TimeSlot } from '../../services/interfaces/booking';
+import { useAuth } from '../../../contexts/AuthContext';
+import { themeClasses } from '../../../config/theme';
+import type { BookingStepProps, Service, TimeSlot } from '../../../services/interfaces/booking';
 
 interface BookingReviewProps extends BookingStepProps {
   onSubmit: () => Promise<void>;

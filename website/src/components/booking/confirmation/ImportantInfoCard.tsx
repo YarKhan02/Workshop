@@ -1,6 +1,6 @@
 import React from 'react';
 import { MapPin } from 'lucide-react';
-import { themeClasses } from '../../config/theme';
+import { themeClasses } from '../../../config/theme';
 
 interface ImportantInfoCardProps {
   serviceDuration: number;

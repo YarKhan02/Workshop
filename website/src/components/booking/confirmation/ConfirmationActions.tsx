@@ -1,7 +1,7 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { Download } from 'lucide-react';
-import { themeClasses } from '../../config/theme';
+import { themeClasses } from '../../../config/theme';
 
 interface ConfirmationActionsProps {
   onPrint?: () => void;

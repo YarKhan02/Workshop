@@ -1,6 +1,6 @@
 import React from 'react';
 import { User, Mail } from 'lucide-react';
-import { themeClasses } from '../../config/theme';
+import { themeClasses } from '../../../config/theme';
 
 interface CustomerInfoCardProps {
   userName?: string;

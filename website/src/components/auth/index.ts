@@ -1,4 +1,9 @@
 export { default as AuthBackground } from './AuthBackground';
+export { default as AuthHeader } from './AuthHeader';
+export { default as AuthToggle } from './AuthToggle';
+export { default as AuthCard } from './AuthCard';
+export { default as LoginForm } from './LoginForm';
+export { default as AuthFooter } from './AuthFooter';
 export { default as RegisterHeader } from './RegisterHeader';
 export { default as RegisterFormFields } from './RegisterFormFields';
 export { default as RegisterFooter } from './RegisterFooter';

@@ -1,8 +1,8 @@
-import React from 'react';
+
 import { Route } from 'react-router-dom';
 import { Home, Services, Pricing, Contact } from '../pages';
 
-export const PublicRoutes: React.FC = () => (
+export const PublicRoutes = (
   <>
     <Route path="/" element={<Home />} />
     <Route path="/services" element={<Services />} />

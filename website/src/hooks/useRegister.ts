@@ -3,16 +3,18 @@ import { useNavigate } from 'react-router-dom';
 import toast from 'react-hot-toast';
 import { useAuth } from '../contexts/AuthContext';
 import { RegisterFormData, AuthState, ValidationErrors } from '../services/interfaces/auth';
+import { validateNIC, getNICErrorMessage } from '../utils/nicValidation';
 
 export const useRegister = () => {
   const navigate = useNavigate();
-  const { signup } = useAuth();
+  const { register } = useAuth();
   
   const [formData, setFormData] = useState<RegisterFormData>({
     firstName: '',
     lastName: '',
     email: '',
     phone: '',
+    nic: '',
     password: '',
     confirmPassword: ''
   });
@@ -44,6 +46,12 @@ export const useRegister = () => {
       errors.phone = 'Phone number is required';
     }
 
+    if (!formData.nic.trim()) {
+      errors.nic = 'NIC is required';
+    } else if (!validateNIC(formData.nic)) {
+      errors.nic = getNICErrorMessage(formData.nic);
+    }
+
     if (!formData.password) {
       errors.password = 'Password is required';
     } else if (formData.password.length < 6) {
@@ -69,11 +77,14 @@ export const useRegister = () => {
     setState(prev => ({ ...prev, loading: true }));
     
     try {
-      const success = await signup(
-        `${formData.firstName} ${formData.lastName}`,
-        formData.email,
-        formData.password
-      );
+      const success = await register({
+        firstName: formData.firstName,
+        lastName: formData.lastName,
+        email: formData.email,
+        phone: formData.phone,
+        nic: formData.nic,
+        password: formData.password
+      });
       
       if (success) {
         toast.success('Registration successful!');

@@ -74,8 +74,8 @@ class Command(BaseCommand):
                 )
 
             self.stdout.write(self.style.SUCCESS(
-                f"Invoice {invoice.id} created for {customer.first_name} {customer.last_name} with {len(invoice_items)} items. Total: ${grand_total}, Due Date: {due_date.date()}"
+                f"Invoice {invoice.id} created for {customer.first_name} {customer.last_name} with {len(invoice_items)} items. Total: ${total_amount}, Due Date: {due_date.date()}"
             ))
             self.stdout.write(self.style.SUCCESS(
-                f"Invoice {invoice.id} created for {customer.username} with {len(invoice_items)} items. Total: ${grand_total}, Due Date: {due_date.date()}"
+                f"Invoice {invoice.id} created for {customer.username} with {len(invoice_items)} items. Total: ${total_amount}, Due Date: {due_date.date()}"
             ))

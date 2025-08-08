@@ -1,8 +1,8 @@
 import React, { useRef, useEffect } from 'react';
 import { Car, Plus } from 'lucide-react';
-import { useCars } from '../../hooks/useBooking';
-import { themeClasses } from '../../config/theme';
-import type { BookingStepProps, Car as CarType } from '../../services/interfaces/booking';
+import { useCars } from '../../../hooks/useBooking';
+import { themeClasses } from '../../../config/theme';
+import type { BookingStepProps, Car as CarType } from '../../../services/interfaces/booking';
 
 interface CarDetailsProps extends BookingStepProps {
   onCarUpdate: (car: CarType) => void;
