@@ -34,7 +34,8 @@ def get_available_dates_optimized(start_date=None, days=14):
             'day_name': availability.date.strftime('%A'),
             'total_slots': availability.total_slots,
             'available_slots': availability.available_slots,
-            'is_available': availability.is_available and availability.available_slots > 0,
+            'available': availability.is_available and availability.available_slots > 0,
+            'slots_available': availability.available_slots,
             'is_fully_booked': availability.available_slots == 0,
         })
     

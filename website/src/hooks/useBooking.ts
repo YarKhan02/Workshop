@@ -1,15 +1,13 @@
 import { useState, useEffect, useCallback } from 'react';
 import { bookingQueries } from '../services/api/booking';
-import type { 
-  Service, 
-  TimeSlot, 
-  Booking, 
-  BookingCreateData, 
+import type {
+  Service,
+  Car,
+  Booking,
+  BookingData,
+  BookingCreateData,
   BookingFilters,
-  Car 
-} from '../services/interfaces/booking';
-
-// Hook for managing services
+} from '../services/interfaces/booking';// Hook for managing services
 export const useServices = (category?: string) => {
   const [services, setServices] = useState<Service[]>([]);
   const [loading, setLoading] = useState(true);
@@ -37,37 +35,6 @@ export const useServices = (category?: string) => {
     loading,
     error,
     refetch: fetchServices,
-  };
-};
-
-// Hook for managing time slots
-export const useTimeSlots = (filters?: { date?: string; service?: string }) => {
-  const [timeSlots, setTimeSlots] = useState<TimeSlot[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-
-  const fetchTimeSlots = useCallback(async () => {
-    try {
-      setLoading(true);
-      setError(null);
-      const response = await bookingQueries.timeSlots.getAvailable(filters);
-      setTimeSlots(response.data || []);
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to fetch time slots');
-    } finally {
-      setLoading(false);
-    }
-  }, [filters?.date, filters?.service]);
-
-  useEffect(() => {
-    fetchTimeSlots();
-  }, [fetchTimeSlots]);
-
-  return {
-    timeSlots,
-    loading,
-    error,
-    refetch: fetchTimeSlots,
   };
 };
 
@@ -199,10 +166,10 @@ export const useBookings = (filters?: BookingFilters) => {
     }
   }, []);
 
-  const rescheduleBooking = useCallback(async (id: string, newTimeSlotId: string) => {
+  const rescheduleBooking = useCallback(async (id: string, newDate: string) => {
     try {
       setError(null);
-      const response = await bookingQueries.bookings.reschedule(id, newTimeSlotId);
+      const response = await bookingQueries.bookings.reschedule(id, newDate);
       if (response.data) {
         setBookings(prev => 
           prev.map(booking => 
@@ -236,7 +203,7 @@ export const useBookings = (filters?: BookingFilters) => {
 // Hook for managing the booking flow state
 export const useBookingFlow = () => {
   const [currentStep, setCurrentStep] = useState(1);
-  const [bookingData, setBookingData] = useState<BookingCreateData>({
+  const [bookingData, setBookingData] = useState<BookingData>({
     service: '',
     car: {
       make: '',
@@ -245,12 +212,12 @@ export const useBookingFlow = () => {
       license_plate: '',
       color: '',
     },
-    time_slot: '',
+    date: '',
     customer_notes: '',
   });
 
-  const updateBookingData = useCallback((field: keyof BookingCreateData, value: any) => {
-    setBookingData((prev: BookingCreateData) => ({
+  const updateBookingData = useCallback((field: keyof BookingData, value: any) => {
+    setBookingData((prev: BookingData) => ({
       ...prev,
       [field]: value,
     }));
@@ -275,7 +242,7 @@ export const useBookingFlow = () => {
         license_plate: '',
         color: '',
       },
-      time_slot: '',
+      date: '',
       customer_notes: '',
     });
   }, []);

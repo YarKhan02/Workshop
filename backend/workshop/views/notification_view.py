@@ -7,7 +7,7 @@ from rest_framework.pagination import PageNumberPagination
 from django.db.models import Q, Count, Case, When, IntegerField
 from django.utils import timezone
 
-from workshop.permissions.is_admin import IsAdmin
+from workshop.permissions import IsAdmin
 from workshop.services.notification_service import NotificationService
 
 

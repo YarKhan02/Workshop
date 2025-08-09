@@ -2,28 +2,30 @@ import React, { useState } from 'react';
 import { Car, Calendar, User, Mail, FileText, CreditCard } from 'lucide-react';
 import { useAuth } from '../../../contexts/AuthContext';
 import { themeClasses } from '../../../config/theme';
-import type { BookingStepProps, Service, TimeSlot } from '../../../services/interfaces/booking';
+import type { BookingStepProps, Service } from '../../../services/interfaces/booking';
 
 interface BookingReviewProps extends BookingStepProps {
   onSubmit: () => Promise<void>;
+  selectedService?: Service | null;
 }
 
 const BookingReview: React.FC<BookingReviewProps> = ({
   bookingData,
   onUpdateBookingData,
   onSubmit,
+  selectedService: passedSelectedService,
   isLoading = false,
 }) => {
   const { user } = useAuth();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submissionError, setSubmissionError] = useState<string | null>(null);
 
-  const selectedService = typeof bookingData.service === 'object' 
+  const selectedService = passedSelectedService || (typeof bookingData.service === 'object' 
     ? bookingData.service as Service
-    : null;
+    : null);
 
-  const selectedTimeSlot = typeof bookingData.time_slot === 'object' 
-    ? bookingData.time_slot as TimeSlot
+  const selectedDate = typeof bookingData.date === 'string' 
+    ? bookingData.date 
     : null;
 
   const handleNotesChange = (notes: string) => {
@@ -55,19 +57,7 @@ const BookingReview: React.FC<BookingReviewProps> = ({
     }
   };
 
-  const formatTime = (time: string) => {
-    try {
-      return new Date(`1970-01-01T${time}`).toLocaleTimeString('en-US', {
-        hour: 'numeric',
-        minute: '2-digit',
-        hour12: true,
-      });
-    } catch {
-      return time;
-    }
-  };
-
-  if (!selectedService || !selectedTimeSlot) {
+  if (!selectedService || !selectedDate) {
     return (
       <div className="text-center py-12">
         <div className="bg-red-500/10 border border-red-500/30 rounded-lg p-6">
@@ -107,7 +97,7 @@ const BookingReview: React.FC<BookingReviewProps> = ({
               </div>
               <div className="flex justify-between items-center">
                 <span className="text-white/70">Duration:</span>
-                <span className="text-white">{selectedService.duration_minutes} minutes</span>
+                <span className="text-white">{selectedService.estimated_duration_minutes} minutes</span>
               </div>
               <div className="flex justify-between items-center">
                 <span className="text-white/70">Price:</span>
@@ -153,12 +143,12 @@ const BookingReview: React.FC<BookingReviewProps> = ({
             <div className="space-y-2">
               <div className="flex justify-between">
                 <span className="text-white/70">Date:</span>
-                <span className="text-white">{formatDate(selectedTimeSlot.date)}</span>
+                <span className="text-white">{formatDate(selectedDate)}</span>
               </div>
               <div className="flex justify-between">
-                <span className="text-white/70">Time:</span>
+                <span className="text-white/70">Duration:</span>
                 <span className="text-white">
-                  {formatTime(selectedTimeSlot.start_time)} - {formatTime(selectedTimeSlot.end_time)}
+                  {selectedService.estimated_duration_minutes} minutes
                 </span>
               </div>
             </div>

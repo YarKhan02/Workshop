@@ -28,7 +28,13 @@ class ServiceListSerializer(serializers.ModelSerializer):
     """
     class Meta:
         model = Service
-        fields = ['id', 'name', 'code', 'category', 'base_price', 'estimated_duration_minutes']
+        fields = ['id', 
+                  'name', 
+                  'code', 
+                  'category', 
+                  'base_price', 
+                  'estimated_duration_minutes'
+        ]
 
 
 class BookingAdditionalServiceSerializer(serializers.ModelSerializer):
@@ -184,7 +190,10 @@ class BookingCreateSerializer(serializers.ModelSerializer):
         extra_kwargs = {
             'service': {'required': False},
             'status': {'default': 'pending'},
-            'estimated_duration_minutes': {'required': False}
+            'estimated_duration_minutes': {'required': False},
+            'quoted_price': {'required': False},
+            'discount_amount': {'default': 0},
+            'assigned_staff': {'required': False}
         }
 
     def validate(self, data):
@@ -207,20 +216,37 @@ class BookingCreateSerializer(serializers.ModelSerializer):
                 raise serializers.ValidationError(f"Service with code '{data['service_code']}' not found or inactive")
             data.pop('service_code')
         
-        # Check if service field contains a string (service code) instead of instance
+        # Check if service field contains a string (service code or UUID) instead of instance
         elif 'service' in data and isinstance(data['service'], str):
+            print(f"DEBUG: Looking up service with ID/code: {data['service']}")
             try:
-                service = Service.objects.get(code=data['service'], is_active=True)
+                # First try to get by UUID
+                service = Service.objects.get(id=data['service'], is_active=True)
+                print(f"DEBUG: Found service by UUID: {service.name}, base_price: {service.base_price}")
                 data['service'] = service
                 service_resolved = True
                 # Auto-set duration if not provided
                 if 'estimated_duration_minutes' not in data:
                     data['estimated_duration_minutes'] = service.estimated_duration_minutes
+                    print(f"DEBUG: Set estimated_duration_minutes to: {service.estimated_duration_minutes}")
                 # Auto-set amount if not provided
                 if 'quoted_price' not in data:
                     data['quoted_price'] = service.base_price
-            except Service.DoesNotExist:
-                raise serializers.ValidationError(f"Service with code '{data['service']}' not found or inactive")
+                    print(f"DEBUG: Set quoted_price to: {service.base_price}")
+            except (Service.DoesNotExist, ValueError):
+                # If UUID lookup fails, try by service code
+                try:
+                    service = Service.objects.get(code=data['service'], is_active=True)
+                    data['service'] = service
+                    service_resolved = True
+                    # Auto-set duration if not provided
+                    if 'estimated_duration_minutes' not in data:
+                        data['estimated_duration_minutes'] = service.estimated_duration_minutes
+                    # Auto-set amount if not provided
+                    if 'quoted_price' not in data:
+                        data['quoted_price'] = service.base_price
+                except Service.DoesNotExist:
+                    raise serializers.ValidationError(f"Service with ID or code '{data['service']}' not found or inactive")
         
         # Check if service instance is provided
         elif data.get('service'):
@@ -229,6 +255,8 @@ class BookingCreateSerializer(serializers.ModelSerializer):
         # Ensure we have a service
         if not service_resolved:
             raise serializers.ValidationError("Either service or service_code must be provided")
+
+        print(f"DEBUG: Final data before validation continues: {data}")
 
         # Convert UUID strings to model instances for customer and car
         if 'customer' in data and isinstance(data['customer'], str):
@@ -279,7 +307,16 @@ class BookingCreateSerializer(serializers.ModelSerializer):
         # Add snapshot fields that are required by the model
         snapshot_data = prepare_booking_snapshot_data(customer, car)
         validated_data.update(snapshot_data)
-        validated_data['created_by'] = self.context.get('request').user if self.context.get('request') else None
+        
+        # Handle created_by field safely
+        # For customer bookings, created_by should be None since it's self-service
+        # Only set created_by if the request user is a staff User instance
+        request = self.context.get('request')
+        if (request and hasattr(request, 'user') and request.user.is_authenticated 
+            and hasattr(request.user, '__class__') and request.user.__class__.__name__ == 'User'):
+            validated_data['created_by'] = request.user
+        else:
+            validated_data['created_by'] = None
         
         # Calculate final price
         final_price = calculate_booking_final_price(

@@ -1,11 +1,11 @@
 import { apiClient } from './client';
 import type {
   Service,
-  TimeSlot,
   Booking,
   BookingCreateData,
   BookingFilters,
-  Car
+  Car,
+  AvailableDate
 } from '../interfaces/booking';
 
 // Services API
@@ -13,25 +13,12 @@ export const servicesAPI = {
   // Get all available services
   getServices: async (category?: string) => {
     const params = category ? { category } : {};
-    return apiClient.get<Service[]>('/services/', params);
+    return apiClient.get<Service[]>('/services/list/', params);
   },
 
   // Get service by ID
   getService: async (id: string) => {
     return apiClient.get<Service>(`/services/${id}/`);
-  },
-};
-
-// Time Slots API
-export const timeSlotsAPI = {
-  // Get available time slots
-  getAvailableTimeSlots: async (filters?: { date?: string; service?: string }) => {
-    return apiClient.get<TimeSlot[]>('/time-slots/', filters);
-  },
-
-  // Get time slot by ID
-  getTimeSlot: async (id: string) => {
-    return apiClient.get<TimeSlot>(`/time-slots/${id}/`);
   },
 };
 
@@ -44,7 +31,7 @@ export const carsAPI = {
 
   // Add a new car
   addCar: async (carData: Omit<Car, 'id'>) => {
-    return apiClient.post<Car>('/cars/', carData);
+    return apiClient.post<Car>('/cars/add-car/', carData);
   },
 
   // Update car
@@ -60,9 +47,16 @@ export const carsAPI = {
 
 // Bookings API
 export const bookingsAPI = {
+  // Get available dates for next N days
+  getAvailableDates: async (startDate?: string, days: number = 14) => {
+    const params: any = { days };
+    if (startDate) params.start_date = startDate;
+    return apiClient.get<AvailableDate[]>('/bookings/available-dates/', params);
+  },
+
   // Create a new booking
   createBooking: async (bookingData: BookingCreateData) => {
-    return apiClient.post<Booking>('/bookings/', bookingData);
+    return apiClient.post<Booking>('/bookings/create-customer/', bookingData);
   },
 
   // Get user's bookings
@@ -85,10 +79,10 @@ export const bookingsAPI = {
     return apiClient.post<{ message: string }>(`/bookings/${id}/cancel/`, { reason });
   },
 
-  // Reschedule booking
-  rescheduleBooking: async (id: string, newTimeSlotId: string) => {
+  // Reschedule booking (just change date now)
+  rescheduleBooking: async (id: string, newDate: string) => {
     return apiClient.post<Booking>(`/bookings/${id}/reschedule/`, { 
-      time_slot: newTimeSlotId 
+      date: newDate 
     });
   },
 };
@@ -99,9 +93,8 @@ export const bookingQueries = {
     getAll: servicesAPI.getServices,
     getById: servicesAPI.getService,
   },
-  timeSlots: {
-    getAvailable: timeSlotsAPI.getAvailableTimeSlots,
-    getById: timeSlotsAPI.getTimeSlot,
+  dates: {
+    getAvailable: bookingsAPI.getAvailableDates,
   },
   cars: {
     getMy: carsAPI.getMyCars,

@@ -21,7 +21,6 @@ class ApiClient {
   }
 
   private getAuthHeaders(): Record<string, string> {
-    // Don't get token from localStorage anymore since we're using HTTP-only cookies
     // The browser will automatically include the HTTP-only cookies
     const headers: Record<string, string> = {
       'Content-Type': 'application/json',

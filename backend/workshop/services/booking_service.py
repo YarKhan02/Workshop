@@ -76,6 +76,24 @@ class BookingService:
                 'booking': response_serializer.data
             }, None
         return None, serializer.errors
+    
+    def create_customer_booking(self, data, request=None):
+        """
+        Create customer booking with optimized queries
+        """
+        print("Creating customer booking with data:", data)
+        context = {'request': request} if request else {}
+        serializer = BookingCreateSerializer(data=data, context=context)
+        if serializer.is_valid():
+            print("Serializer is valid, creating booking...")
+            booking = serializer.save()
+            response_serializer = BookingDetailSerializer(booking)
+            return {
+                'message': 'Customer booking created successfully',
+                'booking': response_serializer.data
+            }, None
+        print("Serializer errors:", serializer.errors)
+        return None, serializer.errors
 
     def update_booking(self, pk, data, request):
         """

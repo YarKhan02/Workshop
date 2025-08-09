@@ -5,7 +5,13 @@ from rest_framework.routers import DefaultRouter
 
 from .views import MyBookingsView
 
-from .auth.login import TokenRefresh, Logout, Register, AdminLogin, CustomerLogin, CustomerAuthStatus
+# Import separated auth views
+from .auth.admin_login import AdminLoginView
+from .auth.customer_login import CustomerLoginView
+from .auth.token_management import TokenRefreshView, LogoutView
+from .auth.auth_status import CustomerAuthStatusView, AdminAuthStatusView
+from .auth.registration import CustomerRegisterView
+
 from .views import ProfileView, CustomerView, CarView, ProductView, ProductVariantView, InvoiceView, DashboardView
 from .views.booking_view import BookingView
 from .views.service_view import ServiceView
@@ -26,12 +32,14 @@ router.register(r'notifications', NotificationView, basename='notification')
 router.register(r'customer', MyBookingsView, basename='customer-bookings')
 
 urlpatterns = [
-    path('auth/login/admin/', AdminLogin.as_view(), name='admin_login'),
-    path('auth/login/customer/', CustomerLogin.as_view(), name='customer_login'),
-    path('auth/register/', Register.as_view(), name='register'),
-    path('auth/token/refresh/', TokenRefresh.as_view(), name='token_refresh'),
-    path('auth/logout/', Logout.as_view(), name='logout'),
-    path('auth/status/', CustomerAuthStatus.as_view(), name='auth_status'),
+    # Authentication endpoints
+    path('auth/admin/login/', AdminLoginView.as_view(), name='admin_login'),
+    path('auth/customer/login/', CustomerLoginView.as_view(), name='customer_login'),
+    path('auth/customer/register/', CustomerRegisterView.as_view(), name='customer_register'),
+    path('auth/token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
+    path('auth/logout/', LogoutView.as_view(), name='logout'),
+    path('auth/customer/status/', CustomerAuthStatusView.as_view(), name='customer_auth_status'),
+    path('auth/admin/status/', AdminAuthStatusView.as_view(), name='admin_auth_status'),
     path('auth/profile/', ProfileView.as_view(), name='profile'),
 
     path('', include(router.urls)),

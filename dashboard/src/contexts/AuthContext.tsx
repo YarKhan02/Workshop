@@ -1,10 +1,9 @@
-import React, { createContext, useContext, useState, useEffect, type ReactNode } from 'react';
-import { authApi, useAuthSession } from '../api/auth';
+import React, { createContext, useContext, useState, useEffect, useRef, type ReactNode } from 'react';
+import { authApi } from '../api/auth';
 import type { User } from '../types/user';
 
 interface AuthContextType {
   user: User | null;
-  token: string | null;
   login: (email: string, password: string) => Promise<void>;
   logout: () => void;
   isLoading: boolean;
@@ -25,39 +24,48 @@ interface AuthProviderProps {
   children: ReactNode;
 }
 
-// Add a global getter for the current access token
-let globalAccessToken: string | null = null;
-
-export function setGlobalAccessToken(token: string | null) {
-  globalAccessToken = token;
-}
-
-export function getAccessTokenFromContext() {
-  return globalAccessToken;
-}
-
 export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const [user, setUser] = useState<User | null>(null);
-  const [token, setToken] = useState<string | null>(null); // Only in memory
   const [isLoading, setIsLoading] = useState(true);
-  const { setAccessToken, clearSession } = useAuthSession();
+  const refreshTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  // Set up automatic token refresh
+  const scheduleTokenRefresh = () => {
+    // Clear any existing timeout
+    if (refreshTimeoutRef.current) {
+      clearTimeout(refreshTimeoutRef.current);
+    }
+
+    // Schedule refresh for 7.5 hours (30 minutes before 8-hour expiry)
+    const refreshInterval = 7.5 * 60 * 60 * 1000; // 7.5 hours in milliseconds
+    
+    refreshTimeoutRef.current = setTimeout(async () => {
+      try {
+        await authApi.refreshToken();
+        // Schedule next refresh
+        scheduleTokenRefresh();
+      } catch (error) {
+        console.error('Token refresh failed:', error);
+        // If refresh fails, user needs to login again
+        setUser(null);
+      }
+    }, refreshInterval);
+  };
 
   useEffect(() => {
     const initializeAuth = async () => {
       try {
-        // Try to get access token from refresh cookie
-        const refreshRes = await authApi.refreshToken(); // GETs /token/refresh/
-        const newAccessToken = refreshRes.token;
-
-        setToken(newAccessToken);
-        setGlobalAccessToken(newAccessToken);
-        setAccessToken(newAccessToken, 120); // for polling or auto-refresh
-
-        // Fetch user info
-        const data = await authApi.getProfile();
-        setUser(data.user);
+        // Check if user is already authenticated using cookies
+        const authStatus = await authApi.getAuthStatus();
+        if (authStatus.authenticated && authStatus.user) {
+          setUser(authStatus.user);
+          // Start automatic token refresh
+          scheduleTokenRefresh();
+        } else {
+          setUser(null);
+        }
       } catch (error) {
-        setToken(null);
+        // User is not authenticated
         setUser(null);
       } finally {
         setIsLoading(false);
@@ -65,35 +73,44 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     };
 
     initializeAuth();
+
+    // Cleanup timeout on unmount
+    return () => {
+      if (refreshTimeoutRef.current) {
+        clearTimeout(refreshTimeoutRef.current);
+      }
+    };
   }, []);
 
-  // Update global token whenever it changes
-  useEffect(() => {
-    setGlobalAccessToken(token);
-  }, [token]);
-
-  // Login: store access token in memory, start auto-refresh
+  // Login: cookies are automatically set by the server
   const login = async (email: string, password: string) => {
     try {
       const data = await authApi.login({ email, password });
-      setToken(data.token);
       setUser(data.user);
-      setAccessToken(data.token, 28800); // 2 min expiry default
+      // Start automatic token refresh after login
+      scheduleTokenRefresh();
     } catch (error) {
       throw error;
     }
   };
 
-  // Logout: clear session, clear token from memory
-  const logout = () => {
-    setUser(null);
-    setToken(null);
-    clearSession();
+  // Logout: server will clear cookies
+  const logout = async () => {
+    try {
+      await authApi.logout();
+    } catch (error) {
+      // Even if logout fails, clear local state
+    } finally {
+      setUser(null);
+      // Clear refresh timeout
+      if (refreshTimeoutRef.current) {
+        clearTimeout(refreshTimeoutRef.current);
+      }
+    }
   };
 
   const value: AuthContextType = {
     user,
-    token,
     login,
     logout,
     isLoading,

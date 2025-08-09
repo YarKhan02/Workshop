@@ -3,13 +3,14 @@ import { RegisterFormData, LoginFormData, UserProfile, UserCar } from '../interf
 
 export const authAPI = {
   async register(userData: Omit<RegisterFormData, 'confirmPassword'>) {
-    return apiClient.post<{ message: string; customer: any }>('/auth/register/', {
+    return apiClient.post<{ message: string; customer: any }>('/auth/customer/register/', {
       first_name: userData.firstName,
       last_name: userData.lastName,
       email: userData.email,
       phone_number: userData.phone,
       nic: userData.nic,
       password: userData.password,
+      username: userData.email, // Add username field
       city: '',
       state: '',
       address: ''
@@ -17,7 +18,7 @@ export const authAPI = {
   },
 
   async login(credentials: LoginFormData) {
-    return apiClient.post<{ user: any; role: string; message: string }>('/auth/login/customer/', credentials);
+    return apiClient.post<{ user: any; role: string; message: string }>('/auth/customer/login/', credentials);
   },
 
   async logout() {
@@ -25,8 +26,8 @@ export const authAPI = {
   },
 
   async verifyToken() {
-    // Use dedicated auth status endpoint to verify authentication
-    return apiClient.get('/auth/status/');
+    // Use dedicated customer auth status endpoint to verify authentication
+    return apiClient.get('/auth/customer/status/');
   },
 
   async getProfile() {

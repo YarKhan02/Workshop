@@ -1,5 +1,5 @@
 from rest_framework import viewsets, status
-from workshop.permissions.is_admin import IsAdmin
+from workshop.permissions import IsAdmin
 from rest_framework.response import Response
 from rest_framework.decorators import action
 

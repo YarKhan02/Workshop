@@ -1,1 +1,0 @@
-from .role_permissions import IsCustomer

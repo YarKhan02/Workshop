@@ -139,20 +139,16 @@ def prepare_booking_snapshot_data(customer, car):
     Prepare snapshot data for a booking to preserve customer and car details
     """
     return {
-        'customer_snapshot': {
-            'name': customer.name,
-            'phone': customer.phone,
-            'email': customer.email,
-            'address': customer.address,
-        },
-        'car_snapshot': {
-            'make': car.make,
-            'model': car.model,
-            'year': car.year,
-            'license_plate': car.license_plate,
-            'color': car.color,
-            'vin': car.vin,
-        }
+        # Customer contact information for booking record
+        'customer_phone': customer.phone_number,
+        'customer_email': customer.email,
+        
+        # Car information for booking record  
+        'car_make': car.make,
+        'car_model': car.model,
+        'car_year': car.year,
+        'car_license_plate': car.license_plate,
+        'car_color': car.color or '',
     }
 
 

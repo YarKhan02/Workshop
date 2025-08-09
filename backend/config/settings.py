@@ -11,7 +11,7 @@ SECRET_KEY = 'django-insecure-@9itwpwrzv6!o9n&7%c3j*72zvlq*bs)*g%94+#v4=&=!@djf$
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['localhost', '127.0.0.1', '*']
 
 
 # Application definition
@@ -32,6 +32,7 @@ INSTALLED_APPS = [
 
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (
+        'workshop.middleware.jwt_cookie_middleware.AdminJWTAuthentication',
         'workshop.middleware.jwt_cookie_middleware.CustomerJWTAuthentication',
         'rest_framework_simplejwt.authentication.JWTAuthentication',
     ),
@@ -40,6 +41,15 @@ REST_FRAMEWORK = {
 SIMPLE_JWT = {
     'ACCESS_TOKEN_LIFETIME': timedelta(hours=8),
     'REFRESH_TOKEN_LIFETIME': timedelta(days=30),
+    'ROTATE_REFRESH_TOKENS': True,  # Generate new refresh token on each use
+    'BLACKLIST_AFTER_ROTATION': True,  # Blacklist old tokens
+    'UPDATE_LAST_LOGIN': True,
+    'ALGORITHM': 'HS256',
+    'SIGNING_KEY': SECRET_KEY,
+    'VERIFYING_KEY': None,
+    'AUTH_HEADER_TYPES': ('Bearer',),
+    'USER_ID_FIELD': 'id',
+    'USER_ID_CLAIM': 'user_id',
 }
 
 MIDDLEWARE = [
@@ -148,3 +158,23 @@ USE_TZ = True
 STATIC_URL = 'static/'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+# Security Settings for Production
+# Uncomment these for production deployment with HTTPS
+
+# SECURE_SSL_REDIRECT = True  # Redirect HTTP to HTTPS
+# SECURE_HSTS_SECONDS = 31536000  # HTTP Strict Transport Security
+# SECURE_HSTS_INCLUDE_SUBDOMAINS = True
+# SECURE_HSTS_PRELOAD = True
+# SECURE_CONTENT_TYPE_NOSNIFF = True  # Prevent MIME sniffing
+# SECURE_BROWSER_XSS_FILTER = True  # XSS protection
+# X_FRAME_OPTIONS = 'DENY'  # Prevent clickjacking
+# SECURE_REFERRER_POLICY = 'strict-origin-when-cross-origin'
+
+# Session Security
+SESSION_COOKIE_SECURE = False  # Set to True with HTTPS
+SESSION_COOKIE_HTTPONLY = True
+SESSION_COOKIE_SAMESITE = 'Strict'
+CSRF_COOKIE_SECURE = False  # Set to True with HTTPS
+CSRF_COOKIE_HTTPONLY = True
+CSRF_COOKIE_SAMESITE = 'Strict'

@@ -13,11 +13,11 @@ import BookingReview from '../steps/BookingReview';
 import { bookingQueries } from '../../../services/api/booking';
 import toast from 'react-hot-toast';
 
-import type { Service, TimeSlot, Car as CarType } from '../../../services/interfaces/booking';
+import type { Service, Car as CarType, BookingCreateData } from '../../../services/interfaces/booking';
 
 const BookingFlow: React.FC = () => {
   const navigate = useNavigate();
-  const { isAuthenticated } = useAuth();
+  const { isAuthenticated, user } = useAuth();
   const {
     currentStep,
     bookingData,
@@ -26,6 +26,9 @@ const BookingFlow: React.FC = () => {
     previousStep,
     resetFlow,
   } = useBookingFlow();
+
+  // Store the selected service object for display purposes
+  const [selectedService, setSelectedService] = React.useState<Service | null>(null);
 
   // Redirect to login if not authenticated
   React.useEffect(() => {
@@ -42,6 +45,7 @@ const BookingFlow: React.FC = () => {
   ];
 
   const handleServiceSelect = (service: Service) => {
+    setSelectedService(service);
     updateBookingData('service', service.id);
     nextStep();
   };
@@ -50,32 +54,61 @@ const BookingFlow: React.FC = () => {
     updateBookingData('car', car);
   };
 
-  const handleTimeSlotSelect = (timeSlot: TimeSlot) => {
-    updateBookingData('time_slot', timeSlot.id);
-    nextStep();
+  const handleDateSelect = (date: string) => {
+    updateBookingData('date', date);
   };
+
+  // Auto-progress to next step when date is selected
+  React.useEffect(() => {
+    if (currentStep === 3 && bookingData.date) {
+      const timer = setTimeout(() => {
+        nextStep();
+      }, 500); // Small delay to show the selection confirmation
+      return () => clearTimeout(timer);
+    }
+  }, [currentStep, bookingData.date, nextStep]);
 
   const handleBookingSubmit = async () => {
     try {
+      console.log('Starting booking submission...');
+      console.log('Current booking data:', bookingData);
+      
+      // Check if user is authenticated
+      if (!user?.id) {
+        throw new Error('User not authenticated');
+      }
+
       // Ensure we have the correct data types
       const serviceId = typeof bookingData.service === 'string' 
         ? bookingData.service 
         : (bookingData.service as Service)?.id;
         
-      const timeSlotId = typeof bookingData.time_slot === 'string' 
-        ? bookingData.time_slot 
-        : (bookingData.time_slot as TimeSlot)?.id;
+      const carId = bookingData.car.id;
+      const dateValue = bookingData.date;
 
-      if (!serviceId || !timeSlotId) {
+      console.log('Service ID:', serviceId);
+      console.log('Car ID:', carId);
+      console.log('Date Value:', dateValue);
+      console.log('Customer ID:', user.id);
+
+      if (!serviceId || !carId || !dateValue) {
         throw new Error('Missing required booking information');
       }
 
-      const response = await bookingQueries.bookings.create({
+      // Transform to backend format
+      const submissionData: BookingCreateData = {
+        customer: user.id,
         service: serviceId,
-        car: bookingData.car,
-        time_slot: timeSlotId,
-        customer_notes: bookingData.customer_notes,
-      });
+        car: carId,
+        booking_date: dateValue,
+        customer_notes: bookingData.customer_notes || '',
+      };
+
+      console.log('Submitting booking data:', submissionData);
+
+      const response = await bookingQueries.bookings.create(submissionData);
+
+      console.log('Booking response:', response);
 
       if (response.data) {
         toast.success('Booking confirmed successfully!');
@@ -83,9 +116,8 @@ const BookingFlow: React.FC = () => {
         resetFlow();
       }
     } catch (error) {
-      console.error('Booking failed:', error);
-      toast.error('Failed to create booking. Please try again.');
-      throw error;
+      console.error('Booking submission error:', error);
+      toast.error(error instanceof Error ? error.message : 'Failed to create booking');
     }
   };
 
@@ -95,13 +127,14 @@ const BookingFlow: React.FC = () => {
         return !!bookingData.service;
       case 2:
         return !!(
+          bookingData.car.id &&
           bookingData.car.make &&
           bookingData.car.model &&
           bookingData.car.year &&
           bookingData.car.license_plate
         );
       case 3:
-        return !!bookingData.time_slot;
+        return !!bookingData.date;
       default:
         return false;
     }
@@ -158,7 +191,7 @@ const BookingFlow: React.FC = () => {
               <TimeSlotSelection
                 bookingData={bookingData}
                 onUpdateBookingData={updateBookingData}
-                onTimeSlotSelect={handleTimeSlotSelect}
+                onDateSelect={handleDateSelect}
               />
             )}
 
@@ -167,6 +200,7 @@ const BookingFlow: React.FC = () => {
                 bookingData={bookingData}
                 onUpdateBookingData={updateBookingData}
                 onSubmit={handleBookingSubmit}
+                selectedService={selectedService}
               />
             )}
           </div>

@@ -3,12 +3,13 @@
 export interface Service {
   id: string;
   name: string;
-  description: string;
+  code: string;
+  description?: string;
   base_price: number;
   price_display?: string; // For formatted display
-  duration_minutes: number;
-  features: string[];
-  is_active: boolean;
+  estimated_duration_minutes: number;
+  features?: string[];
+  is_active?: boolean;
   category?: string;
   image_url?: string;
 }
@@ -20,15 +21,13 @@ export interface Car {
   year: string;
   license_plate: string;
   color?: string;
+  customer_id?: string;
 }
 
-export interface TimeSlot {
-  id: string;
+export interface AvailableDate {
   date: string;
-  start_time: string;
-  end_time: string;
-  is_available: boolean;
-  max_concurrent_bookings?: number;
+  available: boolean;
+  slots_available: number;
 }
 
 export interface Customer {
@@ -79,15 +78,16 @@ export interface MyBookingActions {
 
 export interface BookingData {
   service: string | Service;
-  car: Car;
-  time_slot: string | TimeSlot;
+  car: Car; // Full car object for UI
+  date: string; // Frontend uses 'date' field
   customer_notes?: string;
 }
 
 export interface BookingCreateData {
-  service: string;
-  car: Car;
-  time_slot: string;
+  customer: string; // Customer ID
+  service: string; // Service ID
+  car: string; // Car ID
+  booking_date: string; // Date in YYYY-MM-DD format
   customer_notes?: string;
 }
 
@@ -95,7 +95,7 @@ export interface Booking {
   id: string;
   service: Service;
   car: Car;
-  time_slot: TimeSlot;
+  date: string;
   customer: Customer;
   customer_notes?: string;
   staff_notes?: string;

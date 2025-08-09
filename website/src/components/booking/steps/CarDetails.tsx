@@ -1,6 +1,7 @@
 import React, { useRef, useEffect } from 'react';
 import { Car, Plus } from 'lucide-react';
 import { useCars } from '../../../hooks/useBooking';
+import { useAuth } from '../../../contexts/AuthContext';
 import { themeClasses } from '../../../config/theme';
 import type { BookingStepProps, Car as CarType } from '../../../services/interfaces/booking';
 
@@ -14,6 +15,7 @@ const CarDetails: React.FC<CarDetailsProps> = ({
   isLoading = false,
 }) => {
   const { cars, loading, addCar } = useCars();
+  const { user } = useAuth();
   const [isAddingNew, setIsAddingNew] = React.useState(false);
   const [selectedCarId, setSelectedCarId] = React.useState<string | null>(null);
 
@@ -76,6 +78,7 @@ const CarDetails: React.FC<CarDetailsProps> = ({
       year: yearRef.current!.value.trim(),
       license_plate: licensePlateRef.current!.value.trim(),
       color: colorRef.current!.value.trim(),
+      customer_id: user?.id, // Include customer ID from authenticated user
     };
 
     try {

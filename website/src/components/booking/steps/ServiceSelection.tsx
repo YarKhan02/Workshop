@@ -109,7 +109,7 @@ const ServiceCard: React.FC<ServiceCardProps> = ({
           </div>
         </div>
       )}
-      
+
       <div className="mb-4">
         <h3 className={`${themeClasses.heading.card} mb-2`}>{service.name}</h3>
         <p className="text-white/60 text-sm mb-3">{service.description}</p>
@@ -118,28 +118,11 @@ const ServiceCard: React.FC<ServiceCardProps> = ({
             {service.price_display || `₹${service.base_price}`}
           </span>
           <span className="text-white/50 text-sm">
-            {service.duration_minutes} mins
+            {service.estimated_duration_minutes} mins
           </span>
         </div>
       </div>
-      
-      <div className="space-y-2">
-        <h4 className="text-white font-medium text-sm">Features included:</h4>
-        <ul className="space-y-1">
-          {service.features.slice(0, 4).map((feature, index) => (
-            <li key={index} className="flex items-center text-white/60 text-sm">
-              <Check className="w-3 h-3 text-orange-400 mr-2" />
-              {feature}
-            </li>
-          ))}
-          {service.features.length > 4 && (
-            <li className="text-orange-400 text-sm">
-              +{service.features.length - 4} more features
-            </li>
-          )}
-        </ul>
-      </div>
-      
+
       <div className="mt-6">
         <button
           className={`

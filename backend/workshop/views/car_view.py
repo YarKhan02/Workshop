@@ -3,7 +3,7 @@ from rest_framework import viewsets, status
 from rest_framework.decorators import action
 from rest_framework.response import Response
 
-from workshop.permissions.is_admin import IsAdmin
+from workshop.permissions import IsAdmin, IsCustomer
 from workshop.services.car_service import CarService
 from workshop.models.car import Car
 from workshop.serializers.car_serializer import CarSerializer
@@ -11,7 +11,7 @@ from workshop.serializers.car_serializer import CarSerializer
 
 class CarView(viewsets.ViewSet):
 
-    permission_classes = [IsAdmin]
+    # permission_classes = [IsAdmin, IsCustomer]
     
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
@@ -54,8 +54,9 @@ class CarView(viewsets.ViewSet):
     @action(detail=False, methods=['post'], url_path='add-car')
     def add_car(self, request):
         """
-        Add a new car.
+        Add a new car with customer ID provided from frontend.
         """
+        print("Adding car with data:", request.data)
         result = self.car_service.add_car(request.data)
         if 'error' in result:
             return Response(result, status=status.HTTP_500_INTERNAL_SERVER_ERROR)

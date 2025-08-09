@@ -1,7 +1,7 @@
 # workshop/views/dashboard_view.py
 
 from rest_framework import viewsets, status
-from workshop.permissions.is_admin import IsAdmin
+from workshop.permissions import IsAdmin
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
@@ -14,6 +14,7 @@ from workshop.services.dashboard_service import DashboardService
 
 
 class DashboardView(viewsets.ViewSet):
+    
     permission_classes = [IsAdmin]
     
     def __init__(self, **kwargs):

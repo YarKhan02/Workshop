@@ -1,19 +1,15 @@
-// Legacy API exports - maintained for backward compatibility
-// New code should import from the specific API modules
-
 // Import new API structure
 import { apiClient } from './api/client';
-import { bookingQueries, servicesAPI, timeSlotsAPI, carsAPI, bookingsAPI } from './api/booking';
+import { bookingQueries, servicesAPI, carsAPI, bookingsAPI } from './api/booking';
 
 // Re-export from new API structure
 export { apiClient };
-export { bookingQueries, servicesAPI, timeSlotsAPI, carsAPI, bookingsAPI };
+export { bookingQueries, servicesAPI, carsAPI, bookingsAPI };
 
 // Re-export types
 export type { 
   Service, 
   Car, 
-  TimeSlot, 
   Booking, 
   BookingData, 
   BookingCreateData,
@@ -71,11 +67,6 @@ class ApiService {
     return servicesAPI.getService(id);
   }
 
-  // Time Slots
-  async getAvailableTimeSlots(date?: string) {
-    return timeSlotsAPI.getAvailableTimeSlots(date ? { date } : undefined);
-  }
-
   // Bookings
   async createBooking(bookingData: any) {
     return bookingsAPI.createBooking(bookingData);
@@ -97,8 +88,8 @@ class ApiService {
     return bookingsAPI.cancelBooking(id, reason);
   }
 
-  async rescheduleBooking(id: string, newTimeSlotId: string) {
-    return bookingsAPI.rescheduleBooking(id, newTimeSlotId);
+  async rescheduleBooking(id: string, newDate: string) {
+    return bookingsAPI.rescheduleBooking(id, newDate);
   }
 
   // Cars

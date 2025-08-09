@@ -1,6 +1,6 @@
 # workshop/views/booking_view.py
 from rest_framework import viewsets, status
-from workshop.permissions.is_admin import IsAdmin
+from workshop.permissions import IsAdmin, IsCustomer
 from rest_framework.decorators import action
 from rest_framework.response import Response
 
@@ -8,7 +8,7 @@ from workshop.services.booking_service import BookingService
 
 class BookingView(viewsets.ViewSet):
     
-    permission_classes = [IsAdmin]
+    # permission_classes = [IsAdmin]
     
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
@@ -34,6 +34,15 @@ class BookingView(viewsets.ViewSet):
             return Response(result, status=status.HTTP_201_CREATED)
         return Response(errors, status=status.HTTP_400_BAD_REQUEST)
     
+    @action(detail=False, methods=['post'], url_path='create-customer')
+    def create_customer_booking(self, request):
+        print("Received booking request data:", request.data)
+        result, errors = self.booking_service.create_customer_booking(request.data, request)
+        if result:
+            return Response(result, status=status.HTTP_201_CREATED)
+        print("Booking creation failed with errors:", errors)
+        return Response(errors, status=status.HTTP_400_BAD_REQUEST)
+
     @action(detail=True, methods=['put'], url_path='update')
     def update_booking(self, request, pk=None):
         result, errors = self.booking_service.update_booking(pk, request.data, request)

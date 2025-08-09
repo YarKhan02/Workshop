@@ -1,6 +1,6 @@
 # views/customer_view.py
 from rest_framework import viewsets, status
-from workshop.permissions.is_admin import IsAdmin
+from workshop.permissions import IsAdmin
 from rest_framework.decorators import action
 from rest_framework.response import Response
 

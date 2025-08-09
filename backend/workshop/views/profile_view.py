@@ -2,7 +2,7 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.views import APIView
 from rest_framework.response import Response
 
-from workshop.permissions.is_admin import IsAdmin
+from workshop.permissions import IsAdmin
 
 from ..serializers.user_serializer import UserSerializer
 
