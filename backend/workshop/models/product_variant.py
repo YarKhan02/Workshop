@@ -1,15 +1,18 @@
 import uuid
 from django.db import models
-from .product import Product
+
+from . import Product
 
 class ProductVariant(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    product = models.ForeignKey(Product, on_delete=models.CASCADE, related_name='variants')
-    variant_name = models.CharField(max_length=100)
-    sku = models.CharField(max_length=50, unique=True, blank=True)
+    variant_name = models.CharField(max_length=30, null=False, blank=False)
+    sku = models.CharField(max_length=50, unique=True, blank=False, null=False)
     price = models.DecimalField(max_digits=10, decimal_places=2)
     quantity = models.PositiveIntegerField()
     created_at = models.DateTimeField(auto_now_add=True)
+
+    # Relationships
+    product = models.ForeignKey(Product, on_delete=models.CASCADE, related_name='variants')
 
     class Meta:
         db_table = 'product_variant'

@@ -6,7 +6,7 @@ from rest_framework.response import Response
 
 import json
 
-from workshop.models.booking import Service
+from workshop.models import Service
 from workshop.serializers.booking_serializer import (
     ServiceSerializer, ServiceListSerializer
 )

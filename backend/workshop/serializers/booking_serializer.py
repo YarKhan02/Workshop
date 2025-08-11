@@ -1,7 +1,8 @@
 # workshop/serializers/booking_serializer.py
 from rest_framework import serializers
 from django.db.models import Q
-from workshop.models.booking import Service, Booking, BookingStatusHistory, BookingAdditionalService, BookingReminder
+from workshop.models import Service
+from workshop.models.booking import Booking
 from workshop.models.customer import Customer
 from workshop.models.car import Car
 from workshop.models.user import User
@@ -35,30 +36,6 @@ class ServiceListSerializer(serializers.ModelSerializer):
                   'base_price', 
                   'estimated_duration_minutes'
         ]
-
-
-class BookingAdditionalServiceSerializer(serializers.ModelSerializer):
-    """
-    Serializer for additional services in a booking
-    """
-    service_name = serializers.CharField(source='service.name', read_only=True)
-    service_code = serializers.CharField(source='service.code', read_only=True)
-    
-    class Meta:
-        model = BookingAdditionalService
-        fields = ['id', 'service', 'service_name', 'service_code', 'quantity', 'unit_price', 'total_price']
-
-
-class BookingStatusHistorySerializer(serializers.ModelSerializer):
-    """
-    Serializer for booking status history
-    """
-    changed_by_name = serializers.CharField(source='changed_by.get_full_name', read_only=True)
-    
-    class Meta:
-        model = BookingStatusHistory
-        fields = ['id', 'old_status', 'new_status', 'changed_by', 'changed_by_name', 'changed_at', 'change_reason']
-
 
 class BookingListSerializer(serializers.ModelSerializer):
     """
@@ -111,15 +88,6 @@ class BookingDetailSerializer(serializers.ModelSerializer):
     
     # Service information
     service_details = ServiceSerializer(source='service', read_only=True)
-    
-    # Additional services
-    additional_services = BookingAdditionalServiceSerializer(many=True, read_only=True)
-    
-    # Status history
-    status_history = BookingStatusHistorySerializer(many=True, read_only=True)
-    
-    # Staff information
-    assigned_staff_name = serializers.SerializerMethodField()
     
     # Payment and invoice information
     payment_status = serializers.ReadOnlyField()

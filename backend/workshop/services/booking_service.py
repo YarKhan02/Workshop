@@ -1,5 +1,5 @@
 # workshop/services/booking_service.py
-from workshop.models.booking import Booking, BookingStatusHistory, BookingAdditionalService
+from workshop.models.booking import Booking
 from workshop.models.customer import Customer
 from workshop.models.car import Car
 from workshop.models.daily_availability import DailyAvailability

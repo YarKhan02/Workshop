@@ -27,23 +27,19 @@ class UserManager(BaseUserManager):
         )
 
 class User(AbstractBaseUser, PermissionsMixin):
+    class Role(models.TextChoices):
+        admin = 'admin', 'Admin'
+        customer = 'customer', 'Customer'
+
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     email = models.EmailField(unique=True)
+    name = models.CharField(max_length=30)
     username = models.CharField(unique=True, max_length=20)
-    password = models.CharField(max_length=128)
-    first_name = models.CharField(max_length=30)
-    last_name = models.CharField(max_length=30)
-
-    ROLE_CHOICES = (
-        ('admin', 'Admin'),
-        ('customer', 'Customer')
-    )
-    role = models.CharField(max_length=20, choices=ROLE_CHOICES, default='customer')
-
-    phone = PhoneNumberField(blank=True, null=True)
+    password = models.CharField(max_length=128, null=True, blank=True)
+    role = models.CharField(max_length=20, choices=Role.choices, default=Role.customer)
+    phone_number = PhoneNumberField(blank=True, null=True)
     date_joined = models.DateTimeField(auto_now_add=True)
     last_login = models.DateTimeField(null=True, blank=True)
-
     is_active = models.BooleanField(default=True)
     is_staff = models.BooleanField(default=False)
 
@@ -57,6 +53,3 @@ class User(AbstractBaseUser, PermissionsMixin):
 
     def __str__(self):
         return f"{self.username} ({self.role})"
-
-
-

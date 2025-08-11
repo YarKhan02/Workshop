@@ -3,7 +3,7 @@
 from django.utils import timezone
 from django.db import transaction
 from datetime import datetime, timedelta
-from workshop.models.booking import Booking, BookingStatusHistory
+from workshop.models.booking import Booking
 from workshop.models.daily_availability import DailyAvailability
 from decimal import Decimal
 

@@ -7,16 +7,12 @@ from datetime import date, timedelta
 
 
 class DailyAvailability(models.Model):
-    """
-    Daily booking availability - simple slot count per day
-    """
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     date = models.DateField(unique=True)
     total_slots = models.PositiveIntegerField(default=7, validators=[MinValueValidator(1)])
     available_slots = models.PositiveIntegerField(default=7, validators=[MinValueValidator(0)])
     is_available = models.BooleanField(default=True)
     created_at = models.DateTimeField(auto_now_add=True)
-    updated_at = models.DateTimeField(auto_now=True)
     
     class Meta:
         db_table = 'daily_availability'
@@ -33,7 +29,7 @@ class DailyAvailability(models.Model):
         """Reduce available slots by 1 when booking"""
         if self.available_slots > 0:
             self.available_slots -= 1
-            self.save(update_fields=['available_slots', 'updated_at'])
+            self.save(update_fields=['available_slots'])
             return True
         return False
     
@@ -41,7 +37,7 @@ class DailyAvailability(models.Model):
         """Increase available slots by 1 when cancelling"""
         if self.available_slots < self.total_slots:
             self.available_slots += 1
-            self.save(update_fields=['available_slots', 'updated_at'])
+            self.save(update_fields=['available_slots'])
             return True
         return False
     
