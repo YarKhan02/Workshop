@@ -17,9 +17,6 @@ class ServiceView(viewsets.ViewSet):
     
     @action(detail=False, methods=['get'], url_path='list')
     def get_services(self, request):
-        """
-        Get list of all active services
-        """
         queryset = Service.objects.filter(is_active=True).order_by('category', 'name')
         
         # Filter by category if provided

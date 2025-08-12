@@ -17,8 +17,23 @@ export interface Booking {
   estimatedDuration: number;
   status: 'pending' | 'confirmed' | 'in_progress' | 'completed' | 'cancelled';
   customer_notes?: string;
+  special_instructions?: string; // Backend field for customer notes
   totalAmount: number;
   createdAt: string;
+  
+  // Direct service ID for editing
+  service_id?: string;
+  
+  // Service details (for detailed booking view)
+  service_details?: {
+    booking_service_id: string;
+    service_id: string;
+    service_name: string;
+    service_category: string;
+    price: number;
+    status: string;
+    description?: string;
+  };
   
   // Payment and Invoice related
   paymentStatus?: 'not_generated' | 'pending' | 'paid' | 'cancelled' | 'partially_paid' | 'refunded' | 'overdue';

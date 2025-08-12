@@ -101,7 +101,6 @@ const BookingDetailModal: React.FC<BookingDetailModalProps> = ({ isOpen, onClose
       'completed': 'Completed',
       'cancelled': 'Cancelled',
       'no_show': 'No Show',
-      'rescheduled': 'Rescheduled'
     };
 
     const currentStatusLabel = statusLabels[booking.status] || booking.status;
@@ -171,7 +170,6 @@ const BookingDetailModal: React.FC<BookingDetailModalProps> = ({ isOpen, onClose
             <option value="completed">Completed</option>
             <option value="cancelled">Cancelled</option>
             <option value="no_show">No Show</option>
-            <option value="rescheduled">Rescheduled</option>
           </select>
           {booking.isPaid && (
             <span className="text-sm text-orange-400 flex items-center">
@@ -234,9 +232,6 @@ const BookingDetailModal: React.FC<BookingDetailModalProps> = ({ isOpen, onClose
                   {booking.serviceName && (
                     <p className="text-gray-400">{booking.serviceName}</p>
                   )}
-                  <p className="text-gray-400">
-                    Duration: {Math.floor(booking.estimatedDuration / 60)}h {booking.estimatedDuration % 60}m
-                  </p>
                 </div>
               </div>
 

@@ -14,10 +14,12 @@ class BookingView(viewsets.ViewSet):
         super().__init__(**kwargs)
         self.booking_service = BookingService()
     
+    # List all bookings
     @action(detail=False, methods=['get'], url_path='list')
     def get_bookings(self, request):
         result = self.booking_service.get_bookings(request.query_params)
         return Response(result)
+    
     
     @action(detail=True, methods=['get'], url_path='detail')
     def get_booking_detail(self, request, pk=None):
@@ -25,7 +27,9 @@ class BookingView(viewsets.ViewSet):
         if data:
             return Response(data)
         return Response({"error": "Booking not found"}, status=status.HTTP_404_NOT_FOUND)
-    
+
+
+    # Create a new booking
     @action(detail=False, methods=['post'], url_path='create')
     def create_booking(self, request):
         print("Creating booking with data:", request.data)
@@ -33,6 +37,7 @@ class BookingView(viewsets.ViewSet):
         if result:
             return Response(result, status=status.HTTP_201_CREATED)
         return Response(errors, status=status.HTTP_400_BAD_REQUEST)
+    
     
     @action(detail=False, methods=['post'], url_path='create-customer')
     def create_customer_booking(self, request):
@@ -43,12 +48,14 @@ class BookingView(viewsets.ViewSet):
         print("Booking creation failed with errors:", errors)
         return Response(errors, status=status.HTTP_400_BAD_REQUEST)
 
+    
     @action(detail=True, methods=['put'], url_path='update')
     def update_booking(self, request, pk=None):
         result, errors = self.booking_service.update_booking(pk, request.data, request)
         if result:
             return Response(result)
         return Response(errors, status=status.HTTP_400_BAD_REQUEST)
+    
     
     @action(detail=True, methods=['patch'], url_path='status')
     def update_status(self, request, pk=None):
@@ -61,6 +68,7 @@ class BookingView(viewsets.ViewSet):
             return Response(result)
         return Response(errors, status=status.HTTP_400_BAD_REQUEST)
     
+    
     @action(detail=True, methods=['delete'], url_path='cancel')
     def cancel_booking(self, request, pk=None):
         reason = request.data.get('reason', 'Booking cancelled')
@@ -69,10 +77,12 @@ class BookingView(viewsets.ViewSet):
             return Response(result)
         return Response(errors, status=status.HTTP_400_BAD_REQUEST)
     
+    
     @action(detail=False, methods=['get'], url_path='stats')
     def get_booking_stats(self, request):
         result = self.booking_service.get_booking_stats()
         return Response(result)
+    
     
     @action(detail=False, methods=['get'], url_path='customer-cars')
     def get_customer_cars(self, request):
@@ -82,6 +92,7 @@ class BookingView(viewsets.ViewSet):
             return Response(result)
         return Response(errors, status=status.HTTP_400_BAD_REQUEST)
 
+    
     @action(detail=False, methods=['get'], url_path='available-dates')
     def get_available_dates(self, request):
         start_date = request.query_params.get('start_date')
@@ -91,6 +102,7 @@ class BookingView(viewsets.ViewSet):
             return Response(result)
         return Response(errors, status=status.HTTP_400_BAD_REQUEST)
 
+    
     @action(detail=False, methods=['get'], url_path='availability')
     def get_date_availability(self, request):
         date_param = request.query_params.get('date')

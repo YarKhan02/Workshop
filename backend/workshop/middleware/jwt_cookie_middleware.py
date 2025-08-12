@@ -4,7 +4,6 @@ from django.contrib.auth import get_user_model
 
 User = get_user_model()
 
-
 class CustomerJWTAuthentication(JWTAuthentication):
     """
     Custom JWT authentication that handles Customer model
@@ -12,7 +11,6 @@ class CustomerJWTAuthentication(JWTAuthentication):
     def authenticate(self, request):
         # Get the raw token using our custom method
         raw_token = self.get_raw_token(request)
-        print(f"DEBUG CustomerJWT: Raw token found: {raw_token is not None}")
         
         if raw_token is None:
             return None
@@ -20,13 +18,10 @@ class CustomerJWTAuthentication(JWTAuthentication):
         try:
             # Validate the token
             validated_token = self.get_validated_token(raw_token)
-            print(f"DEBUG CustomerJWT: Token validated: {validated_token}")
             # Get the user
             user = self.get_user(validated_token)
-            print(f"DEBUG CustomerJWT: User found: {user}, type: {type(user)}")
             return (user, validated_token)
         except Exception as e:
-            print(f"DEBUG CustomerJWT: Authentication failed: {e}")
             return None
     
     def get_raw_token(self, request):
@@ -65,7 +60,6 @@ class AdminJWTAuthentication(JWTAuthentication):
     def authenticate(self, request):
         # Get the raw token using our custom method
         raw_token = self.get_raw_token(request)
-        print(f"DEBUG AdminJWT: Raw admin token found: {raw_token is not None}")
         
         if raw_token is None:
             return None
@@ -73,13 +67,10 @@ class AdminJWTAuthentication(JWTAuthentication):
         try:
             # Validate the token
             validated_token = self.get_validated_token(raw_token)
-            print(f"DEBUG AdminJWT: Admin token validated")
             # Get the user
             user = self.get_user(validated_token)
-            print(f"DEBUG AdminJWT: Admin user found: {user}, type: {type(user)}")
             return (user, validated_token)
         except Exception as e:
-            print(f"DEBUG AdminJWT: Admin authentication failed: {e}")
             return None
         
     def get_raw_token(self, request):

@@ -61,8 +61,7 @@ export const useCreateCustomer = () => {
 // Hook for customer search and filtering
 export const useCustomerSearch = (customers: Customer[], searchTerm: string) => {
   return customers.filter(customer =>
-    customer.first_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    customer.last_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    customer.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
     customer.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
     customer.phone_number.includes(searchTerm)
   );

@@ -31,9 +31,9 @@ class Invoice(models.Model):
     def save(self, *args, **kwargs):
         if not self.invoice_number:
             # Generate invoice number
-            timestamp = int(timezone.now().timestamp())
+            timestamp_suffix = str(int(timezone.now().timestamp()))[-6:]
             random_num = random.randint(1000, 9999)
-            self.invoice_number = f"INV-DH-{timestamp}-{random_num}"
+            self.invoice_number = f"DH{timestamp_suffix}-{random_num}"
             
         super().save(*args, **kwargs)
 

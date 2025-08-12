@@ -16,27 +16,18 @@ export interface BookingCreateData {
   customer: string;
   car: string;
   service?: string;
-  service_code?: string;
   booking_date: string; // The date for the booking
-  estimated_duration_minutes?: number;
   status?: string;
-  customer_notes?: string;
-  quoted_price?: number;
-  discount_amount?: number;
-  assigned_staff?: string;
+  special_instructions?: string;
+  price?: number;
 }
 
 export interface BookingUpdateData {
-  time_slot?: string;
-  scheduled_date?: string; // For backward compatibility
-  scheduled_time?: string; // For backward compatibility
-  estimated_duration_minutes?: number;
+  service?: string;
+  booking_date?: string;
   status?: string;
-  customer_notes?: string;
-  staff_notes?: string;
-  quoted_price?: number;
-  discount_amount?: number;
-  assigned_staff?: string;
+  special_instructions?: string;
+  price?: number;
 }
 
 export interface BookingStatusUpdate {

@@ -2,6 +2,7 @@ import uuid
 from django.contrib.auth.models import AbstractBaseUser, PermissionsMixin, BaseUserManager
 from phonenumber_field.modelfields import PhoneNumberField
 from django.db import models
+from django.contrib.auth.hashers import make_password, check_password
 
 class UserManager(BaseUserManager):
     def create_user(self, email, username, password=None, **extra_fields):
@@ -32,12 +33,16 @@ class User(AbstractBaseUser, PermissionsMixin):
         customer = 'customer', 'Customer'
 
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    nic = models.CharField(max_length=13, unique=True, editable=False, null=False)
     email = models.EmailField(unique=True)
     name = models.CharField(max_length=30)
     username = models.CharField(unique=True, max_length=20)
     password = models.CharField(max_length=128, null=True, blank=True)
     role = models.CharField(max_length=20, choices=Role.choices, default=Role.customer)
     phone_number = PhoneNumberField(blank=True, null=True)
+    city = models.CharField(max_length=30, blank=True, null=True)
+    state = models.CharField(max_length=30, blank=True, null=True)
+    address = models.TextField(blank=True, null=True)
     date_joined = models.DateTimeField(auto_now_add=True)
     last_login = models.DateTimeField(null=True, blank=True)
     is_active = models.BooleanField(default=True)
@@ -47,6 +52,22 @@ class User(AbstractBaseUser, PermissionsMixin):
 
     USERNAME_FIELD = 'email'
     REQUIRED_FIELDS = ['username']
+    
+    @property
+    def is_authenticated(self):
+        """Always return True for Customer instances"""
+        return True
+    
+    @property
+    def is_anonymous(self):
+        """Always return False for Customer instances"""
+        return False
+
+    def set_password(self, raw_password):
+        self.password = make_password(raw_password)
+
+    def check_password(self, raw_password):
+        return check_password(raw_password, self.password)
 
     class Meta:
         db_table = 'user'

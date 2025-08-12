@@ -10,10 +10,9 @@ export interface Car {
   license_plate: string;
   color: string;
   vin?: string;
-  mileage?: number;
-  customer_id: string;
+  customer: string;
   created_at?: string;
-  updated_at?: string;
+  is_active?: boolean;
 }
 
 // Customer interface specifically for car context
@@ -28,21 +27,19 @@ export interface CarCustomer {
 
 // ==================== FORM DATA INTERFACES ====================
 
-export interface CarFormData {
-  customer_id: string;
+// Form data types are derived in hooks/useCars.ts and api/cars.ts as Omit<Car, 'id'>
+
+export interface CarCreateData {
+  customer: string;
   make: string;
   model: string;
   year: number;
   license_plate: string;
   color: string;
   vin?: string;
-  mileage?: number;
-  notes?: string;
 }
 
-export interface CarCreateData extends CarFormData {}
-
-export interface CarUpdateData extends Partial<CarFormData> {}
+export interface CarUpdateData extends Partial<CarCreateData> {}
 
 // ==================== MODAL PROP INTERFACES ====================
 
@@ -56,7 +53,7 @@ export interface EditCarModalProps {
   car: Car | null;
   isOpen: boolean;
   onClose: () => void;
-  onSave?: (carId: string, data: CarFormData) => Promise<void>;
+  onSave?: (carId: string, data: CarCreateData) => Promise<void>;
 }
 
 export interface CarDetailModalProps {

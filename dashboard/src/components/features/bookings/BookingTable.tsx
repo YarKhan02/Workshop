@@ -38,19 +38,6 @@ const formatDate = (dateString: string) => {
   });
 };
 
-const formatTime = (timeString: string) => {
-  return new Date(`2000-01-01T${timeString}`).toLocaleTimeString('en-US', {
-    hour: '2-digit',
-    minute: '2-digit',
-  });
-};
-
-const formatDuration = (minutes: number) => {
-  const hours = Math.floor(minutes / 60);
-  const mins = minutes % 60;
-  return hours > 0 ? `${hours}h ${mins}m` : `${mins}m`;
-};
-
 // ==================== COMPONENT ====================
 const BookingTable: React.FC<BookingTableProps> = ({
   bookings,
@@ -80,15 +67,12 @@ const BookingTable: React.FC<BookingTableProps> = ({
           <span className={`inline-flex px-3 py-1 text-xs font-semibold rounded-full ${getServiceTypeColor(booking.serviceType)}`}>
             {booking.serviceType.replace('_', ' ').toUpperCase()}
           </span>
-          <div className={cn("text-xs mt-1", theme.textSecondary)}>
-            {formatDuration(booking.estimatedDuration)}
-          </div>
         </div>
       ),
     },
     {
       key: 'schedule',
-      header: 'Service Time',
+      header: 'Service Date',
       render: (booking: Booking) => (
         <div>
           <div className={cn("text-sm", theme.textPrimary)}>{formatDate(booking.scheduledDate)}</div>

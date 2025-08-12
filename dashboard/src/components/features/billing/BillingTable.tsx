@@ -44,7 +44,7 @@ const BillingTable: React.FC<BillingTableProps> = ({ invoices, onRowClick, loadi
       render: (invoice: any) => (
         <div>
           <div className={cn("text-sm font-medium", theme.textPrimary)}>
-            {invoice.customer?.first_name || ''} {invoice.customer?.last_name || ''}
+            {invoice.customer?.name || ''}
           </div>
           <div className={cn("text-sm", theme.textSecondary)}>{invoice.customer?.email || 'N/A'}</div>
         </div>

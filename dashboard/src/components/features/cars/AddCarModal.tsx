@@ -7,18 +7,27 @@ import toast from 'react-hot-toast';
 import { useCreateCar } from '../../../hooks/useCars';
 import { useCustomers } from '../../../hooks/useCustomers';
 import { useTheme, cn, ThemedModal, ThemedInput, ThemedButton } from '../../ui';
-import type { AddCarModalProps, CarFormData } from '../../../types';
+import type { AddCarModalProps } from '../../../types';
+
+// Use the form data type that matches what the API expects
+type CarFormData = {
+  customer: string;
+  make: string;
+  model: string;
+  year: number;
+  license_plate: string;
+  color: string;
+  vin?: string;
+};
 
 const carSchema = z.object({
-  customer_id: z.string().min(1, 'Customer is required'),
+  customer: z.string().min(1, 'Customer is required'),
   make: z.string().min(1, 'Make is required'),
   model: z.string().min(1, 'Model is required'),
   year: z.number().min(1900).max(new Date().getFullYear() + 1),
   color: z.string().min(1, 'Color is required'),
   license_plate: z.string().min(1, 'License plate is required'),
   vin: z.string().optional(),
-  mileage: z.string().optional().transform((val) => val?.trim() || undefined),
-  notes: z.string().optional(),
 });
 
 const AddCarModal: React.FC<AddCarModalProps> = ({
@@ -38,34 +47,25 @@ const AddCarModal: React.FC<AddCarModalProps> = ({
   } = useForm<CarFormData>({
     resolver: zodResolver(carSchema),
     defaultValues: {
-      customer_id: customerId || '',
+      customer: customerId || '',
       make: '',
       model: '',
       year: new Date().getFullYear(),
       color: '',
       license_plate: '',
       vin: '',
-      mileage: undefined,
-      notes: '',
     }
   });
 
   const onSubmit = async (data: CarFormData) => {
     try {
-      await createCarMutation.mutateAsync({
-        customer_id: data.customer_id,
-        make: data.make,
-        model: data.model,
-        year: data.year,
-        color: data.color,
-        license_plate: data.license_plate,
-        vin: data.vin,
-        mileage: data.mileage,
-      });
+      console.log('Submitting car data:', data);
+      await createCarMutation.mutateAsync(data);
       toast.success('Vehicle added successfully!');
       reset();
       onClose();
     } catch (error) {
+      console.error('Error adding vehicle:', error);
       toast.error('Failed to add vehicle');
     }
   };
@@ -86,18 +86,18 @@ const AddCarModal: React.FC<AddCarModalProps> = ({
                 Customer *
               </label>
               <select
-                {...register('customer_id')}
+                {...register('customer')}
                 className={cn("w-full px-3 py-2 rounded-lg transition-all duration-300", theme.components.input.base)}
               >
                 <option value="">Select a customer</option>
                 {customers.map((customer) => (
                   <option key={customer.id} value={customer.id}>
-                    {customer.first_name} {customer.last_name} ({customer.email})
+                    {customer.name} ({customer.email})
                   </option>
                 ))}
               </select>
-              {errors.customer_id && (
-                <p className="text-red-400 text-sm mt-1">{errors.customer_id.message}</p>
+              {errors.customer && (
+                <p className="text-red-400 text-sm mt-1">{errors.customer.message}</p>
               )}
             </div>
 
@@ -108,7 +108,7 @@ const AddCarModal: React.FC<AddCarModalProps> = ({
               <ThemedInput
                 type="text"
                 {...register('make')}
-                placeholder="e.g., Toyota, Honda, Ford"
+                placeholder="e.g., Toyota, Honda, BMW"
                 error={errors.make?.message}
               />
             </div>
@@ -120,7 +120,7 @@ const AddCarModal: React.FC<AddCarModalProps> = ({
               <ThemedInput
                 type="text"
                 {...register('model')}
-                placeholder="e.g., Camry, Civic, F-150"
+                placeholder="e.g., Camry, Civic, X3"
                 error={errors.model?.message}
               />
             </div>
@@ -132,7 +132,7 @@ const AddCarModal: React.FC<AddCarModalProps> = ({
               <ThemedInput
                 type="number"
                 {...register('year', { valueAsNumber: true })}
-                placeholder="e.g., 2020"
+                placeholder="e.g., 2023"
                 error={errors.year?.message}
               />
             </div>
@@ -141,25 +141,25 @@ const AddCarModal: React.FC<AddCarModalProps> = ({
           <div className="space-y-4">
             <div>
               <label className={cn("block text-sm font-medium mb-1", theme.textSecondary)}>
-                Color *
-              </label>
-              <ThemedInput
-                type="text"
-                {...register('color')}
-                placeholder="e.g., Red, Blue, Silver"
-                error={errors.color?.message}
-              />
-            </div>
-
-            <div>
-              <label className={cn("block text-sm font-medium mb-1", theme.textSecondary)}>
                 License Plate *
               </label>
               <ThemedInput
                 type="text"
                 {...register('license_plate')}
-                placeholder="e.g., ABC-1234"
+                placeholder="e.g., ABC-123"
                 error={errors.license_plate?.message}
+              />
+            </div>
+
+            <div>
+              <label className={cn("block text-sm font-medium mb-1", theme.textSecondary)}>
+                Color *
+              </label>
+              <ThemedInput
+                type="text"
+                {...register('color')}
+                placeholder="e.g., White, Black, Blue"
+                error={errors.color?.message}
               />
             </div>
 
@@ -170,54 +170,33 @@ const AddCarModal: React.FC<AddCarModalProps> = ({
               <ThemedInput
                 type="text"
                 {...register('vin')}
-                placeholder="17-character VIN"
-              />
-            </div>
-
-            <div>
-              <label className={cn("block text-sm font-medium mb-1", theme.textSecondary)}>
-                Mileage (Optional)
-              </label>
-              <ThemedInput
-                type="number"
-                {...register('mileage')}
-                placeholder="e.g., 50000"
+                placeholder="Vehicle Identification Number"
+                error={errors.vin?.message}
               />
             </div>
           </div>
         </div>
 
-        <div className="mt-6">
-          <label className={cn("block text-sm font-medium mb-1", theme.textSecondary)}>
-            Notes (Optional)
-          </label>
-          <textarea
-            {...register('notes')}
-            rows={3}
-            className={cn("w-full px-3 py-2 rounded-lg resize-none", theme.components.input.base)}
-            placeholder="Any additional notes about the car"
-          />
+        <div className="flex justify-end gap-3 mt-6">
+          <ThemedButton
+            type="button"
+            variant="secondary"
+            onClick={onClose}
+            disabled={isSubmitting}
+          >
+            Cancel
+          </ThemedButton>
+          <ThemedButton
+            type="submit"
+            disabled={isSubmitting}
+            className="flex items-center gap-2"
+          >
+            <Car className="w-4 h-4" />
+            {isSubmitting ? 'Adding...' : 'Add Vehicle'}
+          </ThemedButton>
         </div>
-
-            <div className={cn("flex justify-end gap-3 mt-8 pt-6 border-t", theme.border)}>
-              <ThemedButton
-                type="button"
-                variant="secondary"
-                onClick={onClose}
-              >
-                Cancel
-              </ThemedButton>
-              <ThemedButton
-                type="submit"
-                variant="primary"
-                disabled={isSubmitting}
-              >
-                <Car className="w-4 h-4 mr-2" />
-                {isSubmitting ? 'Adding Vehicle...' : 'Add Vehicle'}
-              </ThemedButton>
-            </div>
-          </form>
-        </ThemedModal>
+      </form>
+    </ThemedModal>
   );
 };
 

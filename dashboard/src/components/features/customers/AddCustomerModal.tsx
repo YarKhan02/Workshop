@@ -13,14 +13,13 @@ const customerSchema = z.object({
     .string()
     .length(13, 'NIC must be exactly 13 digits')
     .regex(/^\d+$/, 'NIC must be numeric'),
-  first_name: z.string().min(1, 'First name is required'),
-  last_name: z.string().min(1, 'Last name is required'),
+  name: z.string().min(1, 'Name is required'),
   email: z.string().email('Invalid email address'),
   phone_number: z
     .string()
     .length(11, 'Phone number must be exactly 11 digits')
     .regex(/^03\d{9}$/, 'Phone number must start with 03 and be numeric'),
-  address: z.string().min(1, 'Address is required'),
+  address: z.string().optional(),
   city: z.string().optional(),
   state: z.string().optional(),
 });
@@ -50,8 +49,7 @@ const AddCustomerModal: React.FC<AddCustomerModalProps> = ({
     resolver: zodResolver(customerSchema),
     defaultValues: {
       nic: '',
-      first_name: '',
-      last_name: '',
+      name: '',
       email: '',
       phone_number: '',
       address: '',
@@ -109,25 +107,13 @@ const AddCustomerModal: React.FC<AddCustomerModalProps> = ({
 
             <div>
               <label className={cn("block text-sm font-medium mb-1", theme.textSecondary)}>
-                First Name *
+                Full Name *
               </label>
               <ThemedInput
                 type="text"
-                {...register('first_name')}
-                placeholder="Enter first name"
-                error={errors.first_name?.message}
-              />
-            </div>
-
-            <div>
-              <label className={cn("block text-sm font-medium mb-1", theme.textSecondary)}>
-                Last Name *
-              </label>
-              <ThemedInput
-                type="text"
-                {...register('last_name')}
-                placeholder="Enter last name"
-                error={errors.last_name?.message}
+                {...register('name')}
+                placeholder="Enter full name"
+                error={errors.name?.message}
               />
             </div>
 
@@ -145,7 +131,7 @@ const AddCustomerModal: React.FC<AddCustomerModalProps> = ({
 
             <div>
               <label className={cn("block text-sm font-medium mb-1", theme.textSecondary)}>
-                Phone *
+                Phone Number *
               </label>
               <ThemedInput
                 type="tel"
@@ -160,7 +146,7 @@ const AddCustomerModal: React.FC<AddCustomerModalProps> = ({
           <div className="space-y-4">
             <div>
               <label className={cn("block text-sm font-medium mb-1", theme.textSecondary)}>
-                Address *
+                Address
               </label>
               <textarea
                 {...register('address')}
@@ -168,9 +154,6 @@ const AddCustomerModal: React.FC<AddCustomerModalProps> = ({
                 className={cn("w-full px-3 py-2 rounded-lg", theme.components.input.base)}
                 placeholder="Enter address"
               />
-              {errors.address && (
-                <p className="text-red-400 text-sm mt-1">{errors.address.message}</p>
-              )}
             </div>
 
             <div className="grid grid-cols-2 gap-2">

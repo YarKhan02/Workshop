@@ -20,9 +20,6 @@ from datetime import datetime, date, timedelta
 
 class BookingService:
     def get_bookings(self, params):
-        """
-        Get optimized bookings list using query optimization
-        """
         # Prepare filters
         filters = {}
         if params.get('status'):
@@ -63,10 +60,9 @@ class BookingService:
             return serializer.data
         return None
 
+
+    # Create a new booking
     def create_booking(self, data, request):
-        """
-        Create booking with optimized queries
-        """
         serializer = BookingCreateSerializer(data=data, context={'request': request})
         if serializer.is_valid():
             booking = serializer.save()
@@ -99,6 +95,7 @@ class BookingService:
         """
         Update booking with optimized queries
         """
+        print("Updating booking with ID:", pk, "and data:", data)
         booking = bq.get_booking_for_update(pk)
         if not booking:
             return None, {'error': 'Booking not found'}
@@ -111,6 +108,7 @@ class BookingService:
                 'message': 'Booking updated successfully',
                 'booking': response_serializer.data
             }, None
+        print("Serializer validation errors:", serializer.errors)
         return None, serializer.errors
 
     def update_status(self, pk, status_value, notes, user):
@@ -120,13 +118,13 @@ class BookingService:
         booking = bq.get_booking_for_update(pk)
         if not booking:
             return None, {'error': 'Booking not found'}
-
+        
         # Validate status
-        valid_statuses = [choice[0] for choice in Booking.STATUS_CHOICES]
+        valid_statuses = [choice[0] for choice in BookingService.status.choices]
         if status_value not in valid_statuses:
             return None, {'error': f'Invalid status. Valid options: {valid_statuses}'}
 
-        old_status = booking.status
+        old_status = booking.service.status if hasattr(booking, 'service') and booking.service else 'pending'
         
         # Use helper function to handle status change and time slot availability
         updated_booking = handle_booking_status_change(
@@ -158,9 +156,6 @@ class BookingService:
         return {'message': 'Booking cancelled successfully'}, None
 
     def get_booking_stats(self):
-        """
-        Get optimized booking statistics
-        """
         return bq.get_booking_stats()
 
     def get_customer_cars(self, customer_id):

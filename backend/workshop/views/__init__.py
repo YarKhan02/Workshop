@@ -4,6 +4,7 @@ from .customer_view import CustomerView
 from .car_view import CarView
 from .product_view import ProductView
 from .product_variant_view import ProductVariantView
+from .stock_movement_view import StockMovementView
 from .invoice_view import InvoiceView
 from .booking_view import BookingView
 from .service_view import ServiceView

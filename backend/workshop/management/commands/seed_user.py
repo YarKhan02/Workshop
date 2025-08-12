@@ -7,50 +7,14 @@ class Command(BaseCommand):
     def handle(self, *args, **kwargs):
         users_data = [
             {
+                'nic': '1234567890123',
                 'username': 'adminuser',
                 'email': 'admin@example.com',
-                'first_name': 'Admin',
-                'last_name': 'User',
+                'name': 'Admin',
                 'role': 'admin',
-                'phone': '111-111-1111',
+                'phone_number': '111-111-1111',
                 'password': 'adminpass123'
-            },
-            {
-                'username': 'accountant1',
-                'email': 'accountant1@example.com',
-                'first_name': 'Alice',
-                'last_name': 'Finance',
-                'role': 'accountant',
-                'phone': '222-222-2222',
-                'password': 'accpass123'
-            },
-            {
-                'username': 'staff1',
-                'email': 'staff1@example.com',
-                'first_name': 'John',
-                'last_name': 'Doe',
-                'role': 'staff',
-                'phone': '333-333-3333',
-                'password': 'staffpass123'
-            },
-            {
-                'username': 'staff2',
-                'email': 'staff2@example.com',
-                'first_name': 'Jane',
-                'last_name': 'Smith',
-                'role': 'staff',
-                'phone': '444-444-4444',
-                'password': 'staffpass456'
-            },
-            {
-                'username': 'accountant2',
-                'email': 'accountant2@example.com',
-                'first_name': 'Bob',
-                'last_name': 'Ledger',
-                'role': 'accountant',
-                'phone': '555-555-5555',
-                'password': 'accpass456'
-            },
+            }
         ]
 
         for u in users_data:
@@ -58,10 +22,9 @@ class Command(BaseCommand):
                 username=u['username'],
                 defaults={
                     'email': u['email'],
-                    'first_name': u['first_name'],
-                    'last_name': u['last_name'],
+                    'name': u['name'],
                     'role': u['role'],
-                    'phone': u['phone']
+                    'phone_number': u['phone_number']
                 }
             )
 

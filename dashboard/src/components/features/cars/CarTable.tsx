@@ -55,15 +55,6 @@ const CarTable: React.FC<CarTableProps> = ({
         </div>
       ),
     },
-    {
-      key: 'vin',
-      header: 'VIN',
-      render: (car: Car) => (
-        <div className={cn("text-xs font-mono", theme.textSecondary)}>
-          {car.vin?.slice(-8) || 'N/A'}
-        </div>
-      ),
-    },
   ];
 
   const actions = [

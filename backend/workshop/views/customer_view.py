@@ -15,21 +15,21 @@ class CustomerView(viewsets.ViewSet):
         super().__init__(**kwargs)
         self.customer_service = CustomerService()
 
+    # Get customer details
     @action(detail=False, methods=['get'], url_path='details')
     def get_details(self, request):
-        """Get all customers details"""
         result = self.customer_service.get_all_customers()
         
         if 'error' in result:
             return Response(result, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
         
         return Response(result['data'], status=status.HTTP_200_OK)
-    
+
+    # Get customer statistics
     @action(detail=False, methods=['get'], url_path='stats')
     def get_stats(self, request):
-        """Get customer statistics"""
         result = self.customer_service.get_customer_stats()
-        
+
         if 'error' in result:
             return Response(result, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
         
@@ -45,10 +45,10 @@ class CustomerView(viewsets.ViewSet):
             return Response(result, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
         
         return Response(result['data'], status=status.HTTP_200_OK)
-    
+
+    # Add a new customer
     @action(detail=False, methods=['post'], url_path='add-customer')
     def add_customer(self, request):
-        """Add a new customer"""
         result = self.customer_service.create_customer(request.data)
         
         if 'error' in result:
@@ -60,10 +60,10 @@ class CustomerView(viewsets.ViewSet):
             {"message": result['message']}, 
             status=status.HTTP_201_CREATED
         )
-    
+
+    # Update an existing customer
     @action(detail=True, methods=['put'], url_path='update-customer')
     def update_customer(self, request, pk=None):
-        """Update an existing customer"""
         result = self.customer_service.update_customer(pk, request.data)
         
         if 'error' in result:

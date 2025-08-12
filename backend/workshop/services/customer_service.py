@@ -1,11 +1,8 @@
 # services/customer_service.py
-from typing import Dict, Any, List, Optional
+from typing import Dict, Any, Optional
 from django.db.models import Q
-from django.core.exceptions import ObjectDoesNotExist
-from django.db.models import Count
-from rest_framework import status
 
-from workshop.models.customer import Customer
+from workshop.models import User
 from workshop.queries import customer_queries as cq
 from workshop.serializers.customer_serializer import (
     CustomerDetailSerializer, 
@@ -14,21 +11,15 @@ from workshop.serializers.customer_serializer import (
     CustomerUpdateSerializer,
     CustomerStatsSerializer
 )
-from ..helper.date_utils import get_start_of_week, get_start_of_week_percentage
 from .base_service import BaseService
 
 
 class CustomerService(BaseService):
-    """
-    Customer service containing all business logic for customer operations
-    """
-    
+
+    # Get all customers
     def get_all_customers(self) -> Dict[str, Any]:
-        """
-        Retrieve all customers with their details
-        """
         try:
-            customers = Customer.objects.all()
+            customers = User.objects.filter(role=User.Role.customer)
             serializer = CustomerDetailSerializer(customers, many=True)
             return self.success_response(
                 message="Customers retrieved successfully",
@@ -41,9 +32,6 @@ class CustomerService(BaseService):
             )
         
     def get_customer_stats(self) -> Dict[str, Any]:
-        """
-        Retrieve customer statistics
-        """
         try:
             stats = cq.get_customer_stats_data()
 
@@ -62,12 +50,11 @@ class CustomerService(BaseService):
         Retrieve customers formatted for invoice selection with optional search
         """
         try:
-            queryset = Customer.objects.all()
+            queryset = User.objects.all()
             
             if search_term:
                 queryset = queryset.filter(
-                    Q(first_name__icontains=search_term) |
-                    Q(last_name__icontains=search_term) |
+                    Q(name__icontains=search_term) |
                     Q(email__icontains=search_term) |
                     Q(phone_number__icontains=search_term)
                 )
@@ -82,11 +69,9 @@ class CustomerService(BaseService):
                 message="Failed to retrieve customers for invoices",
                 details=str(e)
             )
-    
+
+    # Create Customer
     def create_customer(self, customer_data: Dict[str, Any]) -> Dict[str, Any]:
-        """
-        Create a new customer
-        """
         try:
             serializer = CustomerCreateSerializer(data=customer_data)
             
@@ -106,17 +91,25 @@ class CustomerService(BaseService):
                 message="Failed to create customer",
                 details=str(e)
             )
-    
+
+    # Update Customer
     def update_customer(self, customer_id: str, customer_data: Dict[str, Any]) -> Dict[str, Any]:
-        """
-        Update an existing customer
-        """
         try:
             customer = cq.get_customer_by_id(customer_id)
-        except Customer.DoesNotExist:
+            if customer is None:
+                return self.error_response(
+                    message="Customer not found",
+                    details=f"Customer with ID {customer_id} does not exist"
+                )
+        except User.DoesNotExist:
             return self.error_response(
                 message="Customer not found",
                 details=f"Customer with ID {customer_id} does not exist"
+            )
+        except Exception as e:
+            return self.error_response(
+                message="Error retrieving customer",
+                details=str(e)
             )
         
         try:
@@ -148,14 +141,13 @@ class CustomerService(BaseService):
         Delete a customer
         """
         try:
-            customer = Customer.objects.get(pk=customer_id)
-            customer_name = f"{customer.first_name} {customer.last_name}"
+            customer = User.objects.get(pk=customer_id)
             customer.delete()
             
             return self.success_response(
-                message=f"Customer '{customer_name}' deleted successfully"
+                message=f"Customer '{customer.name}' deleted successfully"
             )
-        except Customer.DoesNotExist:
+        except User.DoesNotExist:
             return self.error_response(
                 message="Customer not found",
                 details=f"Customer with ID {customer_id} does not exist"
@@ -171,13 +163,13 @@ class CustomerService(BaseService):
         Retrieve a specific customer by ID
         """
         try:
-            customer = Customer.objects.get(pk=customer_id)
+            customer = User.objects.get(pk=customer_id)
             serializer = CustomerDetailSerializer(customer)
             return self.success_response(
                 message="Customer retrieved successfully",
                 data=serializer.data
             )
-        except Customer.DoesNotExist:
+        except User.DoesNotExist:
             return self.error_response(
                 message="Customer not found",
                 details=f"Customer with ID {customer_id} does not exist"

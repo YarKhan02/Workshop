@@ -1,4 +1,10 @@
 // Inventory Management Types
+
+export interface CategoryOption {
+  value: string;
+  label: string;
+}
+
 export interface ProductVariant {
   id: string;
   variant_name: string;

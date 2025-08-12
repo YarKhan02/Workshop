@@ -24,7 +24,7 @@ const CustomerDetailModal: React.FC<CustomerDetailModalProps> = ({
         <div className="flex items-center justify-between mb-6">
           <div>
             <h3 className={cn("text-xl font-semibold", theme.textPrimary)}>
-              {customer.first_name} {customer.last_name} | {formatNIC(customer.nic)}
+              {customer.name} | {formatNIC(customer.nic)}
             </h3>
           </div>
           <div className="flex gap-2">

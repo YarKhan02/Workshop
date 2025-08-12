@@ -17,11 +17,9 @@ class CarView(viewsets.ViewSet):
         super().__init__(**kwargs)
         self.car_service = CarService()
 
+    # Get car details
     @action(detail=False, methods=['get'], url_path='details')
     def car_details(self, request):
-        """
-        Basic car details without customer info.
-        """
         result = self.car_service.get_all_cars()
         if 'error' in result:
             return Response(result, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
@@ -50,13 +48,10 @@ class CarView(viewsets.ViewSet):
                 return Response(result, status=status.HTTP_400_BAD_REQUEST)
             return Response(result, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
         return Response(result['data'], status=status.HTTP_200_OK)
-    
+
+    # Add a new car
     @action(detail=False, methods=['post'], url_path='add-car')
     def add_car(self, request):
-        """
-        Add a new car with customer ID provided from frontend.
-        """
-        print("Adding car with data:", request.data)
         result = self.car_service.add_car(request.data)
         if 'error' in result:
             return Response(result, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
@@ -73,11 +68,9 @@ class CarView(viewsets.ViewSet):
         except Car.DoesNotExist:
             return Response({'error': 'Car not found'}, status=status.HTTP_404_NOT_FOUND)
 
+    # Update an existing car
     @action(detail=True, methods=['patch'], url_path='update')
     def update_car(self, request, pk=None):
-        """
-        Update an existing car.
-        """
         result = self.car_service.update_car(pk, request.data)
         if 'error' in result:
             return Response(result, status=status.HTTP_500_INTERNAL_SERVER_ERROR)

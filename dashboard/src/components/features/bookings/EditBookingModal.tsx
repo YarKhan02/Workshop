@@ -18,16 +18,13 @@ const EditBookingModal: React.FC<EditBookingModalProps> = ({ isOpen, onClose, bo
   const queryClient = useQueryClient();
   const { theme } = useTheme();
 
-  // Form state
+  // Form state - only fields that exist in backend models
   const [formData, setFormData] = useState({
     service: '',
     booking_date: '',
-    estimated_duration_minutes: 60,
     status: 'pending',
-    customer_notes: '',
-    staff_notes: '',
-    quoted_price: 0,
-    discount_amount: 0
+    special_instructions: '',  // This is the actual field in Booking model
+    price: 0  // This maps to BookingService.price
   });
 
   // Availability state
@@ -96,11 +93,11 @@ const EditBookingModal: React.FC<EditBookingModalProps> = ({ isOpen, onClose, bo
 
     // Update price when service is changed
     if (field === 'service' && value) {
-      const selectedService = (services as Service[]).find((s: Service) => s.code === value);
+      const selectedService = (services as Service[]).find((s: Service) => s.id === value);
       if (selectedService) {
         setFormData(prev => ({
           ...prev,
-          quoted_price: selectedService.base_price,
+          price: selectedService.base_price,
           estimated_duration_minutes: selectedService.estimated_duration_minutes
         }));
       }
@@ -119,12 +116,9 @@ const EditBookingModal: React.FC<EditBookingModalProps> = ({ isOpen, onClose, bo
     const updateData = {
       service: formData.service,
       booking_date: formData.booking_date,
-      estimated_duration_minutes: formData.estimated_duration_minutes,
       status: formData.status,
-      customer_notes: formData.customer_notes,
-      staff_notes: formData.staff_notes,
-      quoted_price: formData.quoted_price,
-      discount_amount: formData.discount_amount
+      special_instructions: formData.special_instructions,
+      price: formData.price
     };
 
     updateBookingMutation.mutate(updateData);
@@ -136,14 +130,11 @@ const EditBookingModal: React.FC<EditBookingModalProps> = ({ isOpen, onClose, bo
   useEffect(() => {
     if (booking && isOpen) {
       setFormData({
-        service: booking.serviceType || '',
+        service: booking.service_id || booking.service_details?.service_id || '',
         booking_date: booking.scheduledDate || '',
-        estimated_duration_minutes: booking.estimatedDuration || 60,
         status: booking.status || 'pending',
-        customer_notes: booking.customer_notes || '',
-        staff_notes: '',
-        quoted_price: booking.totalAmount || 0,
-        discount_amount: 0
+        special_instructions: booking.special_instructions || '',
+        price: booking.service_details?.price || booking.totalAmount || 0
       });
 
       // Fetch availability if date is available
@@ -197,7 +188,7 @@ const EditBookingModal: React.FC<EditBookingModalProps> = ({ isOpen, onClose, bo
                   >
                     <option value="">Select service...</option>
                     {(services as Service[]).map((service: Service) => (
-                      <option key={service.id} value={service.code}>
+                      <option key={service.id} value={service.id}>
                         {service.name} - {formatCurrency(service.base_price)}
                       </option>
                     ))}
@@ -261,20 +252,6 @@ const EditBookingModal: React.FC<EditBookingModalProps> = ({ isOpen, onClose, bo
                     </div>
                   )}
                 </div>
-
-                <div>
-                  <label className={cn("block text-sm font-medium mb-2", theme.textSecondary)}>
-                    Duration (minutes)
-                  </label>
-                  <input
-                    type="number"
-                    value={formData.estimated_duration_minutes}
-                    onChange={(e) => handleInputChange('estimated_duration_minutes', parseInt(e.target.value) || 60)}
-                    className={cn("w-full px-4 py-3 border rounded-xl transition-all duration-300", theme.background, theme.textPrimary, theme.border)}
-                    min="15"
-                    step="15"
-                  />
-                </div>
               </div>
 
               {/* Pricing */}
@@ -282,58 +259,31 @@ const EditBookingModal: React.FC<EditBookingModalProps> = ({ isOpen, onClose, bo
                 <div>
                   <label className="block text-sm font-medium text-gray-300 mb-2">
                     <Banknote className="inline-block w-4 h-4 mr-2" />
-                    Service Amount
+                    Service Price
                   </label>
                   <input
                     type="number"
-                    value={formData.quoted_price}
-                    onChange={(e) => handleInputChange('quoted_price', parseFloat(e.target.value) || 0)}
+                    value={formData.price}
+                    onChange={(e) => handleInputChange('price', parseFloat(e.target.value) || 0)}
                     className="w-full px-4 py-3 bg-gray-900/50 border border-gray-600/50 rounded-xl text-gray-100 focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-all duration-300"
                     min="0"
                     step="0.01"
                   />
                 </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-gray-300 mb-2">
-                    Duration (minutes)
-                  </label>
-                  <input
-                    type="number"
-                    value={formData.estimated_duration_minutes}
-                    onChange={(e) => handleInputChange('estimated_duration_minutes', parseInt(e.target.value) || 60)}
-                    className="w-full px-4 py-3 bg-gray-900/50 border border-gray-600/50 rounded-xl text-gray-100 focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-all duration-300"
-                    min="15"
-                    step="15"
-                  />
-                </div>
               </div>
 
-              {/* Notes */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              {/* Special Instructions */}
+              <div>
                 <div>
                   <label className="block text-sm font-medium text-gray-300 mb-2">
-                    Customer Notes
+                    Special Instructions
                   </label>
                   <textarea
-                    value={formData.customer_notes}
-                    onChange={(e) => handleInputChange('customer_notes', e.target.value)}
+                    value={formData.special_instructions}
+                    onChange={(e) => handleInputChange('special_instructions', e.target.value)}
                     rows={3}
                     className="w-full px-4 py-3 bg-gray-900/50 border border-gray-600/50 rounded-xl text-gray-100 focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-all duration-300 resize-none"
-                    placeholder="Customer requests or service notes..."
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-gray-300 mb-2">
-                    Staff Notes
-                  </label>
-                  <textarea
-                    value={formData.staff_notes}
-                    onChange={(e) => handleInputChange('staff_notes', e.target.value)}
-                    rows={3}
-                    className="w-full px-4 py-3 bg-gray-900/50 border border-gray-600/50 rounded-xl text-gray-100 focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-all duration-300 resize-none"
-                    placeholder="Internal notes for service team..."
+                    placeholder="Customer requests or special instructions..."
                   />
                 </div>
               </div>

@@ -20,7 +20,6 @@ export type {
 export type {
   Car,
   CarCustomer,
-  CarFormData,
   CarCreateData,
   CarUpdateData,
   AddCarModalProps,
@@ -58,6 +57,7 @@ export type {
 
 // Inventory Management Types - Re-exported from dedicated file
 export type {
+  CategoryOption,
   Product,
   ProductVariant,
   FlattenedInventoryVariant,
@@ -114,7 +114,6 @@ export interface Job {
   updatedAt: string;
   customer?: Customer;
   car?: Car;
-  assignedStaff?: User;
 }
 
 export interface JobFormData {

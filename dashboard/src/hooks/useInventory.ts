@@ -1,12 +1,12 @@
 import React from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'react-hot-toast';
-import { inventoryAPI, inventoryQueries } from '../api/inventory';
+import { inventoryAPI, inventoryQueries, fetchProductCategories } from '../api/inventory';
 import type { 
   ProductCreateData, 
   ProductVariantCreateData, 
   ProductVariantUpdateData,
-  InventoryFilters
+  InventoryFilters,
 } from '../types/inventory';
 
 // Query key utilities
@@ -21,6 +21,18 @@ export const useProducts = (filters?: InventoryFilters) => {
     queryFn: () => inventoryAPI.getProducts(filters),
     staleTime: 5 * 60 * 1000, // 5 minutes
     gcTime: 10 * 60 * 1000, // 10 minutes
+  });
+};
+
+/**
+ * Hook to fetch product categories from backend
+ */
+export const useProductCategories = () => {
+  return useQuery({
+    queryKey: ['productCategories'],
+    queryFn: fetchProductCategories,
+    staleTime: 30 * 60 * 1000, // 30 minutes (categories don't change often)
+    gcTime: 60 * 60 * 1000, // 1 hour
   });
 };
 

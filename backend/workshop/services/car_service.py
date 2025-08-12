@@ -6,9 +6,8 @@ from workshop.queries.car_queries import get_all_cars_query, get_car_by_id
 from .base_service import BaseService
 
 class CarService(BaseService):
-    """
-    Car service containing all business logic for car operations
-    """
+
+    # Get all cars
     def get_all_cars(self) -> Dict[str, Any]:
         try:
             queryset = get_all_cars_query()
@@ -54,7 +53,8 @@ class CarService(BaseService):
                 message="Failed to fetch cars for customer",
                 details=str(e)
             )
-        
+
+    # Add a new car
     def add_car(self, data: Dict[str, Any]) -> Dict[str, Any]:
         try:
             serializer = CarCreateSerializer(data=data)
@@ -75,7 +75,8 @@ class CarService(BaseService):
                 message="Failed to add car",
                 details=str(e)
             )
-        
+
+    # Update an existing car
     def update_car(self, car_id: str, data: Dict[str, Any]) -> Dict[str, Any]:
         try:
             car = get_car_by_id(car_id)

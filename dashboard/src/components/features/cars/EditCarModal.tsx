@@ -4,7 +4,18 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { Save } from 'lucide-react';
 import toast from 'react-hot-toast';
-import type { EditCarModalProps, CarFormData } from '../../../types';
+import type { EditCarModalProps } from '../../../types';
+
+// Use the form data type that matches what the API expects  
+type CarFormData = {
+  customer: string;
+  make: string;
+  model: string;
+  year: number;
+  license_plate: string;
+  color: string;
+  vin?: string;
+};
 import { useUpdateCar } from '../../../hooks/useCars';
 import { useTheme, cn, ThemedModal, ThemedInput, ThemedButton } from '../../ui';
 

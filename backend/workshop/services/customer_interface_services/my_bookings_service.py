@@ -1,6 +1,6 @@
 
 from workshop.queries.customer_interface_queries.my_bookings_queries import MyBookingsQueries
-from workshop.serializers import MyBookingsSerializer
+from workshop.serializers.customer_interface_serializers.my_bookings_serializer import MyBookingsSerializer
 
 
 class MyBookingsService:

@@ -7,8 +7,7 @@ import { Save } from 'lucide-react';
 import { useTheme, cn, ThemedModal, ThemedInput, ThemedButton } from '../../ui';
 
 const customerSchema = z.object({
-  first_name: z.string().min(1, 'First name is required'),
-  last_name: z.string().min(1, 'Last name is required'),
+  name: z.string().min(1, 'Name is required'),
   email: z.string().email('Invalid email address'),
   phone_number: z.string().min(1, 'Phone number is required'),
   address: z.string().min(1, 'Address is required'),
@@ -38,8 +37,7 @@ const EditCustomerModal: React.FC<EditCustomerModalProps> = ({
   useEffect(() => {
     if (customer) {
       reset({
-        first_name: customer.first_name,
-        last_name: customer.last_name,
+        name: customer.name,
         email: customer.email,
         phone_number: customer.phone_number,
         address: customer.address || '',
@@ -52,7 +50,12 @@ const EditCustomerModal: React.FC<EditCustomerModalProps> = ({
   const onSubmit = async (data: CustomerFormDataLocal) => {
     if (customer) {
       try {
-        await onSave(customer.id as string, data);
+        // Include the existing customer's NIC which won't be edited
+        const updateData = {
+          ...data,
+          nic: customer.nic
+        };
+        await onSave(customer.id as string, updateData);
         onClose();
         reset();
       } catch (error) {
@@ -70,29 +73,17 @@ const EditCustomerModal: React.FC<EditCustomerModalProps> = ({
       title="Edit Customer"
     >
       <form onSubmit={handleSubmit(onSubmit)} className="p-6">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">  
           <div className="space-y-4">
             <div>
               <label className={cn("block text-sm font-medium mb-1", theme.textSecondary)}>
-                First Name *
+                Name *
               </label>
               <ThemedInput
                 type="text"
-                {...register('first_name')}
-                placeholder="Enter first name"
-                error={errors.first_name?.message}
-              />
-            </div>
-
-            <div>
-              <label className={cn("block text-sm font-medium mb-1", theme.textSecondary)}>
-                Last Name *
-              </label>
-              <ThemedInput
-                type="text"
-                {...register('last_name')}
-                placeholder="Enter last name"
-                error={errors.last_name?.message}
+                {...register('name')}
+                placeholder="Enter name"
+                error={errors.name?.message}
               />
             </div>
 

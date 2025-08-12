@@ -13,38 +13,39 @@ def handle_booking_status_change(booking, old_status, new_status, user, notes):
     Handle booking status change with daily availability updates and invoice generation
     """
     with transaction.atomic():
-        # Update booking status
-        booking.status = new_status
+        # Update booking service status (status is on BookingService, not Booking)
+        if hasattr(booking, 'service') and booking.service:
+            booking.service.status = new_status
+            booking.service.save()
         
-        # Set timestamps based on status
-        if new_status == 'confirmed' and old_status != 'confirmed':
-            booking.confirmed_at = timezone.now()
-        elif new_status == 'cancelled':
-            booking.cancelled_at = timezone.now()
-            booking.cancellation_reason = notes
-        elif new_status == 'completed':
-            # Auto-generate invoice when booking is completed
+        if new_status == 'completed':
             try:
-                invoice = booking.generate_invoice()
-                if invoice:
-                    notes += f"\nInvoice {invoice.invoice_number} generated automatically."
+                if not booking.invoice:
+                    # Only generate invoice if one doesn't exist
+                    from workshop.models.invoice import Invoice
+                    from decimal import Decimal
+                    
+                    service_price = booking.service.price if booking.service else Decimal('0.00')
+                    customer = booking.car.customer if booking.car else None
+                    
+                    if customer:
+                        invoice = Invoice.objects.create(
+                            user=customer,
+                            subtotal=service_price,
+                            tax_percentage=Decimal('0.00'),
+                            discount_amount=Decimal('0.00'),
+                            total_amount=service_price,
+                            status=Invoice.Status.PENDING
+                        )
+                        booking.invoice = invoice
+                        booking.save()
+                        notes += f"\nInvoice {invoice.invoice_number} generated automatically."
             except Exception as e:
                 # Log the error but don't fail the status change
                 print(f"Error generating invoice for booking {booking.id}: {str(e)}")
         
-        booking.save()
-        
         # Update daily availability based on status change
         update_daily_availability_for_booking(booking, old_status, new_status)
-        
-        # Create status history record
-        BookingStatusHistory.objects.create(
-            booking=booking,
-            old_status=old_status,
-            new_status=new_status,
-            changed_by=user,
-            change_reason=notes
-        )
     
     return booking
 

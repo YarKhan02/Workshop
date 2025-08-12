@@ -1,7 +1,6 @@
 // ==================== CAR HOOKS ====================
 
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import toast from 'react-hot-toast';
 import * as carApi from '../api/cars';
 import type { Car } from '../types';
 
@@ -72,9 +71,9 @@ export const useCreateCar = () => {
       queryClient.invalidateQueries({ queryKey: carQueryKeys.lists() });
       
       // Invalidate customer cars if applicable
-      if (newCar.customer_id) {
+      if (newCar.customer) {
         queryClient.invalidateQueries({ 
-          queryKey: carQueryKeys.byCustomer(newCar.customer_id) 
+          queryKey: carQueryKeys.byCustomer(newCar.customer) 
         });
       }
       
@@ -104,9 +103,9 @@ export const useUpdateCar = () => {
       queryClient.invalidateQueries({ queryKey: carQueryKeys.lists() });
       
       // Invalidate customer cars if applicable
-      if (updatedCar.customer_id) {
+      if (updatedCar.customer) {
         queryClient.invalidateQueries({ 
-          queryKey: carQueryKeys.byCustomer(updatedCar.customer_id) 
+          queryKey: carQueryKeys.byCustomer(updatedCar.customer) 
         });
       }
     },

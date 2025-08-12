@@ -8,7 +8,8 @@ from workshop.serializers.product_serializer import ProductSerializer, ProductCr
 from workshop.services.product_service import ProductService
 
 class ProductView(viewsets.ViewSet):
-    permission_classes = [IsAdmin]
+    
+    # permission_classes = [IsAdmin]
     
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
@@ -21,10 +22,16 @@ class ProductView(viewsets.ViewSet):
         serializer = ProductSerializer(queryset, many=True)
         return Response(serializer.data)
     
+    # Get available product categories
+    @action(detail = False, methods = ['get'], url_path = 'categories')
+    def get_categories(self, request):
+        categories = self.product_service.get_categories(request.query_params)
+        return Response(categories)
+    
     # Add a new product
     @action(detail = False, methods = ['post'], url_path = 'add-product')
     def add_product(self, request):
-        result, errors = self.product_service.create_product(request.data)
+        result, errors = self.product_service.create_product(request.data, request=request)
         if result:
             return Response(result, status=status.HTTP_201_CREATED)
         return Response(errors, status=status.HTTP_400_BAD_REQUEST)

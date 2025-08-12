@@ -4,11 +4,13 @@ import type React from "react"
 import { useState } from "react"
 import { Package, Tag, Banknote, Hash, Loader2 } from "lucide-react"
 import { useTheme, cn, ThemedModal, ThemedInput, ThemedButton } from "../../ui"
-import { useCreateProduct } from "../../../hooks/useInventory"
+import { useCreateProduct, useProductCategories } from "../../../hooks/useInventory"
 import type { AddInventoryModalProps, ProductFormData } from "../../../types/inventory"
 
 const AddInventoryModal: React.FC<AddInventoryModalProps> = ({ open, onClose }) => {
   const { theme } = useTheme();
+  const { data: categories = [], isLoading: categoriesLoading } = useProductCategories();
+  
   const [formData, setFormData] = useState<ProductFormData>({
     name: "",
     category: "",
@@ -108,16 +110,17 @@ const AddInventoryModal: React.FC<AddInventoryModalProps> = ({ open, onClose }) 
                   value={formData.category}
                   onChange={handleChange}
                   className={cn("w-full pl-10 pr-10 py-3 border rounded-xl transition-colors appearance-none", theme.background, theme.textPrimary, theme.border)}
+                  disabled={categoriesLoading}
                   required
                 >
-                  <option value="">Select a category</option>
-                  <option value="Engine">Engine</option>
-                  <option value="Exterior">Exterior</option>
-                  <option value="Interior">Interior</option>
-                  <option value="Electronics">Electronics</option>
-                  <option value="Tires">Tires</option>
-                  <option value="Cleaning">Cleaning</option>
-                  <option value="Hair Care">Hair Care</option>
+                  <option value="">
+                    {categoriesLoading ? "Loading categories..." : "Select a category"}
+                  </option>
+                  {categories.map((category) => (
+                    <option key={category.value} value={category.value}>
+                      {category.label}
+                    </option>
+                  ))}
                 </select>
                 <div className="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
                   <svg className={cn("h-5 w-5", theme.textSecondary)} fill="none" stroke="currentColor" viewBox="0 0 24 24">

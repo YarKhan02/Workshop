@@ -14,8 +14,7 @@ export interface CustomerStats {
 export interface Customer {
   id: string;
   nic: string;
-  first_name: string;
-  last_name: string;
+  name: string;
   email: string;
   phone_number: string;
   address?: string;
@@ -45,11 +44,10 @@ export interface CustomerCar {
 
 export interface CustomerFormData {
   nic: string;
-  first_name: string;
-  last_name: string;
+  name: string;
   email: string;
   phone_number: string;
-  address: string;
+  address?: string;
   city?: string;
   state?: string;
 }

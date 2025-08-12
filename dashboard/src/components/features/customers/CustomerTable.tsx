@@ -14,12 +14,23 @@ const CustomerTable: React.FC<CustomerTableProps> = ({
 
   const columns = [
     {
+      key: 'nic',
+      header: 'NIC',
+      render: (customer: Customer) => (
+        <div>
+          <div className={cn("text-sm font-medium", theme.textPrimary)}>
+            {customer.nic}
+          </div>
+        </div>
+      ),
+    },
+    {
       key: 'name',
       header: 'Customer',
       render: (customer: Customer) => (
         <div>
           <div className={cn("text-sm font-medium", theme.textPrimary)}>
-            {customer.first_name} {customer.last_name}
+            {customer.name}
           </div>
         </div>
       ),

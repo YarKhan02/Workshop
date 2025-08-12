@@ -1,33 +1,40 @@
 from django.db.models import Count
-from workshop.models.customer import Customer
+from workshop.models import User
 from workshop.helper.date_utils import get_start_of_week, get_start_of_week_percentage
 
-def get_customer_by_id(customer_id: str) -> Customer:
+def get_customer_by_id(customer_id: str) -> User:
     try:
-        return Customer.objects.only('id', 
+        return User.objects.only('id', 
+                                    'nic',
                                     'email', 
-                                    'first_name', 
-                                    'last_name', 
+                                    'name',
                                     'phone_number', 
                                     'city', 
                                     'state', 
                                     'address'
                                 ).get(id=customer_id)
-    except Customer.DoesNotExist:
+    except User.DoesNotExist:
         return None
     
+
 def get_total_customers():
-    return Customer.objects.count()
+    return User.objects.filter(role=User.Role.customer).count()
+
 
 
 def get_returning_customers():
-    return Customer.objects.annotate(
-        booking_count=Count('bookings')
-    ).filter(booking_count__gt=1).count()
+    return (
+        User.objects.filter(role=User.Role.customer)
+        .annotate(invoice_count=Count('invoices'))
+        .filter(invoice_count__gt=1)
+        .count()
+    )
 
 
 def get_new_customers_this_week():
-    return Customer.objects.filter(date_joined__gte=get_start_of_week()).count()
+    return User.objects.filter(
+        role=User.Role.customer,
+        date_joined__gte=get_start_of_week()).count()
 
 
 def get_customer_stats_data():

@@ -5,8 +5,17 @@ import type {
   ProductCreateData, 
   ProductVariantCreateData, 
   ProductVariantUpdateData,
-  InventoryFilters 
+  InventoryFilters,
+  CategoryOption
 } from '../types/inventory';
+
+/**
+ * Fetch available product categories
+ */
+export const fetchProductCategories = async (): Promise<CategoryOption[]> => {
+  const response = await apiClient.get('/products/categories/');
+  return response.data;
+};
 
 /**
  * Fetch all products with their variants
