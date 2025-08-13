@@ -14,9 +14,7 @@ const InvoiceStatusSelector: React.FC<InvoiceStatusSelectorProps> = ({
     { value: 'draft', label: 'Draft' },
     { value: 'pending', label: 'Pending' },
     { value: 'paid', label: 'Paid' },
-    { value: 'overdue', label: 'Overdue' },
     { value: 'cancelled', label: 'Cancelled' },
-    { value: 'partial', label: 'Partial' },
   ] as const;
 
   return (

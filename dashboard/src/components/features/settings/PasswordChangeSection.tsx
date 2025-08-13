@@ -9,56 +9,26 @@ interface PasswordChangeProps {
   isLoading: boolean;
 }
 
-const PasswordChangeSection: React.FC<PasswordChangeProps> = ({
-  onPasswordChange,
-  isLoading,
+interface PasswordInputProps {
+  label: string;
+  value: string;
+  onChange: (value: string) => void;
+  show: boolean;
+  onToggleShow: () => void;
+  placeholder: string;
+}
+
+const PasswordInput: React.FC<PasswordInputProps> = ({ 
+  label, 
+  value, 
+  onChange, 
+  show, 
+  onToggleShow, 
+  placeholder 
 }) => {
   const { theme } = useTheme();
-  const [showCurrentPassword, setShowCurrentPassword] = useState(false);
-  const [showNewPassword, setShowNewPassword] = useState(false);
-  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
-  const [passwordData, setPasswordData] = useState<ChangePasswordData>({
-    currentPassword: '',
-    newPassword: '',
-    confirmPassword: ''
-  });
-
-  const updatePasswordData = (field: keyof ChangePasswordData, value: string) => {
-    setPasswordData(prev => ({ ...prev, [field]: value }));
-  };
-
-  const handleSubmit = async () => {
-    await onPasswordChange(passwordData);
-    // Reset form on success
-    setPasswordData({
-      currentPassword: '',
-      newPassword: '',
-      confirmPassword: ''
-    });
-  };
-
-  const isFormValid = () => {
-    return passwordData.currentPassword && 
-           passwordData.newPassword && 
-           passwordData.confirmPassword &&
-           passwordData.newPassword.length >= 8;
-  };
-
-  const PasswordInput = ({ 
-    label, 
-    value, 
-    onChange, 
-    show, 
-    onToggleShow, 
-    placeholder 
-  }: {
-    label: string;
-    value: string;
-    onChange: (value: string) => void;
-    show: boolean;
-    onToggleShow: () => void;
-    placeholder: string;
-  }) => (
+  
+  return (
     <div>
       <label className={cn("block text-sm font-medium mb-2", theme.textSecondary)}>
         {label}
@@ -81,6 +51,47 @@ const PasswordChangeSection: React.FC<PasswordChangeProps> = ({
       </div>
     </div>
   );
+};
+
+const PasswordChangeSection: React.FC<PasswordChangeProps> = ({
+  onPasswordChange,
+  isLoading,
+}) => {
+  const { theme } = useTheme();
+  const [showCurrentPassword, setShowCurrentPassword] = useState(false);
+  const [showNewPassword, setShowNewPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [passwordData, setPasswordData] = useState<ChangePasswordData>({
+    currentPassword: '',
+    newPassword: '',
+    confirmPassword: ''
+  });
+
+  const updatePasswordData = (field: keyof ChangePasswordData, value: string) => {
+    setPasswordData(prev => ({ ...prev, [field]: value }));
+  };
+
+  const handleSubmit = async () => {
+    try {
+      await onPasswordChange(passwordData);
+      // Reset form on success
+      setPasswordData({
+        currentPassword: '',
+        newPassword: '',
+        confirmPassword: ''
+      });
+    } catch (error) {
+      // Error is already handled by the mutation's onError callback
+      console.error('Password change failed:', error);
+    }
+  };
+
+  const isFormValid = () => {
+    return passwordData.currentPassword && 
+           passwordData.newPassword && 
+           passwordData.confirmPassword &&
+           passwordData.newPassword.length >= 8;
+  };
 
   return (
     <div className="space-y-6">

@@ -146,7 +146,7 @@ export const billingAPI = {
   // Get billing statistics
   getBillingStats: async (): Promise<BillingStats> => {
     try {
-      const response = await apiClient.get('/orders/stats/');
+      const response = await apiClient.get('/invoices/stats/');
       return response.data.stats || response.data;
     } catch (error) {
       // Return default stats if API fails

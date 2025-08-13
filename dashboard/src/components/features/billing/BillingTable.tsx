@@ -10,7 +10,11 @@ interface BillingTableProps {
   loading?: boolean;
 }
 
-const BillingTable: React.FC<BillingTableProps> = ({ invoices, onRowClick, loading = false }) => {
+const BillingTable: React.FC<BillingTableProps> = ({ 
+  invoices, 
+  onRowClick, 
+  loading = false 
+}) => {
   const { theme } = useTheme();
 
   const getStatusColor = (status: string) => {
@@ -53,15 +57,20 @@ const BillingTable: React.FC<BillingTableProps> = ({ invoices, onRowClick, loadi
     {
       key: 'type',
       header: 'Type',
-      render: (invoice: any) => (
-        <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium border ${
-          invoice.invoice_type === 'booking' 
-            ? 'bg-blue-500/20 text-blue-400 border-blue-500/30'
-            : 'bg-purple-500/20 text-purple-400 border-purple-500/30'
-        }`}>
-          {invoice.invoice_type === 'booking' ? 'Service' : 'Product'}
-        </span>
-      )
+      render: (invoice: any) => {
+        // Check if invoice has service items from unified items structure
+        const hasServiceItem = invoice.items?.some((item: any) => item.type === 'service');
+        const isBooking = hasServiceItem;
+        return (
+          <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium border ${
+            isBooking 
+              ? 'bg-blue-500/20 text-blue-400 border-blue-500/30'
+              : 'bg-purple-500/20 text-purple-400 border-purple-500/30'
+          }`}>
+            {isBooking ? 'Booking' : 'Product'}
+          </span>
+        );
+      }
     },
     {
       key: 'date',

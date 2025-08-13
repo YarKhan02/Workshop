@@ -1,13 +1,10 @@
 import React, { useState } from 'react';
-import { Building, User, Bell, Lock, Settings as SettingsIcon } from 'lucide-react';
+import { Building, Lock, Settings as SettingsIcon } from 'lucide-react';
 
 // Components
 import TabNavigation from '../components/features/settings/TabNavigation';
 import BusinessSettingsSection from '../components/features/settings/BusinessSettingsSection';
-import UserSettingsSection from '../components/features/settings/UserSettingsSection';
-import NotificationSettingsSection from '../components/features/settings/NotificationSettingsSection';
 import PasswordChangeSection from '../components/features/settings/PasswordChangeSection';
-import SystemSettingsSection from '../components/features/settings/SystemSettingsSection';
 
 // Hooks & Types
 import { useSettings } from '../hooks/useSettings';
@@ -21,24 +18,28 @@ const Settings: React.FC = () => {
   
   const {
     businessSettings,
-    userSettings,
-    systemSettings,
     setBusinessSettings,
-    setUserSettings,
-    setSystemSettings,
     handleSave,
     handlePasswordChange,
+    updateBusinessSettings,
     isLoading
   } = useSettings();
 
-  // Admin-only tabs - includes system configuration
+  // Admin-only tabs - business settings and security only
   const tabs: SettingsTab[] = [
     { id: 'business', label: 'Workshop', icon: Building },
-    { id: 'user', label: 'Profile', icon: User },
-    { id: 'notifications', label: 'Notifications', icon: Bell },
     { id: 'password', label: 'Security', icon: Lock },
-    { id: 'system', label: 'System', icon: SettingsIcon }
   ];
+
+  // Safe password change handler with error boundary
+  const safePasswordChange = async (passwordData: any) => {
+    try {
+      await handlePasswordChange(passwordData);
+    } catch (error) {
+      console.error('Password change error:', error);
+      // Error handling is done in the mutation
+    }
+  };
 
   return (
     <div className="space-y-8">
@@ -74,26 +75,7 @@ const Settings: React.FC = () => {
               settings={businessSettings}
               onSettingsChange={setBusinessSettings}
               onSave={() => handleSave('Business')}
-              isLoading={isLoading}
-            />
-          )}
-
-          {/* Admin Profile Settings */}
-          {activeTab === 'user' && (
-            <UserSettingsSection
-              settings={userSettings}
-              onSettingsChange={setUserSettings}
-              onSave={() => handleSave('User')}
-              isLoading={isLoading}
-            />
-          )}
-
-          {/* Notification Settings */}
-          {activeTab === 'notifications' && (
-            <NotificationSettingsSection
-              settings={userSettings}
-              onSettingsChange={setUserSettings}
-              onSave={() => handleSave('Notification')}
+              updateBusinessSettings={updateBusinessSettings}
               isLoading={isLoading}
             />
           )}
@@ -101,17 +83,7 @@ const Settings: React.FC = () => {
           {/* Security Settings */}
           {activeTab === 'password' && (
             <PasswordChangeSection
-              onPasswordChange={handlePasswordChange}
-              isLoading={isLoading}
-            />
-          )}
-
-          {/* System Administration */}
-          {activeTab === 'system' && (
-            <SystemSettingsSection
-              settings={systemSettings}
-              onSettingsChange={setSystemSettings}
-              onSave={() => handleSave('System')}
+              onPasswordChange={safePasswordChange}
               isLoading={isLoading}
             />
           )}

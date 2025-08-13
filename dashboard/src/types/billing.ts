@@ -43,23 +43,39 @@ export interface Invoice {
 
 export interface InvoiceItem {
   id: string;
-  invoiceId: string;
+  type: 'product' | 'service';  // Unified type field
   description: string;
   quantity: number;
-  unitPrice: number;
-  totalPrice: number;
-  productVariant?: string;
+  unitPrice: number;        // Frontend field name
+  unit_price?: string;      // Backend field name
+  totalPrice: number;       // Frontend field name  
+  total_amount?: string;    // Backend field name
+  // Product-specific fields
+  productVariant?: string;  // Frontend field name
+  product_variant?: string; // Backend field name
   productName?: string;
-  isActive: boolean;
-  createdAt: string;
-  updatedAt: string;
+  product_name?: string;    // Backend field name
+  // Service-specific fields  
+  serviceName?: string;
+  service_name?: string;    // Backend field name
+  serviceDescription?: string;
+  service_description?: string; // Backend field name
+  carInfo?: string;
+  car_info?: string;        // Backend field name
+  scheduledDate?: string;
+  scheduled_date?: string;  // Backend field name
+  status?: string;          // Service status
+  // Legacy fields
+  invoiceId?: string;
+  isActive?: boolean;
+  createdAt?: string;
+  updatedAt?: string;
 }
 
 export interface InvoiceCustomer {
   id: string;
   email: string;
-  first_name: string;
-  last_name: string;
+  name: string;
   phone_number: string;
 }
 
@@ -75,21 +91,15 @@ export type InvoiceStatus =
   | 'draft'
   | 'pending' 
   | 'paid'
-  | 'overdue'
   | 'cancelled'
-  | 'partial'
-  | 'partially_paid';
 
 export type PaymentMethod = 
   | 'cash'
   | 'card'
   | 'bank_transfer'
-  | 'upi'
   | 'wallet'
-  | 'check'
   | 'credit_card'
   | 'debit_card'
-  | 'paypal';
 
 // ==================== FORM DATA INTERFACES ====================
 
@@ -109,8 +119,8 @@ export interface InvoiceFormData {
 export interface InvoiceItemFormData {
   description: string;
   quantity: number;
-  unitPrice: number;
-  totalPrice: number;
+  unitPrice: number;     // Frontend field name
+  totalPrice: number;    // Frontend field name
   variantId?: string;
   productName?: string;
   variantName?: string;
@@ -118,23 +128,19 @@ export interface InvoiceItemFormData {
 }
 
 export interface CreateInvoicePayload {
-  customerId: string;
-  subtotal: number;
-  taxAmount: number;
-  discountAmount: number;
-  totalAmount: number;
-  status: InvoiceStatus;
-  dueDate: string;
-  isActive: boolean;
-  items: Array<{
-    variantId: string;
+  customerId: string;        // camelCase for frontend -> customer_id
+  subtotal?: number;         // -> subtotal (calculated by backend)
+  taxAmount: number;         // camelCase for frontend -> tax -> tax_percentage
+  discountAmount: number;    // camelCase for frontend -> discount -> discount_amount
+  totalAmount: number;       // camelCase for frontend -> grand_total -> total_amount
+  status?: string;
+  items: {
+    variantId: string;       // camelCase for frontend -> product_variant - REQUIRED
     quantity: number;
-    unitPrice: number;
-    totalPrice: number;
-  }>;
-}
-
-export interface UpdateInvoicePayload extends Partial<InvoiceFormData> {
+    unitPrice?: number;      // camelCase for frontend -> unit_price
+    totalPrice: number;      // camelCase for frontend -> total_price -> total_amount
+  }[];
+}export interface UpdateInvoicePayload extends Partial<InvoiceFormData> {
   items?: Omit<InvoiceItemFormData, 'variantId' | 'productName' | 'variantName' | 'sku'>[];
 }
 
@@ -202,9 +208,67 @@ export interface PaginationInfo {
   has_previous: boolean;
 }
 
+// ==================== BOOKING INTERFACES ====================
+
+export interface BookingService {
+  id: string;
+  service: {
+    id: string;
+    name: string;
+    description: string;
+    category: string;
+    price: string;
+  };
+  price: string;
+  status: string;
+}
+
+export interface BookingCar {
+  id: string;
+  license_plate: string;
+  make: string;        // Changed from brand_name to make
+  model: string;
+  year: number;
+  color: string;
+  customer_name: string;
+}
+
+export interface BookingDailyAvailability {
+  id: string;
+  date: string;
+  total_slots: number;
+  available_slots: number;
+}
+
+export interface InvoiceBooking {
+  id: string;
+  car: BookingCar;
+  daily_availability: BookingDailyAvailability;
+  service: BookingService;
+  scheduled_date: string;
+  special_instructions?: string;
+  customer_rating?: number;
+  customer_feedback?: string;
+  created_at: string;
+  // Invoice financial fields
+  invoice_subtotal: string;
+  invoice_tax_percentage: string;
+  invoice_discount_amount: string;
+  invoice_total_amount: string;
+  invoice_status: string;
+  invoice_number: string;
+  invoice_created_at: string;
+}
+
+// ==================== RESPONSE INTERFACES ====================
+
 export interface PaginatedInvoiceResponse {
-  data: Invoice[];
-  pagination: PaginationInfo;
+  data: Invoice[] | {
+    invoices: Invoice[];
+    booking_data: Record<string, InvoiceBooking>;
+    pagination: PaginationInfo;
+  };
+  pagination?: PaginationInfo;
 }
 
 export interface BillingResponse {

@@ -6,9 +6,10 @@ import { cn } from '../../../lib/utils';
 import type { BusinessSettings, WorkingHours } from '../../../types/settings';
 
 interface BusinessSettingsProps {
-  settings: BusinessSettings;
+  settings?: BusinessSettings;
   onSettingsChange: (settings: BusinessSettings) => void;
   onSave: () => void;
+  updateBusinessSettings?: (settings: Partial<BusinessSettings>) => void;
   isLoading: boolean;
 }
 
@@ -16,28 +17,45 @@ const BusinessSettingsSection: React.FC<BusinessSettingsProps> = ({
   settings,
   onSettingsChange,
   onSave,
+  updateBusinessSettings,
   isLoading,
 }) => {
   const { theme } = useTheme();
   
+  // Show loading state if settings are not yet loaded
+  if (!settings) {
+    return (
+      <div className="flex items-center justify-center py-8">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-orange-600 mx-auto mb-2"></div>
+          <p className={theme.textSecondary}>Loading business settings...</p>
+        </div>
+      </div>
+    );
+  }
+  
   const updateSetting = (field: keyof BusinessSettings, value: any) => {
-    onSettingsChange({ ...settings, [field]: value });
+    if (settings) {
+      onSettingsChange({ ...settings, [field]: value });
+    }
   };
 
   const updateWorkingHours = (day: keyof WorkingHours, hours: string) => {
-    onSettingsChange({
-      ...settings,
-      workingHours: { ...settings.workingHours, [day]: hours }
-    });
+    if (settings && settings.workingHours) {
+      onSettingsChange({
+        ...settings,
+        workingHours: { ...settings.workingHours, [day]: hours }
+      });
+    }
   };
 
   const currencyOptions = CURRENCY_OPTIONS;
   const timezoneOptions = TIMEZONE_OPTIONS;
 
-  const weekdays = [
+  const weekdays: (keyof WorkingHours)[] = [
     'monday', 'tuesday', 'wednesday', 'thursday', 
     'friday', 'saturday', 'sunday'
-  ] as const;
+  ];
 
   return (
     <div className="space-y-6">
@@ -120,7 +138,7 @@ const BusinessSettingsSection: React.FC<BusinessSettingsProps> = ({
               </span>
               <input
                 type="text"
-                value={settings.workingHours[day]}
+                value={settings?.workingHours?.[day] || ''}
                 onChange={(e) => updateWorkingHours(day, e.target.value)}
                 className={cn("flex-1 ml-4 px-3 py-1 text-sm rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500/50 focus:border-orange-500/50", theme.components.input.base)}
                 placeholder="e.g., 8:00 AM - 6:00 PM"
@@ -173,7 +191,13 @@ const BusinessSettingsSection: React.FC<BusinessSettingsProps> = ({
       {/* Save Button */}
       <div className={cn("flex justify-end border-t pt-6", theme.border)}>
         <button
-          onClick={onSave}
+          onClick={() => {
+            if (updateBusinessSettings) {
+              updateBusinessSettings(settings);
+            } else {
+              onSave();
+            }
+          }}
           disabled={isLoading}
           className="flex items-center gap-2 px-6 py-2 bg-orange-600 text-white rounded-lg hover:bg-orange-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
         >

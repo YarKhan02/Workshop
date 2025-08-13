@@ -1,5 +1,4 @@
 // Currency configuration and utilities
-import { DEFAULT_BUSINESS_SETTINGS } from '../constants/settings';
 
 // Currency configuration interface
 export interface CurrencyConfig {
@@ -23,25 +22,12 @@ export const CURRENCY_CONFIGS: Record<string, CurrencyConfig> = {
     locale: 'en-US',
     name: 'US Dollar',
   },
-  EUR: {
-    code: 'EUR',
-    symbol: '€',
-    locale: 'de-DE',
-    name: 'Euro',
-  },
-  GBP: {
-    code: 'GBP',
-    symbol: '£',
-    locale: 'en-GB',
-    name: 'British Pound',
-  },
 };
 
 // Get current currency from settings (this could come from context, localStorage, or API)
-export const getCurrentCurrency = (): CurrencyConfig => {
-  // For now, we'll use the default from settings
-  // In a real app, this could come from user settings, localStorage, or context
-  const currentCurrencyCode = DEFAULT_BUSINESS_SETTINGS.currency;
+export const getCurrentCurrency = (currencyCode?: string): CurrencyConfig => {
+  // Use provided currency code or fallback to PKR
+  const currentCurrencyCode = currencyCode || 'PKR';
   return CURRENCY_CONFIGS[currentCurrencyCode] || CURRENCY_CONFIGS.PKR;
 };
 
@@ -49,7 +35,7 @@ export const getCurrentCurrency = (): CurrencyConfig => {
 export const formatCurrency = (
   amount: number | string,
   options?: {
-    currency?: 'PKR' | 'USD' | 'EUR' | 'GBP';
+    currency?: 'PKR' | 'USD';
     showDecimals?: boolean;
     locale?: string;
   }

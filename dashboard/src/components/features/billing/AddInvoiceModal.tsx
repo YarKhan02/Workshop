@@ -42,11 +42,10 @@ const AddInvoiceModal: React.FC<AddInvoiceModalProps> = ({
   const { theme } = useTheme();
   const [formData, setFormData] = useState({
     customerId: "",
-    jobId: "",
     subtotal: 0,
-    taxAmount: 0,
-    discountAmount: 0,
-    totalAmount: 0,
+    tax: 0,          // Frontend field name
+    discount: 0,     // Frontend field name  
+    grand_total: 0,  // Frontend field name
     status: "draft" as InvoiceStatus,
     dueDate: new Date().toISOString().split('T')[0], // Default to today
     notes: "",
@@ -105,7 +104,7 @@ const AddInvoiceModal: React.FC<AddInvoiceModalProps> = ({
 
   useEffect(() => {
     calculateTotals();
-  }, [items, formData.discountAmount]); // Recalculate when items or discount changes
+  }, [items, formData.discount]); // Recalculate when items or discount changes
 
   const validateForm = () => {
     const newErrors: Record<string, string> = {};
@@ -119,8 +118,8 @@ const AddInvoiceModal: React.FC<AddInvoiceModalProps> = ({
       newErrors.items = "At least one invoice item is required.";
     }
     // Only validate total amount if there are items
-    if (items.length > 0 && formData.totalAmount <= 0) {
-      newErrors.totalAmount = "Total amount must be greater than 0";
+    if (items.length > 0 && formData.grand_total <= 0) {
+      newErrors.grand_total = "Total amount must be greater than 0";
     }
     // Validate items
     items.forEach((item, index) => {
@@ -137,21 +136,21 @@ const AddInvoiceModal: React.FC<AddInvoiceModalProps> = ({
       const itemTotalPrice = Number(item.totalPrice) || 0;
       return sum + itemTotalPrice;
     }, 0);
-    const taxAmount = subtotal * 0.1; // 10% tax
-    const discountAmount = Number(formData.discountAmount) || 0;
-    const totalAmount = subtotal + taxAmount - discountAmount;
+    const tax = subtotal * 0.1; // 10% tax
+    const discount = Number(formData.discount) || 0;
+    const grand_total = subtotal + tax - discount;
     setFormData((prev) => ({
       ...prev,
       subtotal,
-      taxAmount,
-      totalAmount,
+      tax,
+      grand_total,
     }));
   };
 
   const updateItem = (index: number, field: keyof InvoiceItemWithProduct, value: any) => {
     const newItems = [...items];
     newItems[index] = { ...newItems[index], [field]: value };
-    // Calculate total price for this item
+    // Calculate total amount for this item
     if (field === "quantity" || field === "unitPrice") {
       const qty = Number(newItems[index].quantity) || 0;
       const price = Number(newItems[index].unitPrice) || 0;
@@ -162,6 +161,7 @@ const AddInvoiceModal: React.FC<AddInvoiceModalProps> = ({
 
   const addProductVariantToInvoice = (variant: ProductVariant & { productName: string }) => {
     const newItem: InvoiceItemWithProduct = {
+      type: 'product',
       description: `${variant.productName} - ${variant.variant_name}`,
       quantity: 1,
       unitPrice: Number(variant.price),
@@ -184,7 +184,8 @@ const AddInvoiceModal: React.FC<AddInvoiceModalProps> = ({
         return updatedItems;
       } else {
         toast.success(`Added ${newItem.description} to invoice`);
-        return [...prevItems, newItem];
+        const newItems = [...prevItems, newItem];
+        return newItems;
       }
     });
     setShowProductSelector(false);
@@ -208,24 +209,51 @@ const AddInvoiceModal: React.FC<AddInvoiceModalProps> = ({
     }
 
     try {
+      // Ensure we have all required data
+      if (!formData.customerId) {
+        toast.error("Please select a customer");
+        return;
+      }
+      
+      if (items.length === 0) {
+        toast.error("Please add at least one item");
+        return;
+      }
+
+      console.log('=== DEBUG INFO ===');
+      console.log('formData:', formData);
+      console.log('items:', items);
+      console.log('items length:', items.length);
+      
+      // Check if items have the required fields
+      items.forEach((item, index) => {
+        console.log(`Item ${index}:`, {
+          variantId: item.variantId,
+          quantity: item.quantity,
+          unitPrice: item.unitPrice,
+          totalPrice: item.totalPrice,
+          description: item.description
+        });
+      });
+
       const invoiceData: CreateInvoicePayload = {
         customerId: formData.customerId,
         subtotal: formData.subtotal,
-        taxAmount: formData.taxAmount,
-        discountAmount: formData.discountAmount,
-        totalAmount: formData.totalAmount,
+        taxAmount: formData.tax || 0,
+        discountAmount: formData.discount || 0,
+        totalAmount: formData.grand_total || 0,
         status: formData.status,
-        dueDate: formData.dueDate,
-        isActive: true,
         items: items
-          .filter((item) => item.variantId)
+          .filter((item) => item.variantId) // Only include items with product variants
           .map((item) => ({
-            variantId: item.variantId as string,
-            quantity: item.quantity,
-            unitPrice: item.unitPrice,
-            totalPrice: item.totalPrice,
+            variantId: item.variantId!, // Required - ProductVariant UUID
+            quantity: item.quantity || 1,
+            unitPrice: item.unitPrice || 0,
+            totalPrice: item.totalPrice || 0,
           })),
       };
+
+      console.log('Final invoice data being sent:', JSON.stringify(invoiceData, null, 2));
 
       await createInvoiceMutation.mutateAsync(invoiceData);
       toast.success("Invoice created successfully!");
@@ -241,11 +269,10 @@ const AddInvoiceModal: React.FC<AddInvoiceModalProps> = ({
     // Reset form to initial state
     setFormData({
       customerId: "",
-      jobId: "",
       subtotal: 0,
-      taxAmount: 0,
-      discountAmount: 0,
-      totalAmount: 0,
+      tax: 0,
+      discount: 0,
+      grand_total: 0,
       status: "draft",
       dueDate: new Date().toISOString().split('T')[0], // Reset to today
       notes: "",
@@ -332,10 +359,10 @@ const AddInvoiceModal: React.FC<AddInvoiceModalProps> = ({
             {/* Totals */}
             <InvoiceTotals
               subtotal={formData.subtotal}
-              taxAmount={formData.taxAmount}
-              discountAmount={formData.discountAmount}
-              totalAmount={formData.totalAmount}
-              onDiscountChange={(discount) => setFormData({ ...formData, discountAmount: discount })}
+              tax={formData.tax}
+              discount={formData.discount}
+              grand_total={formData.grand_total}
+              onDiscountChange={(discount) => setFormData({ ...formData, discount })}
               formatCurrency={formatCurrency}
             />
 

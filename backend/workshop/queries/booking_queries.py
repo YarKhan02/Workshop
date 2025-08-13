@@ -162,19 +162,12 @@ def get_customer_cars_optimized(customer_id):
 
 
 def check_booking_exists(booking_id):
-    """
-    Check if a booking exists (optimized)
-    """
     return Booking.objects.filter(pk=booking_id).only('id').exists()
 
 
+# Get booking service object
 def get_booking_for_update(booking_id):
-    """
-    Get booking for update operations with minimal fields
-    """
-    try:
-        return Booking.objects.select_related('daily_availability').only(
-            'id', 'special_instructions', 'daily_availability__date'
-        ).get(pk=booking_id)
-    except Booking.DoesNotExist:
-        return None
+    booking_service = BookingService.objects.filter(booking_id=booking_id).first()
+    if booking_service:
+        return booking_service
+    return False

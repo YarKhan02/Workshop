@@ -48,7 +48,8 @@ class BookingView(viewsets.ViewSet):
         print("Booking creation failed with errors:", errors)
         return Response(errors, status=status.HTTP_400_BAD_REQUEST)
 
-    
+
+    # Update an existing booking
     @action(detail=True, methods=['put'], url_path='update')
     def update_booking(self, request, pk=None):
         result, errors = self.booking_service.update_booking(pk, request.data, request)
@@ -57,25 +58,25 @@ class BookingView(viewsets.ViewSet):
         return Response(errors, status=status.HTTP_400_BAD_REQUEST)
     
     
+    # Update status of booking
     @action(detail=True, methods=['patch'], url_path='status')
     def update_status(self, request, pk=None):
         new_status = request.data.get('status')
-        notes = request.data.get('notes', '')
         if not new_status:
             return Response({"error": "Status is required"}, status=status.HTTP_400_BAD_REQUEST)
-        result, errors = self.booking_service.update_status(pk, new_status, notes, request.user)
-        if result:
-            return Response(result)
-        return Response(errors, status=status.HTTP_400_BAD_REQUEST)
+        result, errors = self.booking_service.update_status(pk, new_status)
+        if errors:
+            return Response({"result": result, "errors": errors}, status=status.HTTP_400_BAD_REQUEST)
+        return Response({"result": result, "errors": errors}, status=status.HTTP_200_OK)
     
     
     @action(detail=True, methods=['delete'], url_path='cancel')
     def cancel_booking(self, request, pk=None):
         reason = request.data.get('reason', 'Booking cancelled')
         result, errors = self.booking_service.cancel_booking(pk, request.user, reason)
-        if result:
-            return Response(result)
-        return Response(errors, status=status.HTTP_400_BAD_REQUEST)
+        if errors:
+            return Response({"result": result, "errors": errors}, status=status.HTTP_400_BAD_REQUEST)
+        return Response({"result": result, "errors": errors}, status=status.HTTP_200_OK)
     
     
     @action(detail=False, methods=['get'], url_path='stats')

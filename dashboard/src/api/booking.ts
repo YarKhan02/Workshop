@@ -32,7 +32,6 @@ export interface BookingUpdateData {
 
 export interface BookingStatusUpdate {
   status: string;
-  notes?: string;
 }
 
 // Service API

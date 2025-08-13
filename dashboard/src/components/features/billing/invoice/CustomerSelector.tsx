@@ -43,7 +43,7 @@ const CustomerSelector: React.FC<CustomerSelectorProps> = ({
             <option value="">Select customer...</option>
             {customers?.map((customer: CustomerInvoice) => (
               <option key={customer.id} value={customer.id}>
-                {customer.first_name} {customer.last_name} - {customer.email}
+                {customer.name} - {customer.email}
               </option>
             ))}
           </select>

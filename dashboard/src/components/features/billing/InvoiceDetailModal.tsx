@@ -66,7 +66,7 @@ const InvoiceDetailModal: React.FC<InvoiceDetailModalProps> = ({
             <div>
               <p className={cn("text-sm", theme.textSecondary)}>
                 <span className={cn("font-medium", theme.textPrimary)}>Name:</span>{' '}
-                {invoice.customer.first_name} {invoice.customer.last_name}
+                {invoice.customer.name}
               </p>
               <p className={cn("text-sm", theme.textSecondary)}>
                 <span className={cn("font-medium", theme.textPrimary)}>Email:</span> {invoice.customer.email}
@@ -84,15 +84,6 @@ const InvoiceDetailModal: React.FC<InvoiceDetailModalProps> = ({
           </div>
           <div className="mt-4">
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              <div>
-                <p className={cn("text-sm", theme.textSecondary)}>
-                  <span className={cn("font-medium", theme.textPrimary)}>Due Date:</span> {
-                    (invoice as any).due_date 
-                      ? formatDate((invoice as any).due_date) 
-                      : <span className={cn("", theme.textSecondary)}>No due date set</span>
-                  }
-                </p>
-              </div>
               {((invoice as any).paid_date || getInvoiceField(invoice, 'paidDate')) && (
                 <div>
                   <p className={cn("text-sm", theme.textSecondary)}>
@@ -111,27 +102,6 @@ const InvoiceDetailModal: React.FC<InvoiceDetailModalProps> = ({
             </div>
           </div>
         </div>
-
-        {/* Job Information */}
-        {invoice.job && (
-          <div className={cn("p-4 rounded-lg border", theme.background, theme.border)}>
-            <h3 className={cn("text-lg font-medium mb-4", theme.textPrimary)}>Related Job</h3>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              <div>
-                <p className={cn("text-sm font-medium", theme.textSecondary)}>Job ID</p>
-                <p className={cn("text-sm", theme.textPrimary)}>#{invoice.job.id}</p>
-              </div>
-              <div>
-                <p className={cn("text-sm font-medium", theme.textSecondary)}>Job Type</p>
-                <p className={cn("text-sm", theme.textPrimary)}>{invoice.job.jobType.replace('_', ' ')}</p>
-              </div>
-              <div>
-                <p className={cn("text-sm font-medium", theme.textSecondary)}>Status</p>
-                <p className={cn("text-sm", theme.textPrimary)}>{invoice.job.status}</p>
-              </div>
-            </div>
-          </div>
-        )}
 
         {/* Invoice Items */}
         <div className={cn("rounded-lg border overflow-hidden", theme.background, theme.border)}>
@@ -152,10 +122,12 @@ const InvoiceDetailModal: React.FC<InvoiceDetailModalProps> = ({
                     <div className="flex items-center">
                       <Package className={cn("w-4 h-4 mr-2", theme.textSecondary)} />
                       <div>
-                        <p className={cn("text-sm font-medium", theme.textPrimary)}>{item.description}</p>
-                        {(item.productName || (item as any).product_name) && (
+                        <p className={cn("text-sm font-medium", theme.textPrimary)}>
+                          {item.description || (item as any).product_name || 'No description'}
+                        </p>
+                        {((item as any).product_variant || item.productVariant) && (
                           <p className={cn("text-xs", theme.textSecondary)}>
-                            {item.productName || (item as any).product_name} - {item.productVariant || (item as any).product_variant}
+                            Variant: {(item as any).product_variant || item.productVariant}
                           </p>
                         )}
                       </div>
@@ -168,7 +140,7 @@ const InvoiceDetailModal: React.FC<InvoiceDetailModalProps> = ({
                     {formatCurrency((item as any).unit_price || item.unitPrice || 0)}
                   </td>
                   <td className={cn("text-right py-3 px-4 text-sm font-medium", theme.textPrimary)}>
-                    {formatCurrency((item as any).total_price || item.totalPrice || 0)}
+                    {formatCurrency((item as any).total_amount || (item as any).total_price || item.totalPrice || 0)}
                   </td>
                 </tr>
               ))}
@@ -181,40 +153,24 @@ const InvoiceDetailModal: React.FC<InvoiceDetailModalProps> = ({
           <div className="w-64 space-y-2">
             <div className="flex justify-between">
               <span className={cn("", theme.textSecondary)}>Subtotal:</span>
-              <span className={cn("font-medium", theme.textPrimary)}>{formatCurrency((invoice as any).total_amount || 0)}</span>
+              <span className={cn("font-medium", theme.textPrimary)}>{formatCurrency((invoice as any).subtotal || (invoice as any).total_amount || 0)}</span>
             </div>
             <div className="flex justify-between">
               <span className={cn("", theme.textSecondary)}>Tax:</span>
-              <span className={cn("font-medium", theme.textPrimary)}>{formatCurrency((invoice as any).tax || 0)}</span>
+              <span className={cn("font-medium", theme.textPrimary)}>{formatCurrency((invoice as any).tax_percentage || (invoice as any).tax || 0)}</span>
             </div>
             <div className="flex justify-between">
               <span className={cn("", theme.textSecondary)}>Discount:</span>
-              <span className={cn("font-medium", theme.textPrimary)}>{formatCurrency((invoice as any).discount || 0)}</span>
+              <span className={cn("font-medium", theme.textPrimary)}>{formatCurrency((invoice as any).discount_amount || (invoice as any).discount || 0)}</span>
             </div>
             <div className={cn("border-t pt-2", theme.border)}>
               <div className="flex justify-between">
                 <span className={cn("text-lg font-semibold", theme.textPrimary)}>Total:</span>
-                <span className={cn("text-lg font-semibold", theme.textPrimary)}>{formatCurrency((invoice as any).grand_total || (invoice as any).total_amount || 0)}</span>
+                <span className={cn("text-lg font-semibold", theme.textPrimary)}>{formatCurrency((invoice as any).total_amount || (invoice as any).grand_total || 0)}</span>
               </div>
             </div>
           </div>
         </div>
-
-        {/* Notes */}
-        {((invoice as any).notes || getInvoiceField(invoice, 'notes')) && (
-          <div>
-            <h4 className={cn("text-md font-medium mb-2", theme.textPrimary)}>Notes</h4>
-            <p className={cn("text-sm p-3 rounded-lg border", theme.textSecondary, theme.background, theme.border)}>{(invoice as any).notes || getInvoiceField(invoice, 'notes')}</p>
-          </div>
-        )}
-
-        {/* Terms */}
-        {((invoice as any).terms || getInvoiceField(invoice, 'terms')) && (
-          <div>
-            <h4 className={cn("text-md font-medium mb-2", theme.textPrimary)}>Terms & Conditions</h4>
-            <p className={cn("text-sm p-3 rounded-lg border", theme.textSecondary, theme.background, theme.border)}>{(invoice as any).terms || getInvoiceField(invoice, 'terms')}</p>
-          </div>
-        )}
 
         {/* Status Update Section */}
         <div className={cn("border-t pt-6", theme.border)}>
@@ -243,12 +199,10 @@ const InvoiceDetailModal: React.FC<InvoiceDetailModalProps> = ({
                     <option value="draft">Draft</option>
                     <option value="pending">Pending</option>
                     <option value="paid">Paid</option>
-                    <option value="partially_paid">Partially Paid</option>
-                    <option value="overdue">Overdue</option>
                     <option value="cancelled">Cancelled</option>
                   </select>
                 </div>
-                {(newStatus === 'paid' || newStatus === 'partially_paid') && (
+                {(newStatus === 'paid') && (
                   <div>
                     <label className={cn("block text-sm font-medium mb-2", theme.textSecondary)}>
                       Payment Method
@@ -263,9 +217,7 @@ const InvoiceDetailModal: React.FC<InvoiceDetailModalProps> = ({
                       <option value="card">Card</option>
                       <option value="credit_card">Credit Card</option>
                       <option value="bank_transfer">Bank Transfer</option>
-                      <option value="upi">UPI</option>
                       <option value="wallet">Wallet</option>
-                      <option value="check">Check</option>
                     </select>
                   </div>
                 )}

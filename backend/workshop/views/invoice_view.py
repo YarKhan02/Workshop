@@ -8,58 +8,57 @@ from workshop.services.invoice_service import InvoiceService
 
 
 class InvoiceView(viewsets.ViewSet):
-    permission_classes = [IsAdmin]
+    
+    # permission_classes = [IsAdmin]
     
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
         self.invoice_service = InvoiceService()
 
+
+    # List Invoices
     @action(detail=False, methods=['get'], url_path='list-invoices')
     def list_invoices(self, request):
-        """List all invoices with pagination and filtering"""
         # Extract query parameters
-        search = request.query_params.get('search')
-        status_filter = request.query_params.get('status')
+        customer_id = request.query_params.get('customer_id', None)
+        invoice_type = request.query_params.get('invoice_type', None)
+        date_from = request.query_params.get('date_from', None)
+        date_to = request.query_params.get('date_to', None)
         
         # Handle pagination parameters with error handling
         try:
             page = int(request.query_params.get('page', 1))
-            limit = int(request.query_params.get('limit', 10))
+            page_size = int(request.query_params.get('limit', 10))
         except (ValueError, TypeError):
             page = 1
-            limit = 10
+            page_size = 10
         
         # Call service method
         result = self.invoice_service.get_invoices_paginated(
-            search=search,
-            status_filter=status_filter,
+            customer_id=customer_id,
+            invoice_type=invoice_type,
             page=page,
-            limit=limit
+            page_size=page_size,
+            date_from=date_from,
+            date_to=date_to
         )
         
-        if 'error' in result:
-            return Response(result, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-        
-        # Log for debugging
-        print("Paginated response:", json.dumps(result['data'], indent=2, default=str))
-        
-        return Response(result['data'], status=status.HTTP_200_OK)
+        # Return the result directly since service returns the expected format
+        return Response(result, status=status.HTTP_200_OK)
 
+
+    # Add Invoice
     @action(detail=False, methods=['post'], url_path='add-invoice')
     def add_invoice(self, request):
-        """Add a new invoice"""
-        # Log request data for debugging
-        print("Request data:", json.dumps(request.data, indent=2))
-        
         result = self.invoice_service.create_invoice(request.data)
         
         if 'error' in result:
-            if 'Invalid invoice data' in result['error']:
+            if 'Invalid invoice data' in result.get('message', ''):
                 return Response(result, status=status.HTTP_400_BAD_REQUEST)
             return Response(result, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
         
         return Response(
-            {"message": result['message']}, 
+            {"message": result['message'], "data": result.get('data')}, 
             status=status.HTTP_201_CREATED
         )
 
@@ -95,7 +94,7 @@ class InvoiceView(viewsets.ViewSet):
             status=status.HTTP_204_NO_CONTENT
         )
 
-    @action(detail=False, methods=['get'], url_path='billing-stats')
+    @action(detail=False, methods=['get'], url_path='stats')
     def billing_stats(self, request):
         """Get billing statistics"""
         result = self.invoice_service.get_billing_stats()
@@ -105,9 +104,8 @@ class InvoiceView(viewsets.ViewSet):
         
         return Response(result['data'], status=status.HTTP_200_OK)
 
-    @action(detail=True, methods=['patch'], url_path='update-payment-status')
+    @action(detail=True, methods=['patch'], url_path='update-status')
     def update_payment_status(self, request, pk=None):
-        """Update payment status of an invoice"""
         result = self.invoice_service.update_payment_status(pk, request.data)
         
         if 'error' in result:

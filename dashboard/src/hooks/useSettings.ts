@@ -1,119 +1,115 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import toast from 'react-hot-toast';
-import { useAuth } from '../contexts/AuthContext';
-import { 
-  DEFAULT_BUSINESS_SETTINGS, 
-  DEFAULT_USER_SETTINGS, 
-  DEFAULT_SYSTEM_SETTINGS 
-} from '../constants/settings';
-import type { 
-  BusinessSettings, 
-  UserSettings, 
-  SystemSettings, 
-  ChangePasswordData,
-  SettingsSectionType 
-} from '../types/settings';
+import { settingsQueries, settingsMutations } from '../api/settings';
+import type { BusinessSettings, ChangePasswordData } from '../types/settings';
 
 export const useSettings = () => {
-  const { user } = useAuth();
+  const queryClient = useQueryClient();
   const [isLoading, setIsLoading] = useState(false);
+  const [localBusinessSettings, setLocalBusinessSettings] = useState<BusinessSettings | null>(null);
 
-  // Load settings from localStorage or use defaults
-  const [businessSettings, setBusinessSettings] = useState<BusinessSettings>(() => {
-    const saved = localStorage.getItem('workshop-business-settings');
-    return saved ? JSON.parse(saved) : DEFAULT_BUSINESS_SETTINGS;
+  // Get business settings
+  const {
+    data: businessSettings,
+    isLoading: loadingBusinessSettings,
+    error: businessSettingsError
+  } = useQuery(settingsQueries.businessSettings());
+
+  // Update local state when API data changes
+  useEffect(() => {
+    if (businessSettings) {
+      setLocalBusinessSettings(businessSettings);
+    }
+  }, [businessSettings]);
+
+  // Update business settings mutation
+  const updateBusinessMutation = useMutation({
+    ...settingsMutations.updateBusiness,
+    onMutate: () => setIsLoading(true),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: settingsQueries.keys.business() });
+      toast.success('Business settings updated successfully');
+      setIsLoading(false);
+    },
+    onError: (error: any) => {
+      console.error('Failed to update business settings:', error);
+      toast.error(error.response?.data?.error || 'Failed to update business settings');
+      setIsLoading(false);
+    },
   });
 
-  const [userSettings, setUserSettings] = useState<UserSettings>(() => {
-    const saved = localStorage.getItem('workshop-user-settings');
-    const defaultUserSettings = {
-      firstName: user?.username?.split(' ')[0] || user?.username || 'Admin',
-      lastName: user?.username?.split(' ')[1] || 'User',
-      email: user?.email || 'admin@cardetailing.com',
-      ...DEFAULT_USER_SETTINGS
-    };
-    return saved ? { ...defaultUserSettings, ...JSON.parse(saved) } : defaultUserSettings;
-  });
-
-  const [systemSettings, setSystemSettings] = useState<SystemSettings>(() => {
-    const saved = localStorage.getItem('workshop-system-settings');
-    return saved ? JSON.parse(saved) : DEFAULT_SYSTEM_SETTINGS;
-  });
-
-  const handleSave = async (section: SettingsSectionType) => {
-    setIsLoading(true);
-    try {
-      // Since there's no backend, save all settings to localStorage
-      if (section === 'User') {
-        localStorage.setItem('workshop-user-settings', JSON.stringify(userSettings));
-        toast.success('Profile updated successfully');
-      } else if (section === 'Business') {
-        localStorage.setItem('workshop-business-settings', JSON.stringify(businessSettings));
-        toast.success('Business settings saved successfully');
-      } else if (section === 'System') {
-        localStorage.setItem('workshop-system-settings', JSON.stringify(systemSettings));
-        toast.success('System settings saved successfully');
-      } else {
-        // For other sections like notifications
-        localStorage.setItem(`workshop-${section.toLowerCase()}-settings`, JSON.stringify(userSettings));
-        toast.success(`${section} settings saved successfully`);
+  // Change password mutation
+  const changePasswordMutation = useMutation({
+    ...settingsMutations.changePassword,
+    onMutate: () => setIsLoading(true),
+    onSuccess: () => {
+      toast.success('Password changed successfully');
+      setIsLoading(false);
+    },
+    onError: (error: any) => {
+      console.error('Failed to change password:', error);
+      setIsLoading(false);
+      
+      // Handle different error response formats
+      if (error.response?.data) {
+        const errorData = error.response.data;
+        
+        // Handle validation errors with details
+        if (errorData.details && typeof errorData.details === 'object') {
+          // Extract first validation error message
+          const firstFieldErrors = Object.values(errorData.details)[0];
+          if (Array.isArray(firstFieldErrors) && firstFieldErrors.length > 0) {
+            toast.error(firstFieldErrors[0]);
+            return;
+          }
+        }
+        
+        // Handle simple error message
+        if (errorData.error) {
+          toast.error(errorData.error);
+          return;
+        }
       }
       
-      // Small delay to show the loading state
-      await new Promise(resolve => setTimeout(resolve, 500));
-    } catch (error: any) {
-      toast.error(error.response?.data?.error || 'Failed to save settings');
-    } finally {
-      setIsLoading(false);
+      // Fallback error message
+      toast.error('Failed to change password. Please try again.');
+    },
+  });
+
+  const handleSave = async (section: 'Business' | 'Password') => {
+    if (section === 'Business' && localBusinessSettings) {
+      // Save the current form data to the backend
+      updateBusinessSettings(localBusinessSettings);
     }
   };
 
   const handlePasswordChange = async (passwordData: ChangePasswordData) => {
-    // Validate passwords
-    if (passwordData.newPassword !== passwordData.confirmPassword) {
-      toast.error('New passwords do not match');
-      return;
-    }
+    await changePasswordMutation.mutateAsync(passwordData);
+  };
 
-    if (passwordData.newPassword.length < 8) {
-      toast.error('New password must be at least 8 characters long');
-      return;
-    }
-
-    setIsLoading(true);
-    try {
-      // Since there's no backend, simulate password change
-      // In a real app, this would validate current password and update it
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      
-      // Store password change timestamp for demo purposes
-      localStorage.setItem('workshop-last-password-change', new Date().toISOString());
-      
-      toast.success('Password changed successfully');
-    } catch (error: any) {
-      toast.error('Failed to change password');
-      throw error; // Re-throw to let component handle it
-    } finally {
-      setIsLoading(false);
-    }
+  const updateBusinessSettings = (settings: Partial<BusinessSettings>) => {
+    updateBusinessMutation.mutate(settings);
   };
 
   return {
-    // Settings state
-    businessSettings,
-    userSettings,
-    systemSettings,
+    // Data - use local state for form editing, fallback to API data
+    businessSettings: localBusinessSettings || businessSettings,
     
-    // State setters
-    setBusinessSettings,
-    setUserSettings,
-    setSystemSettings,
+    // Loading states
+    isLoading: isLoading || loadingBusinessSettings || updateBusinessMutation.isPending || changePasswordMutation.isPending,
     
-    // Actions
+    // Setters (for form state management)
+    setBusinessSettings: (settings: BusinessSettings) => {
+      setLocalBusinessSettings(settings);
+    },
+    
+    // Handlers
     handleSave,
     handlePasswordChange,
+    updateBusinessSettings,
     
-    // Loading state
-    isLoading
+    // Errors
+    businessSettingsError,
   };
 };

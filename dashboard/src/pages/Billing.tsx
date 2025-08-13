@@ -65,8 +65,9 @@ const Billing: React.FC = () => {
   const updateStatusMutation = useUpdateInvoiceStatus();
 
   // Extract invoices and pagination from response
-  const invoices = invoiceResponse?.data || [];
-  const pagination = invoiceResponse?.pagination;
+  const responseData = invoiceResponse?.data;
+  const invoices = Array.isArray(responseData) ? responseData : responseData?.invoices || [];
+  const pagination = Array.isArray(responseData) ? invoiceResponse?.pagination : responseData?.pagination;
 
   // Pagination state from server response
   const totalPages = pagination?.total_pages || 1;
@@ -98,10 +99,10 @@ const Billing: React.FC = () => {
     setShowDetailModal(true);
   };
 
-  const handleEditInvoice = (invoice: Invoice) => {
-    setSelectedInvoice(invoice);
-    setShowEditModal(true);
-  };
+  // const handleEditInvoice = (invoice: Invoice) => {
+  //   setSelectedInvoice(invoice);
+  //   setShowEditModal(true);
+  // };
 
   const handleStatusUpdate = async (
     id: string, 
@@ -194,8 +195,6 @@ const Billing: React.FC = () => {
                 <option value="">All Status</option>
                 <option value="pending">Pending</option>
                 <option value="paid">Paid</option>
-                <option value="partially_paid">Partially Paid</option>
-                <option value="overdue">Overdue</option>
                 <option value="cancelled">Cancelled</option>
               </select>
             </div>

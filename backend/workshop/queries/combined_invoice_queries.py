@@ -6,7 +6,7 @@ from django.db.models import Q
 
 def get_inventory_invoices():
     """Get invoices that were created for inventory/products purchases"""
-    return Invoice.objects.select_related('customer').prefetch_related('items__product_variant').filter(
+    return Invoice.objects.select_related('user').prefetch_related('items__product_variant').filter(
         # Inventory invoices have product variants in items
         items__product_variant__isnull=False
     ).distinct()
@@ -16,7 +16,7 @@ def get_booking_invoices():
     try:
         # Check if booking relationship exists
         from workshop.models.booking import Booking
-        return Invoice.objects.select_related('customer').prefetch_related('items').filter(
+        return Invoice.objects.select_related('user').prefetch_related('items').filter(
             # Booking invoices are linked to bookings
             id__in=Booking.objects.filter(invoice__isnull=False).values_list('invoice_id', flat=True)
         ).distinct()
@@ -26,11 +26,11 @@ def get_booking_invoices():
 
 def get_all_invoices_combined():
     """Get all invoices regardless of type"""
-    return Invoice.objects.select_related('customer').prefetch_related('items__product_variant').all()
+    return Invoice.objects.select_related('user').prefetch_related('items__product_variant').all()
 
 def get_optimized_inventory_invoices():
     """Optimized query for inventory/product invoices"""
-    return Invoice.objects.select_related('customer').prefetch_related('items__product_variant').filter(
+    return Invoice.objects.select_related('user').prefetch_related('items__product_variant').filter(
         items__product_variant__isnull=False
     ).distinct()
 
@@ -39,7 +39,7 @@ def get_optimized_booking_invoices():
     try:
         from workshop.models.booking import Booking
         booking_invoice_ids = Booking.objects.filter(invoice__isnull=False).values_list('invoice_id', flat=True)
-        return Invoice.objects.select_related('customer').prefetch_related('items').filter(
+        return Invoice.objects.select_related('user').prefetch_related('items').filter(
             id__in=booking_invoice_ids
         ).distinct()
     except:

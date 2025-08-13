@@ -255,8 +255,7 @@ export enum PaymentMethod {
 export interface CustomerInvoice {
   id: string
   email: string
-  first_name: string
-  last_name: string
+  name: string
   phone_number: string
 }
 

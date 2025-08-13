@@ -35,9 +35,10 @@ class CustomerView(viewsets.ViewSet):
         
         return Response(result, status=status.HTTP_200_OK)
     
+
+    # Get customers for invoice selection
     @action(detail=False, methods=['get'], url_path='customer-invoices')
     def customer_for_invoices(self, request):
-        """Fetch customers for invoice selection with optional search"""
         search_term = request.query_params.get('search', None)
         result = self.customer_service.get_customers_for_invoices(search_term)
         

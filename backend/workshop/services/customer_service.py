@@ -46,11 +46,8 @@ class CustomerService(BaseService):
             )
     
     def get_customers_for_invoices(self, search_term: Optional[str] = None) -> Dict[str, Any]:
-        """
-        Retrieve customers formatted for invoice selection with optional search
-        """
         try:
-            queryset = User.objects.all()
+            queryset = User.objects.filter(role=User.Role.customer)
             
             if search_term:
                 queryset = queryset.filter(

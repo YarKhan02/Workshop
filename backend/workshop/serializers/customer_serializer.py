@@ -100,6 +100,7 @@ class CustomerSerializer(serializers.ModelSerializer):
         model = User
         fields = '__all__'
 
+# Customer Invoice Serializer
 class CustomerInvoiceSerializer(serializers.ModelSerializer):
     class Meta:
         model = User

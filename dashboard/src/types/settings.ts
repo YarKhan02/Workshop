@@ -15,7 +15,7 @@ export interface BusinessSettings {
   email: string;
   website: string;
   workingHours: WorkingHours;
-  currency: 'PKR' | 'USD' | 'EUR' | 'GBP';
+  currency: 'PKR' | 'USD';
   timezone: string;
 }
 
@@ -29,12 +29,11 @@ export interface NotificationPreferences {
 }
 
 export interface UserSettings {
-  firstName: string;
-  lastName: string;
+  name: string;
   email: string;
   phone: string;
-  language: 'en' | 'hi' | 'es' | 'fr';
-  theme: 'light' | 'dark' | 'auto';
+  language: 'en';
+  theme: 'dark';
   notifications: NotificationPreferences;
 }
 

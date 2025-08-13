@@ -91,11 +91,9 @@ class BookingService:
         print("Serializer errors:", serializer.errors)
         return None, serializer.errors
 
+
+    # Update an existing booking
     def update_booking(self, pk, data, request):
-        """
-        Update booking with optimized queries
-        """
-        print("Updating booking with ID:", pk, "and data:", data)
         booking = bq.get_booking_for_update(pk)
         if not booking:
             return None, {'error': 'Booking not found'}
@@ -108,34 +106,25 @@ class BookingService:
                 'message': 'Booking updated successfully',
                 'booking': response_serializer.data
             }, None
-        print("Serializer validation errors:", serializer.errors)
         return None, serializer.errors
 
-    def update_status(self, pk, status_value, notes, user):
-        """
-        Update booking status with time slot availability handling
-        """
-        booking = bq.get_booking_for_update(pk)
-        if not booking:
-            return None, {'error': 'Booking not found'}
-        
-        # Validate status
-        valid_statuses = [choice[0] for choice in BookingService.status.choices]
-        if status_value not in valid_statuses:
-            return None, {'error': f'Invalid status. Valid options: {valid_statuses}'}
 
-        old_status = booking.service.status if hasattr(booking, 'service') and booking.service else 'pending'
+    # Update status of booking
+    def update_status(self, pk, new_status):
+        booking_service = bq.get_booking_for_update(pk)
+        if not booking_service:
+            return None, {'error': 'Booking not found'}
+
+        if booking_service.status != new_status:
+            booking_service.status = new_status
+            booking_service.save()
+        else:
+            return None, {'error': 'No changes detected'}
         
-        # Use helper function to handle status change and time slot availability
-        updated_booking = handle_booking_status_change(
-            booking, old_status, status_value, user, notes or f'Status changed from {old_status} to {status_value}'
-        )
-        
-        response_serializer = BookingDetailSerializer(updated_booking)
         return {
             'message': 'Booking status updated successfully',
-            'booking': response_serializer.data
         }, None
+
 
     def cancel_booking(self, pk, user, reason):
         """
