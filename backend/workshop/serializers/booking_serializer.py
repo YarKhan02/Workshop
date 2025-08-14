@@ -1,7 +1,7 @@
 # workshop/serializers/booking_serializer.py
 
 from rest_framework import serializers
-from workshop.models import Service, DailyAvailability
+from workshop.models import Service, ServiceItem, DailyAvailability
 
 # Import the modular booking serializers
 from .booking import (
@@ -12,16 +12,50 @@ from .booking import (
 )
 
 
+class ServiceItemSerializer(serializers.ModelSerializer):
+    """
+    Serializer for ServiceItem model
+    """
+    class Meta:
+        model = ServiceItem
+        fields = ['id', 'name']
+
+
 class ServiceSerializer(serializers.ModelSerializer):
     """
-    Serializer for Service model
+    Serializer for Service model with items
     """
+    items = ServiceItemSerializer(many=True, read_only=True)
+    
     class Meta:
         model = Service
         fields = [
             'id', 'name', 'description', 'category',
-            'price', 'is_active', 'created_at'
+            'price', 'is_active', 'created_at', 'items'
         ]
+
+
+class ServiceCreateSerializer(serializers.ModelSerializer):
+    """
+    Serializer for creating Service with items
+    """
+    items = ServiceItemSerializer(many=True, required=False)
+    
+    class Meta:
+        model = Service
+        fields = [
+            'name', 'description', 'category',
+            'price', 'is_active', 'items'
+        ]
+    
+    def create(self, validated_data):
+        items_data = validated_data.pop('items', [])
+        service = Service.objects.create(**validated_data)
+        
+        for item_data in items_data:
+            ServiceItem.objects.create(service=service, **item_data)
+        
+        return service
 
 
 class ServiceListSerializer(serializers.ModelSerializer):

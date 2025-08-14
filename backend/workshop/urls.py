@@ -29,7 +29,7 @@ router.register(r'invoices', InvoiceView, basename='invoice')
 router.register(r'bookings', BookingView, basename='booking')
 router.register(r'services', ServiceView, basename='service')
 router.register(r'settings', SettingsView, basename='settings')
-# router.register(r'dashboard', DashboardView, basename='dashboard')
+router.register(r'dashboard', DashboardView, basename='dashboard')
 # router.register(r'notifications', NotificationView, basename='notification')
 
 router.register(r'customer', MyBookingsView, basename='customer-bookings')

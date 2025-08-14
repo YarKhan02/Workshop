@@ -9,17 +9,10 @@ from workshop.models import Booking, Customer, Invoice
 
 class RecentBookingSerializer(serializers.Serializer):
     id = serializers.UUIDField()
-    customer_name = serializers.SerializerMethodField()
-    service_type = serializers.CharField(source='service__name')
-    amount = serializers.SerializerMethodField()
+    customer_name = serializers.CharField(source='user__name')
+    amount = serializers.DecimalField(max_digits=10, decimal_places=2, source='total_amount')
+    discount_amount = serializers.DecimalField(max_digits=10, decimal_places=2)
     created_at = serializers.DateTimeField()
-
-    def get_customer_name(self, obj):
-        return f"{obj['customer__first_name']} {obj['customer__last_name']}"
-
-    def get_amount(self, obj):
-        price = obj.get('final_price') or obj.get('quoted_price')
-        return float(price) - float(obj.get('discount_amount', 0))
     
 class DashboardStatsSerializer(serializers.Serializer):
     

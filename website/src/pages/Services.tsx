@@ -30,8 +30,6 @@ const Services: React.FC = () => {
       />
       
       <ServicesGrid 
-        services={servicesPageData.services}
-        categories={servicesPageData.categories}
         ctaLink="/book"
       />
       

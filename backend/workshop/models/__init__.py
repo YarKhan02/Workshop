@@ -9,7 +9,7 @@ from .invoice_items import InvoiceItems
 from .notification import Notification
 from .daily_availability import DailyAvailability
 from .booking import Booking
-from .service import Service
+from .service import Service, ServiceItem
 from .booking_service import BookingService
 from .payment import Payment
 from .customer import Customer

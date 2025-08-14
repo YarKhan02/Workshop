@@ -1,10 +1,13 @@
 // Import new API structure
 import { apiClient } from './api/client';
-import { bookingQueries, servicesAPI, carsAPI, bookingsAPI } from './api/booking';
+import { bookingQueries, servicesAPI as bookingServicesAPI, carsAPI, bookingsAPI } from './api/booking';
+import { servicesAPI } from './api/services';
 
 // Re-export from new API structure
 export { apiClient };
-export { bookingQueries, servicesAPI, carsAPI, bookingsAPI };
+export { bookingQueries, carsAPI, bookingsAPI };
+export { servicesAPI };
+export { bookingServicesAPI };
 
 // Re-export types
 export type { 

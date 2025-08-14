@@ -14,7 +14,8 @@ import {
   ChevronLeftIcon,
   ChevronRightIcon,
   Squares2X2Icon,
-  ChartBarIcon
+  ChartBarIcon,
+  WrenchScrewdriverIcon
 } from '@heroicons/react/24/outline';
 
 const Sidebar: React.FC = () => {
@@ -40,7 +41,7 @@ const Sidebar: React.FC = () => {
       badge: pendingBookingsCount > 0 ? pendingBookingsCount.toString() : null, 
       description: 'Service Schedule' 
     },
-    // { name: 'Jobs', to: '/jobs', icon: WrenchScrewdriverIcon, badge: null, description: 'Service Queue' },
+    { name: 'Service', to: '/service', icon: WrenchScrewdriverIcon, badge: null, description: 'Service Available' },
     { name: 'Inventory', to: '/inventory', icon: Squares2X2Icon, badge: null, description: 'Parts Depot' },
   ];
 
@@ -50,7 +51,6 @@ const Sidebar: React.FC = () => {
   ];
 
   const systemLinks = [
-    // ...(isAdmin ? [{ name: 'Users', to: '/users', icon: ShieldCheckIcon, badge: null, description: 'Crew Management' }] : []),
     { name: 'Settings', to: '/settings', icon: Cog6ToothIcon, badge: null, description: 'Tuning Console' },
   ];
 
@@ -224,7 +224,7 @@ const Sidebar: React.FC = () => {
               <div className="text-xs font-medium text-gray-300">System Online</div>
             </div>
             <div className="text-xs text-gray-500 font-light">
-              <div>© 2024 Detailing Hub</div>
+              <div>© 2025 Detailing Hub</div>
               <div className="mt-1 text-orange-400/70">Peak Performance Solutions</div>
             </div>
           </div>

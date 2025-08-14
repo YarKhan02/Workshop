@@ -1,60 +1,87 @@
 // ==================== SERVICE TYPES ====================
 
+export interface ServiceItem {
+  id: string;
+  name: string;
+  service: string;
+}
+
 export interface Service {
   id: string;
   name: string;
-  code: string;
-  category: string;
-  base_price: number;
-  estimated_duration_minutes: number;
-  description?: string;
-  is_active?: boolean;
-  created_at?: string;
-  updated_at?: string;
+  description: string;
+  category: ServiceCategory;
+  price: number;
+  is_active: boolean;
+  created_at: string;
+  items?: ServiceItem[];
 }
+
+export type ServiceCategory = 
+  | 'washing'
+  | 'detailing'
+  | 'maintenance'
+  | 'repair'
+  | 'inspection'
+  | 'oil_change'
+  | 'tire_services'
+  | 'battery_services'
+  | 'ac_servicing'
+  | 'paint_and_body'
+  | 'polishing'
+  | 'modifications'
+  | 'windshield_services'
+  | 'engine_tuning'
+  | 'breakdown_assistance';
 
 export interface ServiceFormData {
   name: string;
-  code: string;
-  category: string;
-  base_price: number;
-  estimated_duration_minutes: number;
-  description?: string;
-  is_active?: boolean;
+  description: string;
+  category: ServiceCategory;
+  price: number;
+  is_active: boolean;
+  items: { name: string }[];
 }
 
 export interface ServiceUpdateData extends Partial<ServiceFormData> {}
 
 export interface ServiceFilters {
   search?: string;
-  category?: string;
+  category?: ServiceCategory;
   is_active?: boolean;
-  min_price?: number;
-  max_price?: number;
 }
 
 // API Response types
 export interface ServicesResponse {
   services: Service[];
   total: number;
-  page: number;
-  limit: number;
 }
 
 export interface ServiceStatsData {
-  totalServices: number;
-  activeServices: number;
-  categoriesCount: number;
-  averagePrice: number;
+  total: number;
+  active: number;
+  inactive: number;
+  categories: number;
 }
 
 // Service Categories
-export interface ServiceCategory {
-  id: string;
-  name: string;
-  description?: string;
-  services_count: number;
-}
+export const SERVICE_CATEGORIES = {
+  washing: 'Washing',
+  detailing: 'Detailing', 
+  maintenance: 'Maintenance',
+  repair: 'Repair',
+  inspection: 'Inspection',
+  oil_change: 'Oil Change',
+  tire_services: 'Tire Services',
+  battery_services: 'Battery Services',
+  ac_servicing: 'AC Servicing',
+  paint_and_body: 'Paint and Body',
+  polishing: 'Polishing',
+  modifications: 'Modifications',
+  windshield_services: 'Windshield Services',
+  engine_tuning: 'Engine Tuning',
+  breakdown_assistance: 'Breakdown Assistance',
+} as const;
 
 export enum ServiceCategoryEnum {
   BASIC_WASH = 'basic_wash',

@@ -5,7 +5,7 @@ import { ThemeProvider } from './contexts/ThemeContext';
 
 import { ErrorBoundary, DashboardLayout } from './components';
 
-import { DashboardHome, Customers, Cars, Bookings, Billing, Notifications, Settings, Inventory, Login } from './pages';
+import { DashboardHome, Customers, Cars, Bookings, Services, Billing, Notifications, Settings, Inventory, Login } from './pages';
 
 import { Toaster } from 'react-hot-toast';
 
@@ -40,6 +40,7 @@ const App: React.FC = () => (
                       <Route path="/notifications" element={<Notifications />} />
                       <Route path="/settings" element={<Settings />} />
                       <Route path="/inventory" element={<Inventory />} />
+                      <Route path="/service" element={<Services />} />
                     </Routes>
                   </ErrorBoundary>
                 </DashboardLayout>

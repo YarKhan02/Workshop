@@ -8,9 +8,7 @@ from ..serializers.user_serializer import UserSerializer
 
 
 class CustomerAuthStatusView(APIView):
-    """
-    Check customer authentication status
-    """
+    
     authentication_classes = [CustomerJWTAuthentication]
     permission_classes = [IsAuthenticated]
 
@@ -25,9 +23,7 @@ class CustomerAuthStatusView(APIView):
 
 
 class AdminAuthStatusView(APIView):
-    """
-    Check admin authentication status
-    """
+    
     authentication_classes = [AdminJWTAuthentication]
     permission_classes = []  # No permission required - we'll check manually
 

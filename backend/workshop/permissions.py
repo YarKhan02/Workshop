@@ -6,10 +6,7 @@ User = get_user_model()
 
 
 class IsAdmin(permissions.BasePermission):
-    """
-    Allows access only to authenticated admin users.
-    Works with both User model (role='admin') and Customer model instances.
-    """
+    
     def has_permission(self, request, view):
         if not request.user or not request.user.is_authenticated:
             return False

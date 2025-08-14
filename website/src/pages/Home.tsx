@@ -29,7 +29,6 @@ const Home: React.FC = () => {
       <ServicesSection
         title={servicesData.title}
         subtitle={servicesData.subtitle}
-        services={servicesData.services}
         ctaLink={servicesData.ctaLink}
       />
       

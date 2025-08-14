@@ -1,11 +1,10 @@
 # workshop/services/dashboard_service.py
 
-from django.db.models import Sum
+import json
 from django.utils import timezone
 from datetime import timedelta
 from decimal import Decimal
 
-from workshop.models import Booking, Customer
 from workshop.serializers import DashboardStatsSerializer
 from workshop.queries import dashboard_queries as dq
 
@@ -38,8 +37,6 @@ class DashboardService:
                 'bookings_growth': Decimal(str(bookings_growth)),
                 'recent_jobs': recent_bookings
             }
-
-            print("Dashboard stats data:", stats_data)
             
             serializer = DashboardStatsSerializer(stats_data)
             
