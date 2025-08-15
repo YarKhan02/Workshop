@@ -1,4 +1,5 @@
-from django.db.models import QuerySet
+from datetime import datetime
+from django.db.models import QuerySet, Q
 from workshop.models import Booking
 
 
@@ -8,53 +9,90 @@ class MyBookingsQueries:
     """
     
     @staticmethod
-    def get_customer_bookings_optimized(customer) -> QuerySet:
-        """
-        Get customer bookings with optimized query that only fetches required fields
-        from related models (Car and Service) to minimize database hits.
-        
-        Args:
-            customer: Customer instance
-            
-        Returns:
-            QuerySet with optimized select_related and only() for minimal data fetching
-        """
-        return Booking.objects.filter(
-            customer=customer
-        ).select_related(
-            'car',  # Join with Car table
-            'service'  # Join with Service table
-        ).only(
+    # Get optimized bookings list
+    def get_customer_bookings_optimized(filters=None, page=1, page_size=10):
+        queryset = Booking.objects.select_related(
+            'car', 'car__customer', 'daily_availability', 'created_by', 'invoice'
+        ).prefetch_related('service').only(
             # Booking fields
-            'id',
-            'booking_date', 
-            'status',
-            'created_at',
-            'quoted_price',
-            'estimated_duration_minutes',
+            'id', 'created_at', 'special_instructions', 'customer_rating', 'customer_feedback',
+            # Car fields
+            'car__id', 'car__make', 'car__model', 'car__license_plate', 'car__year', 'car__color',
+            # Customer fields (through car)
+            'car__customer__id', 'car__customer__name',
+            'car__customer__email', 'car__customer__phone_number',
+            # Daily availability
+            'daily_availability__id', 'daily_availability__date',
+            # Created by (User model has 'name', not first_name/last_name)
+            'created_by__id', 'created_by__name', 'created_by__email',
+            # Invoice
+            'invoice__id', 'invoice__total_amount', 'invoice__status'
+        )
+        
+        if filters:
+            # Apply filters - Note: service filters need to go through BookingService
+            if filters.get('status'):
+                # Status is on BookingService, not Booking
+                queryset = queryset.filter(service__status=filters['status'])
             
-            # Car fields (via select_related)
-            'car__make',
-            'car__model', 
-            'car__license_plate',
+            if filters.get('customer'):
+                queryset = queryset.filter(car__customer_id=filters['customer'])
             
-            # Service fields (via select_related)
-            'service__name',
-            'service__base_price'
-        ).order_by('-created_at')  # Most recent first
+            if filters.get('service'):
+                queryset = queryset.filter(service__service_id=filters['service'])
+            
+            if filters.get('date_from'):
+                try:
+                    date_from = datetime.strptime(filters['date_from'], '%Y-%m-%d').date()
+                    queryset = queryset.filter(daily_availability__date__gte=date_from)
+                except ValueError:
+                    pass
+            
+            if filters.get('date_to'):
+                try:
+                    date_to = datetime.strptime(filters['date_to'], '%Y-%m-%d').date()
+                    queryset = queryset.filter(daily_availability__date__lte=date_to)
+                except ValueError:
+                    pass
+            
+            if filters.get('search'):
+                search = filters['search']
+                queryset = queryset.filter(
+                    Q(car__customer__name__icontains=search) |
+                    Q(car__customer__email__icontains=search) |
+                    Q(car__customer__phone_number__icontains=search) |
+                    Q(car__make__icontains=search) |
+                    Q(car__model__icontains=search) |
+                    Q(car__license_plate__icontains=search) |
+                    Q(service__service__name__icontains=search) |
+                    Q(special_instructions__icontains=search)
+                )
+        
+        # Order by upcoming dates first (ascending), then creation order
+        queryset = queryset.order_by('daily_availability__date', 'created_at')
+        
+        # Pagination
+        start = (page - 1) * page_size
+        end = start + page_size
+        total_count = queryset.count()
+        paginated_queryset = queryset[start:end]
+        
+        return {
+            'queryset': paginated_queryset,
+            'pagination': {
+                'page': page,
+                'page_size': page_size,
+                'total_count': total_count,
+                'total_pages': (total_count + page_size - 1) // page_size,
+                'has_next': end < total_count,
+                'has_previous': page > 1
+            }
+        }
+
+    
     
     @staticmethod
     def get_customer_bookings_by_status_optimized(customer, status: str) -> QuerySet:
-        """
-        Get customer bookings filtered by status with optimized query
-        
-        Args:
-            customer: Customer instance
-            status: Booking status to filter by
-            
-        Returns:
-            QuerySet with optimized select_related and only() for minimal data fetching
-        """
         return Booking.objects.filter(
             customer=customer,
             status=status
@@ -80,18 +118,9 @@ class MyBookingsQueries:
             'service__base_price'
         ).order_by('-created_at')
     
+    
     @staticmethod
     def get_customer_recent_bookings_optimized(customer, limit: int = 5) -> QuerySet:
-        """
-        Get customer's most recent bookings with optimized query
-        
-        Args:
-            customer: Customer instance
-            limit: Number of recent bookings to fetch
-            
-        Returns:
-            QuerySet with optimized select_related and only() for minimal data fetching
-        """
         return Booking.objects.filter(
             customer=customer
         ).select_related(

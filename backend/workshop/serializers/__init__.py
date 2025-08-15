@@ -17,4 +17,3 @@ from .notification_serializer import (
     NotificationStatsSerializer,
     MarkAsReadSerializer
 )
-# MyBookingsSerializer is imported directly in services to avoid circular imports

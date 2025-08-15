@@ -5,7 +5,6 @@ import { themeClasses } from '../../../config/theme';
 const quickLinks = [
   { name: 'Home', href: '/' },
   { name: 'Services', href: '/services' },
-  { name: 'Pricing', href: '/pricing' },
   { name: 'Book Now', href: '/book' },
   { name: 'Contact', href: '/contact' },
   { name: 'My Bookings', href: '/my-bookings' },

@@ -1,6 +1,6 @@
 import React from 'react';
 import { Star } from 'lucide-react';
-import { themeClasses } from '../../config/theme';
+import { themeClasses, theme } from '../../config/theme';
 
 interface Testimonial {
   name: string;
@@ -21,14 +21,14 @@ const TestimonialsSection: React.FC<TestimonialsSectionProps> = ({
   testimonials
 }) => {
   return (
-    <section className="py-24 bg-gradient-to-b from-gray-900 to-black">
-      <div className="container mx-auto px-4">
+    <section className={`${themeClasses.section.primary}`}>
+      <div className={themeClasses.layout.container}>
         <div className="text-center mb-20">
-          <h2 className={`${themeClasses.heading.section} text-white mb-6`}>
+          <h2 className={`${themeClasses.heading.section} mb-6`}>
             {title.split(' ').map((word, index) => (
               <span key={index}>
                 {word === 'Say' ? (
-                  <span className="bg-gradient-to-r from-orange-400 to-orange-600 bg-clip-text text-transparent">
+                  <span className={theme.gradients.textPrimary}>
                     {word}
                   </span>
                 ) : (
@@ -50,15 +50,15 @@ const TestimonialsSection: React.FC<TestimonialsSectionProps> = ({
             >
               <div className="flex items-center mb-6">
                 {[...Array(testimonial.rating)].map((_, i) => (
-                  <Star key={i} className="w-6 h-6 text-yellow-400 fill-current group-hover:animate-pulse" />
+                  <Star key={i} className={`w-6 h-6 ${themeClasses.iconColors.yellow} fill-current group-hover:animate-pulse`} />
                 ))}
               </div>
-              <p className="text-gray-300 mb-8 italic text-lg leading-relaxed">
+              <p className={`${themeClasses.text.footerText} mb-8 italic text-lg leading-relaxed`}>
                 "{testimonial.comment}"
               </p>
               <div className="border-t border-gray-700 pt-6">
                 <div className="font-bold text-white text-lg">{testimonial.name}</div>
-                <div className="text-orange-400 text-sm font-medium">{testimonial.location}</div>
+                <div className={`${themeClasses.iconColors.orange} text-sm font-medium`}>{testimonial.location}</div>
               </div>
             </div>
           ))}

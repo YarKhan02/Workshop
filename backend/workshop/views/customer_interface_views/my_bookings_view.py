@@ -14,6 +14,7 @@ class MyBookingsView(viewsets.ViewSet):
         super().__init__(**kwargs)
         self.booking_service = MyBookingsService()
 
+    # Get my bookings
     @action(detail=False, methods=['get'], url_path='my-bookings')
     def get_my_bookings(self, request):
         customer = request.user

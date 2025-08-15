@@ -1,8 +1,9 @@
 import React from 'react';
 import { Check } from 'lucide-react';
-import { useServices } from '../../../hooks/useBooking';
+import { useServices } from '../../../hooks/useServices';
 import { themeClasses } from '../../../config/theme';
-import type { BookingStepProps, Service } from '../../../services/interfaces/booking';
+import type { BookingStepProps } from '../../../services/interfaces/booking';
+import type { Service } from '../../../services/api/services';
 
 interface ServiceSelectionProps extends BookingStepProps {
   onServiceSelect: (service: Service) => void;
@@ -115,10 +116,7 @@ const ServiceCard: React.FC<ServiceCardProps> = ({
         <p className="text-white/60 text-sm mb-3">{service.description}</p>
         <div className="flex items-center justify-between">
           <span className="text-2xl font-bold text-orange-400">
-            {service.price_display || `₹${service.base_price}`}
-          </span>
-          <span className="text-white/50 text-sm">
-            {service.estimated_duration_minutes} mins
+            { `PKR${service.price}` }
           </span>
         </div>
       </div>

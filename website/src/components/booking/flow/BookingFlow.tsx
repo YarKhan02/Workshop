@@ -13,7 +13,8 @@ import BookingReview from '../steps/BookingReview';
 import { bookingQueries } from '../../../services/api/booking';
 import toast from 'react-hot-toast';
 
-import type { Service, Car as CarType, BookingCreateData } from '../../../services/interfaces/booking';
+import type { Car as CarType, BookingCreateData } from '../../../services/interfaces/booking';
+import type { Service } from '../../../services/api/services';
 
 const BookingFlow: React.FC = () => {
   const navigate = useNavigate();

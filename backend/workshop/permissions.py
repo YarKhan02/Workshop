@@ -33,7 +33,7 @@ class IsCustomer(permissions.BasePermission):
             return False
         
         # Check if it's a Customer model instance
-        if isinstance(request.user, Customer):
+        if isinstance(request.user, User):
             print("DEBUG IsCustomer: User is Customer instance - ALLOWED")
             return True
         

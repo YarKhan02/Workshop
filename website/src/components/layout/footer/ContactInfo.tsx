@@ -11,7 +11,7 @@ const contactData = [
   {
     icon: Mail,
     title: 'Email',
-    content: 'info@detailinghub.com',
+    content: 'admin@detailinghubpk.com',
   },
   {
     icon: MapPin,

@@ -1,5 +1,5 @@
 import React from 'react';
-import { Edit2, Eye, Power, Trash2 } from 'lucide-react';
+import { Edit2, Eye, Trash2 } from 'lucide-react';
 import { DataTable } from '../../shared/data';
 import { useTheme, cn } from '../../ui';
 import type { Service } from '../../../types/service';
@@ -19,7 +19,6 @@ const ServiceTable: React.FC<ServiceTableProps> = ({
   isLoading,
   onViewService,
   onEditService,
-  onToggleStatus,
   onDeleteService,
 }) => {
   const { theme } = useTheme();
@@ -225,15 +224,8 @@ const ServiceTable: React.FC<ServiceTableProps> = ({
       isLoading={isLoading}
       emptyMessage={safeServices.length === 0 && !isLoading ? "No services available. Check your connection or try refreshing." : "No services found"}
       loadingMessage="Loading services..."
-      onRowClick={(service: Service) => {
-        try {
-          if (service?.id) {
-            onViewService(service);
-          }
-        } catch (error) {
-          console.warn('Error handling row click:', error);
-        }
-      }}
+      // Remove onRowClick to prevent conflicts with action buttons
+      // Users can still use the View action button to see details
     />
   );
 };

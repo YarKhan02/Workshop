@@ -1,1 +1,0 @@
-from .my_bookings_serializer import MyBookingsSerializer

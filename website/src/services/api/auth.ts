@@ -4,13 +4,11 @@ import { RegisterFormData, LoginFormData, UserProfile, UserCar } from '../interf
 export const authAPI = {
   async register(userData: Omit<RegisterFormData, 'confirmPassword'>) {
     return apiClient.post<{ message: string; customer: any }>('/auth/customer/register/', {
-      first_name: userData.firstName,
-      last_name: userData.lastName,
+      full_name: userData.fullName,
       email: userData.email,
       phone_number: userData.phone,
       nic: userData.nic,
       password: userData.password,
-      username: userData.email, // Add username field
       city: '',
       state: '',
       address: ''

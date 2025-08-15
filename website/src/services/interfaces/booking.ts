@@ -3,7 +3,6 @@
 export interface Service {
   id: string;
   name: string;
-  code: string;
   description?: string;
   base_price: number;
   price_display?: string; // For formatted display
@@ -45,7 +44,6 @@ export interface MyBooking {
   status: 'pending' | 'confirmed' | 'in_progress' | 'completed' | 'cancelled' | 'no_show' | 'rescheduled';
   created_at: string;
   quoted_price: string;
-  estimated_duration_minutes: number;
   // Car fields
   car_make: string;
   car_model: string;

@@ -8,6 +8,7 @@ import {
   StatsGrid,
   SearchBar,
   Pagination,
+  ConfirmationDialog,
 } from '../components';
 
 // UI Components
@@ -37,6 +38,8 @@ const Services: React.FC = () => {
   const [selectedService, setSelectedService] = useState<Service | null>(null);
   const [isDetailModalOpen, setIsDetailModalOpen] = useState(false);
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
+  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
+  const [serviceToDelete, setServiceToDelete] = useState<string | null>(null);
 
   // Use global pagination hook
   const { currentPage, itemsPerPage, onPageChange, resetToFirstPage } = usePagination();
@@ -111,11 +114,19 @@ const Services: React.FC = () => {
   };
 
   const handleDeleteService = async (serviceId: string) => {
-    if (window.confirm('Are you sure you want to delete this service? This action cannot be undone.')) {
+    setServiceToDelete(serviceId);
+    setIsDeleteDialogOpen(true);
+  };
+
+  const confirmDeleteService = async () => {
+    if (serviceToDelete) {
       try {
-        await deleteServiceMutation.mutateAsync(serviceId);
+        await deleteServiceMutation.mutateAsync(serviceToDelete);
       } catch (error) {
         console.error('Error deleting service:', error);
+      } finally {
+        setServiceToDelete(null);
+        setIsDeleteDialogOpen(false);
       }
     }
   };
@@ -259,6 +270,21 @@ const Services: React.FC = () => {
         isOpen={isAddModalOpen}
         onClose={() => setIsAddModalOpen(false)}
         onSave={handleCreateService}
+      />
+
+      <ConfirmationDialog
+        isOpen={isDeleteDialogOpen}
+        onClose={() => {
+          setIsDeleteDialogOpen(false);
+          setServiceToDelete(null);
+        }}
+        onConfirm={confirmDeleteService}
+        title="Delete Service"
+        description="Are you sure you want to delete this service? This action cannot be undone and will remove all associated data."
+        confirmText="Delete Service"
+        cancelText="Cancel"
+        variant="destructive"
+        isLoading={deleteServiceMutation.isPending}
       />
     </div>
   );

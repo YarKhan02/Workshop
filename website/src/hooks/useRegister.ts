@@ -10,8 +10,7 @@ export const useRegister = () => {
   const { register } = useAuth();
   
   const [formData, setFormData] = useState<RegisterFormData>({
-    firstName: '',
-    lastName: '',
+    fullName: '',
     email: '',
     phone: '',
     nic: '',
@@ -28,12 +27,8 @@ export const useRegister = () => {
   const validateForm = (): ValidationErrors => {
     const errors: ValidationErrors = {};
 
-    if (!formData.firstName.trim()) {
-      errors.firstName = 'First name is required';
-    }
-
-    if (!formData.lastName.trim()) {
-      errors.lastName = 'Last name is required';
+    if (!formData.fullName.trim()) {
+      errors.fullName = 'Full name is required';
     }
 
     if (!formData.email.trim()) {
@@ -78,8 +73,7 @@ export const useRegister = () => {
     
     try {
       const success = await register({
-        firstName: formData.firstName,
-        lastName: formData.lastName,
+        fullName: formData.fullName,
         email: formData.email,
         phone: formData.phone,
         nic: formData.nic,

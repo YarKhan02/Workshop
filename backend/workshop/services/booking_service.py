@@ -19,6 +19,7 @@ from django.utils import timezone
 from datetime import datetime, date, timedelta
 
 class BookingService:
+    
     def get_bookings(self, params):
         # Prepare filters
         filters = {}
@@ -44,12 +45,15 @@ class BookingService:
         
         # Serialize the results
         serializer = BookingListSerializer(result['queryset'], many=True)
+
+        print(serializer.data)  # Debugging output
         
         return {
             'bookings': serializer.data,
             'pagination': result['pagination']
         }
 
+    
     def get_booking_detail(self, pk):
         """
         Get optimized booking detail

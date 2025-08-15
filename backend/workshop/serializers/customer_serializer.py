@@ -14,13 +14,14 @@ class CustomerCreateSerializer(serializers.ModelSerializer):
     nic = serializers.CharField(max_length=13, required=True)
     phone_number = serializers.CharField(max_length=11, required=True)
     password = serializers.CharField(write_only=True, min_length=6, required=False, allow_blank=True)
+    full_name = serializers.CharField(max_length=255, required=True, write_only=True)
     
     class Meta:
         model = User
         fields = [
             'nic',
             'email',
-            'name',
+            'full_name',
             'phone_number',
             'password',
             'city',
@@ -32,8 +33,12 @@ class CustomerCreateSerializer(serializers.ModelSerializer):
         # Extract password if provided
         password = validated_data.pop('password', None)
         
+        # Extract full_name and map it to name for the model
+        full_name = validated_data.pop('full_name')
+        validated_data['name'] = full_name
+        
         # Auto-generate a unique username
-        base = f"{validated_data['name'].lower().replace(' ', '_')}"
+        base = f"{full_name.lower().replace(' ', '_')}"
         suffix = uuid.uuid4().hex[:6]
         username = f"{base}_{suffix}"
         

@@ -1,5 +1,4 @@
 from rest_framework_simplejwt.authentication import JWTAuthentication
-from workshop.models.customer import Customer
 from django.contrib.auth import get_user_model
 
 User = get_user_model()
@@ -40,11 +39,11 @@ class CustomerJWTAuthentication(JWTAuthentication):
         try:
             user_id = validated_token.get('user_id')
             if user_id:
-                customer = Customer.objects.get(id=user_id)
+                customer = User.objects.get(id=user_id)
                 return customer
-        except Customer.DoesNotExist:
+        except User.DoesNotExist:
             from rest_framework_simplejwt.exceptions import InvalidToken
-            raise InvalidToken("Customer no longer exists")
+            raise InvalidToken("User no longer exists")
         except KeyError:
             pass
         return None

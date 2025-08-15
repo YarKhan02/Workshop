@@ -1,13 +1,14 @@
 import { useState, useEffect, useCallback } from 'react';
 import { bookingQueries } from '../services/api/booking';
 import type {
-  Service,
   Car,
   Booking,
   BookingData,
   BookingCreateData,
   BookingFilters,
-} from '../services/interfaces/booking';// Hook for managing services
+} from '../services/interfaces/booking';
+import type { Service } from '../services/api/services';
+
 export const useServices = (category?: string) => {
   const [services, setServices] = useState<Service[]>([]);
   const [loading, setLoading] = useState(true);

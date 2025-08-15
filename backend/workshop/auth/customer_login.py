@@ -5,7 +5,7 @@ from django.utils import timezone
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework.permissions import AllowAny
 from ..serializers.customer_serializer import CustomerDetailSerializer
-from ..models.customer import Customer
+from ..models import User
 
 
 class CustomerLoginView(APIView):
@@ -27,7 +27,7 @@ class CustomerLoginView(APIView):
                 
         # Authenticate directly against Customer model
         try:
-            customer = Customer.objects.get(email=email, is_active=True)
+            customer = User.objects.get(email=email, is_active=True)
             if customer.check_password(password): 
                 print(f"DEBUG: Customer authenticated: {customer.email}")
                 
@@ -54,6 +54,8 @@ class CustomerLoginView(APIView):
                     'role': customer.role,
                     'message': 'Customer login successful'
                 }, status=status.HTTP_200_OK)
+
+                print(response.data)
                 
                 # Set customer tokens in HttpOnly cookies (separate from admin)
                 response.set_cookie(
@@ -80,7 +82,7 @@ class CustomerLoginView(APIView):
                 return Response({
                     'error': 'Invalid email or password'
                 }, status=status.HTTP_401_UNAUTHORIZED)
-        except Customer.DoesNotExist:
+        except User.DoesNotExist:
             print("DEBUG: Customer not found")
             return Response({
                 'error': 'Invalid email or password'
