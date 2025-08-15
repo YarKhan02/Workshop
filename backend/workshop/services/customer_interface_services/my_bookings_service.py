@@ -1,5 +1,5 @@
 
-from workshop.queries.customer_interface_queries.my_bookings_queries import MyBookingsQueries
+from backend.workshop.queries.my_bookings_queries import MyBookingsQueries
 from workshop.serializers import BookingListSerializer
 
 

@@ -9,11 +9,11 @@ class Command(BaseCommand):
             {
                 'nic': '1234567890123',
                 'username': 'adminuser',
-                'email': 'admin@example.com',
+                'email': 'admin@detailinghubpk.com',
                 'name': 'Admin',
                 'role': 'admin',
-                'phone_number': '111-111-1111',
-                'password': 'adminpass123'
+                'phone_number': '03190288925',
+                'password': 'bankai05!'
             }
         ]
 

@@ -3,4 +3,4 @@
 Service layer for business logic implementation
 """
 
-from .customer_interface_services import MyBookingsService
+from .my_bookings_service import MyBookingsService

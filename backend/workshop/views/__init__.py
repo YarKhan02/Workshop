@@ -11,4 +11,4 @@ from .service_view import ServiceView
 from .dashboard_view import DashboardView
 from .notification_view import NotificationView
 
-from .customer_interface_views.my_bookings_view import MyBookingsView
+from .my_bookings_view import MyBookingsView
