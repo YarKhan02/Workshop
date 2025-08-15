@@ -1,5 +1,5 @@
 import React from 'react';
-import { Check } from 'lucide-react';
+import { Check, CheckCircle } from 'lucide-react';
 import { useServices } from '../../../hooks/useServices';
 import { themeClasses } from '../../../config/theme';
 import type { BookingStepProps } from '../../../services/interfaces/booking';
@@ -116,10 +116,21 @@ const ServiceCard: React.FC<ServiceCardProps> = ({
         <p className="text-white/60 text-sm mb-3">{service.description}</p>
         <div className="flex items-center justify-between">
           <span className="text-2xl font-bold text-orange-400">
-            { `PKR${service.price}` }
+            { `PKR ${service.price}` }
           </span>
         </div>
       </div>
+
+      {service.items && service.items.length > 0 && (
+          <ul className="space-y-3 mb-8 text-left">
+            {service.items.map((item) => (
+              <li key={item.id} className="flex items-center text-white/70">
+                <CheckCircle className="w-5 h-5 text-green-400 mr-3 flex-shrink-0" />
+                {item.name}
+              </li>
+            ))}
+          </ul>
+        )}
 
       <div className="mt-6">
         <button

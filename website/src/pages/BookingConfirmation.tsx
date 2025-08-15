@@ -11,7 +11,6 @@ import {
   CustomerInfoCard,
   VehicleInfoCard,
   SpecialInstructionsCard,
-  ImportantInfoCard,
   ConfirmationActions
 } from '../components/booking';
 import { useBookingConfirmation } from '../hooks/useBookingConfirmation';
@@ -59,7 +58,6 @@ const BookingConfirmation: React.FC = () => {
                   totalAmount={booking.total_amount} 
                 />
                 <AppointmentDetailsCard 
-                  timeSlot={booking.time_slot} 
                   bookingId={booking.id} 
                 />
               </div>
@@ -79,9 +77,7 @@ const BookingConfirmation: React.FC = () => {
               </div>
             </div>
 
-            {/* Important Information */}
-            <ImportantInfoCard serviceDuration={booking.service.duration_minutes} />
-
+            
             {/* Action Buttons */}
             <ConfirmationActions />
           </div>

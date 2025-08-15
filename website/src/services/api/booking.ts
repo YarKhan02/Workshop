@@ -1,12 +1,12 @@
 import { apiClient } from './client';
 import type {
-  Service,
   Booking,
   BookingCreateData,
   BookingFilters,
   Car,
   AvailableDate
 } from '../interfaces/booking';
+import { Service } from './services';
 
 // Services API
 export const servicesAPI = {
@@ -26,7 +26,7 @@ export const servicesAPI = {
 export const carsAPI = {
   // Get user's cars
   getMyCars: async () => {
-    return apiClient.get<Car[]>('/cars/');
+    return apiClient.get<Car[]>('/cars/details/');
   },
 
   // Add a new car

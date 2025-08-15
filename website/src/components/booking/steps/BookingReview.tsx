@@ -2,7 +2,8 @@ import React, { useState } from 'react';
 import { Car, Calendar, User, Mail, FileText, CreditCard } from 'lucide-react';
 import { useAuth } from '../../../contexts/AuthContext';
 import { themeClasses } from '../../../config/theme';
-import type { BookingStepProps, Service } from '../../../services/interfaces/booking';
+import type { BookingStepProps } from '../../../services/interfaces/booking';
+import { Service } from '../../../services/api/services';
 
 interface BookingReviewProps extends BookingStepProps {
   onSubmit: () => Promise<void>;
@@ -96,13 +97,9 @@ const BookingReview: React.FC<BookingReviewProps> = ({
                 <p className="text-white/60 text-sm">{selectedService.description}</p>
               </div>
               <div className="flex justify-between items-center">
-                <span className="text-white/70">Duration:</span>
-                <span className="text-white">{selectedService.estimated_duration_minutes} minutes</span>
-              </div>
-              <div className="flex justify-between items-center">
                 <span className="text-white/70">Price:</span>
                 <span className="text-2xl font-bold text-orange-400">
-                  {selectedService.price_display || `₹${selectedService.base_price}`}
+                  { `PKR ${selectedService.price}` }
                 </span>
               </div>
             </div>
@@ -144,12 +141,6 @@ const BookingReview: React.FC<BookingReviewProps> = ({
               <div className="flex justify-between">
                 <span className="text-white/70">Date:</span>
                 <span className="text-white">{formatDate(selectedDate)}</span>
-              </div>
-              <div className="flex justify-between">
-                <span className="text-white/70">Duration:</span>
-                <span className="text-white">
-                  {selectedService.estimated_duration_minutes} minutes
-                </span>
               </div>
             </div>
           </div>

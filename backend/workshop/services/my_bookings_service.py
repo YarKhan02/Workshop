@@ -5,11 +5,11 @@ from workshop.serializers.booking.list import BookingListSerializer
 
 class MyBookingsService:
 
+    # Get all bookings for a customer
     def get_my_bookings(self, customer):
-        """
-        Get customer bookings using optimized query that only fetches needed fields
-        """
+        print('======================', customer.id)
         bookings = get_optimized_bookings({'customer': customer.id})
+        print(bookings)
         serializer = BookingListSerializer(bookings['queryset'], many=True)
         print(serializer.data)  # Debugging output
         return serializer.data

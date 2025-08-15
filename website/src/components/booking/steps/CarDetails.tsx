@@ -78,7 +78,7 @@ const CarDetails: React.FC<CarDetailsProps> = ({
       year: yearRef.current!.value.trim(),
       license_plate: licensePlateRef.current!.value.trim(),
       color: colorRef.current!.value.trim(),
-      customer_id: user?.id, // Include customer ID from authenticated user
+      customer: user?.id, // Include customer ID from authenticated user
     };
 
     try {

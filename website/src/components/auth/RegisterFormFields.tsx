@@ -37,6 +37,27 @@ const RegisterFormFields: React.FC<RegisterFormFieldsProps> = ({
     onChange(syntheticEvent);
   };
 
+  // Custom phone handler: only allow numbers, must start with 03, max 11 digits
+  const handlePhoneChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    let raw = e.target.value.replace(/\D/g, '');
+    if (!raw.startsWith('03')) {
+      raw = '03';
+    }
+    if (raw.length > 11) {
+      raw = raw.slice(0, 11);
+    }
+    // Create a synthetic event to pass to parent
+    const syntheticEvent = {
+      ...e,
+      target: {
+        ...e.target,
+        value: raw,
+        name: 'phone',
+      },
+    } as React.ChangeEvent<HTMLInputElement>;
+    onChange(syntheticEvent);
+  };
+
   return (
     <div className="space-y-6">
       {/* NIC */}
@@ -100,9 +121,12 @@ const RegisterFormFields: React.FC<RegisterFormFieldsProps> = ({
           type="tel"
           name="phone"
           value={formData.phone}
-          onChange={onChange}
-          placeholder="Phone Number"
+          onChange={handlePhoneChange}
+          placeholder="Phone Number (e.g. 03XXXXXXXXX)"
           required
+          pattern="03[0-9]{9}"
+          minLength={11}
+          maxLength={11}
           disabled={isLoading}
           className="w-full pl-12 pr-4 py-4 bg-black/50 border border-orange-900/30 rounded-xl text-white placeholder-white/50 focus:border-orange-500 focus:outline-none transition-colors disabled:opacity-50"
         />

@@ -1,7 +1,7 @@
 import React from 'react';
 import { Check } from 'lucide-react';
-import { themeClasses } from '../../config/theme';
-import type { StepConfig } from '../../services/interfaces/booking';
+// import { themeClasses } from '../../config/theme';
+import type { StepConfig } from '../../../services/interfaces/booking';
 
 interface BookingStepperProps {
   steps: StepConfig[];

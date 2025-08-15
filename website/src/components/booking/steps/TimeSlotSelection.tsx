@@ -24,9 +24,9 @@ const TimeSlotSelection: React.FC<DateSelectionProps> = ({
   const [loadingDates, setLoadingDates] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  const selectedService = typeof bookingData.service === 'object' 
-    ? bookingData.service 
-    : null;
+  // const selectedService = typeof bookingData.service === 'object' 
+  //   ? bookingData.service 
+  //   : null;
 
   // Set initial selected date if exists in booking data
   useEffect(() => {
@@ -103,14 +103,6 @@ const TimeSlotSelection: React.FC<DateSelectionProps> = ({
           Select Date
         </h2>
         <p className="text-white/70">Choose your preferred appointment date</p>
-        {selectedService && (
-          <div className="mt-4 inline-flex items-center space-x-2 bg-orange-500/10 border border-orange-400/20 rounded-full px-4 py-2">
-            <Calendar className="w-4 h-4 text-orange-400" />
-            <span className="text-orange-200 text-sm">
-              {selectedService.name} • {selectedService.estimated_duration_minutes} minutes
-            </span>
-          </div>
-        )}
       </div>
 
       {/* Date Selection Grid */}

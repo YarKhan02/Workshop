@@ -2,7 +2,7 @@ import React from 'react';
 import { Car } from 'lucide-react';
 import { themeClasses } from '../../../config/theme';
 import { formatCurrency } from '../../../utils/bookingUtils';
-import type { Service } from '../../../services/interfaces/booking';
+import type { Service } from '../../../services/api/services';
 
 interface ServiceDetailsCardProps {
   service: Service;
@@ -20,10 +20,6 @@ const ServiceDetailsCard: React.FC<ServiceDetailsCardProps> = ({ service, totalA
         <div>
           <h4 className="text-lg font-medium text-white">{service.name}</h4>
           <p className="text-white/60 text-sm">{service.description}</p>
-        </div>
-        <div className="flex justify-between items-center">
-          <span className="text-white/70">Duration:</span>
-          <span className="text-white">{service.duration_minutes} minutes</span>
         </div>
         <div className="flex justify-between items-center">
           <span className="text-white/70">Amount:</span>

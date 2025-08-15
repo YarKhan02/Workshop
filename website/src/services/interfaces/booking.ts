@@ -1,17 +1,6 @@
-// Shared interfaces for the booking system
+import { Service } from '../api/services';
 
-export interface Service {
-  id: string;
-  name: string;
-  description?: string;
-  base_price: number;
-  price_display?: string; // For formatted display
-  estimated_duration_minutes: number;
-  features?: string[];
-  is_active?: boolean;
-  category?: string;
-  image_url?: string;
-}
+// Shared interfaces for the booking system
 
 export interface Car {
   id?: string;
@@ -20,7 +9,7 @@ export interface Car {
   year: string;
   license_plate: string;
   color?: string;
-  customer_id?: string;
+  customer?: string;
 }
 
 export interface AvailableDate {
@@ -31,10 +20,9 @@ export interface AvailableDate {
 
 export interface Customer {
   id?: string;
-  first_name: string;
-  last_name: string;
+  fullName: string;
   email: string;
-  phone?: string;
+  phone_number?: string;
 }
 
 // Customer booking interface for MyBookings page
@@ -43,14 +31,16 @@ export interface MyBooking {
   booking_date: string;
   status: 'pending' | 'confirmed' | 'in_progress' | 'completed' | 'cancelled' | 'no_show' | 'rescheduled';
   created_at: string;
-  quoted_price: string;
+  totalAmount: string;
   // Car fields
-  car_make: string;
-  car_model: string;
-  car_license_plate: string;
+  carMake: string;
+  carModel: string;
+  carLicensePlate: string;
   // Service fields
-  service_name: string;
-  service_base_price: string;
+  serviceName: string;
+  serviceStatus: string;
+  scheduledDate: string;
+  serviceBasePrice: string;
   rating?: number;
 }
 

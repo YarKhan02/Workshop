@@ -10,8 +10,7 @@ export { servicesAPI };
 export { bookingServicesAPI };
 
 // Re-export types
-export type { 
-  Service, 
+export type {
   Car, 
   Booking, 
   BookingData, 

@@ -1,9 +1,9 @@
 import React from 'react';
-import { Calendar, Clock, Car, Star } from 'lucide-react';
+import { Calendar, Car, Star } from 'lucide-react';
 import { MyBooking, MyBookingStatus } from '../../services/interfaces/booking';
 import { theme } from '../../config/theme';
 import Card from '../ui/Card';
-import Button from '../ui/Button';
+// import Button from '../ui/Button';
 
 interface BookingCardProps {
   booking: MyBooking;
@@ -15,10 +15,10 @@ interface BookingCardProps {
 
 const BookingCard: React.FC<BookingCardProps> = ({
   booking,
-  onReschedule,
-  onCancel,
-  onRate,
-  onViewDetails
+  // onReschedule,
+  // onCancel,
+  // onRate,
+  // onViewDetails
 }) => {
   const getStatusStyles = (status: MyBookingStatus): string => {
     const statusStyles = {
@@ -57,21 +57,12 @@ const BookingCard: React.FC<BookingCardProps> = ({
 
   const formatPrice = (price: string): string => {
     const numPrice = parseFloat(price);
-    return `₹${numPrice.toLocaleString()}`;
+    return `PKR ${numPrice.toLocaleString()}`;
   };
 
-  const formatDuration = (minutes: number): string => {
-    const hours = Math.floor(minutes / 60);
-    const mins = minutes % 60;
-    if (hours > 0) {
-      return mins > 0 ? `${hours}h ${mins}m` : `${hours}h`;
-    }
-    return `${mins}m`;
-  };
-
-  const showRescheduleButton = booking.status === 'pending' || booking.status === 'confirmed';
-  const showCancelButton = booking.status === 'pending' || booking.status === 'confirmed';
-  const showRateButton = booking.status === 'completed' && !booking.rating;
+  // const showRescheduleButton = booking.status === 'pending' || booking.status === 'confirmed';
+  // const showCancelButton = booking.status === 'pending' || booking.status === 'confirmed';
+  // const showRateButton = booking.status === 'completed' && !booking.rating;
 
   return (
     <Card
@@ -85,13 +76,13 @@ const BookingCard: React.FC<BookingCardProps> = ({
           <div className="flex items-start justify-between mb-4">
             <div>
               <h3 className={`text-xl font-bold text-white group-hover:${theme.gradients.textPrimary} ${theme.transitions.default}`}>
-                {booking.service_name}
+                {booking.serviceName}
               </h3>
               <p className="text-white/60 text-sm">Booking ID: {booking.id}</p>
             </div>
             <div className="flex items-center gap-3">
               <span className={`${theme.gradients.textPrimary} font-bold text-lg`}>
-                {formatPrice(booking.quoted_price)}
+                {formatPrice(booking.totalAmount)}
               </span>
               <span className={`px-3 py-1 rounded-full text-xs font-medium border ${getStatusStyles(booking.status)}`}>
                 {getStatusText(booking.status)}
@@ -105,25 +96,17 @@ const BookingCard: React.FC<BookingCardProps> = ({
               <Car className={`w-5 h-5 text-orange-400 mr-3`} />
               <div>
                 <div className="text-white font-medium">
-                  {booking.car_make} {booking.car_model}
+                  {booking.carMake} {booking.carModel}
                 </div>
-                <div className="text-white/60 text-sm">{booking.car_license_plate}</div>
+                <div className="text-white/60 text-sm">{booking.carLicensePlate}</div>
               </div>
             </div>
             
             <div className="flex items-center">
               <Calendar className={`w-5 h-5 text-orange-400 mr-3`} />
               <div>
-                <div className="text-white font-medium">{formatDate(booking.booking_date)}</div>
+                <div className="text-white font-medium">{formatDate(booking.scheduledDate)}</div>
                 <div className="text-white/60 text-sm">Date</div>
-              </div>
-            </div>
-            
-            <div className="flex items-center">
-              <Clock className={`w-5 h-5 text-orange-400 mr-3`} />
-              <div>
-                <div className="text-white font-medium">{formatDuration(booking.estimated_duration_minutes)}</div>
-                <div className="text-white/60 text-sm">Duration</div>
               </div>
             </div>
           </div>
@@ -148,7 +131,7 @@ const BookingCard: React.FC<BookingCardProps> = ({
         </div>
 
         {/* Action Buttons */}
-        <div className="flex items-center gap-3 mt-4 lg:mt-0">
+        {/* <div className="flex items-center gap-3 mt-4 lg:mt-0">
           {showRescheduleButton && onReschedule && (
             <Button
               variant="outline"
@@ -188,8 +171,8 @@ const BookingCard: React.FC<BookingCardProps> = ({
             >
               View Details
             </Button>
-          )}
-        </div>
+          )} */}
+        {/* </div> */}
       </div>
     </Card>
   );

@@ -94,6 +94,7 @@ class BookingView(viewsets.ViewSet):
         return Response(errors, status=status.HTTP_400_BAD_REQUEST)
 
     
+    # Get available dates for booking
     @action(detail=False, methods=['get'], url_path='available-dates')
     def get_available_dates(self, request):
         start_date = request.query_params.get('start_date')

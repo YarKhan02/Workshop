@@ -1,5 +1,5 @@
 import React from 'react';
-import { MapPin, CheckCircle } from 'lucide-react';
+import { MapPin } from 'lucide-react';
 import { LucideIcon } from 'lucide-react';
 
 interface LocationData {

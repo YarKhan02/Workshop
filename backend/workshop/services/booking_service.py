@@ -46,7 +46,7 @@ class BookingService:
         # Serialize the results
         serializer = BookingListSerializer(result['queryset'], many=True)
 
-        print(serializer.data)  # Debugging output
+        print('=====================\n', serializer.data)  # Debugging output
         
         return {
             'bookings': serializer.data,
@@ -161,9 +161,6 @@ class BookingService:
         return None, {'error': 'Customer not found or no cars available'}
 
     def get_available_dates(self, start_date=None, days=14):
-        """
-        Get available dates for booking (next 14 days by default)
-        """
         try:
             if start_date:
                 if isinstance(start_date, str):
