@@ -27,12 +27,8 @@ export const validateBusinessSettings = (settings: BusinessSettings): string[] =
 export const validateUserSettings = (settings: UserSettings): string[] => {
   const errors: string[] = [];
   
-  if (!settings.firstName.trim()) {
-    errors.push('First name is required');
-  }
-  
-  if (!settings.lastName.trim()) {
-    errors.push('Last name is required');
+  if (!settings.name.trim()) {
+    errors.push('Name is required');
   }
   
   if (!settings.email.trim()) {

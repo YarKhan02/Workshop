@@ -17,7 +17,6 @@ import {
   BillingTable,
   InvoiceDetailModal,
   AddInvoiceModal,
-  EditInvoiceModal,
 } from '../components/features/billing';
 import {
   useInvoices,
@@ -57,7 +56,6 @@ const Billing: React.FC = () => {
   const [selectedInvoice, setSelectedInvoice] = useState<Invoice | null>(null);
   const [showDetailModal, setShowDetailModal] = useState(false);
   const [showAddModal, setShowAddModal] = useState(false);
-  const [showEditModal, setShowEditModal] = useState(false);
 
   // React Query hooks
   const { data: invoiceResponse, isLoading: loadingInvoices, refetch: refetchInvoices } = useInvoices(filters);
@@ -122,12 +120,6 @@ const Billing: React.FC = () => {
 
   const handleAddInvoiceSuccess = () => {
     setShowAddModal(false);
-    refetchInvoices();
-  };
-
-  const handleEditInvoiceSuccess = () => {
-    setShowEditModal(false);
-    setSelectedInvoice(null);
     refetchInvoices();
   };
 
@@ -236,19 +228,6 @@ const Billing: React.FC = () => {
             }}
             invoice={selectedInvoice}
             onStatusUpdate={handleStatusUpdate}
-          />
-        )}
-
-        {showEditModal && selectedInvoice && (
-          <EditInvoiceModal
-            isOpen={showEditModal}
-            onClose={() => {
-              setShowEditModal(false);
-              setSelectedInvoice(null);
-            }}
-            onSuccess={handleEditInvoiceSuccess}
-            invoice={selectedInvoice}
-            customers={[]}
           />
         )}
     </div>

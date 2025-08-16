@@ -28,28 +28,6 @@ const STYLES = {
   }
 };
 
-const ANIMATIONS = {
-  container: {
-    initial: { opacity: 0, y: -20 },
-    animate: { opacity: 1, y: 0 },
-    transition: { duration: 0.6, ease: "easeOut" }
-  },
-  form: {
-    initial: { opacity: 0, y: 20 },
-    animate: { opacity: 1, y: 0 },
-    transition: { duration: 0.6, delay: 0.2, ease: "easeOut" }
-  },
-  footer: {
-    initial: { opacity: 0 },
-    animate: { opacity: 1 },
-    transition: { duration: 0.6, delay: 0.4 }
-  },
-  button: {
-    hover: { scale: 1.01, y: -2 },
-    tap: { scale: 0.98, y: 1 }
-  }
-};
-
 // ==================== MAIN COMPONENT ====================
 const Login: React.FC = () => {
   // State Management

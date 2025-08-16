@@ -1,5 +1,5 @@
 import React from 'react';
-import { CheckCircle, Clock, AlertTriangle, XCircle, Package } from 'lucide-react';
+import { CheckCircle, Clock, XCircle, Package } from 'lucide-react';
 import type { InvoiceStatus } from '../../../../types/billing';
 
 interface InvoiceStatusBadgeProps {
@@ -19,15 +19,10 @@ const InvoiceStatusBadge: React.FC<InvoiceStatusBadgeProps> = ({
         return 'text-emerald-400 bg-emerald-500/20 border-emerald-500/30';
       case 'pending':
         return 'text-amber-400 bg-amber-500/20 border-amber-500/30';
-      case 'overdue':
-        return 'text-red-400 bg-red-500/20 border-red-500/30';
       case 'draft':
         return 'text-slate-400 bg-slate-500/20 border-slate-500/30';
       case 'cancelled':
         return 'text-slate-400 bg-slate-500/20 border-slate-500/30';
-      case 'partially_paid':
-      case 'partial':
-        return 'text-blue-400 bg-blue-500/20 border-blue-500/30';
       default:
         return 'text-blue-400 bg-blue-500/20 border-blue-500/30';
     }
@@ -39,15 +34,10 @@ const InvoiceStatusBadge: React.FC<InvoiceStatusBadgeProps> = ({
         return <CheckCircle className="w-4 h-4" />;
       case 'pending':
         return <Clock className="w-4 h-4" />;
-      case 'overdue':
-        return <AlertTriangle className="w-4 h-4" />;
       case 'cancelled':
         return <XCircle className="w-4 h-4" />;
       case 'draft':
         return <Package className="w-4 h-4" />;
-      case 'partially_paid':
-      case 'partial':
-        return <Clock className="w-4 h-4" />;
       default:
         return <Clock className="w-4 h-4" />;
     }
@@ -55,15 +45,7 @@ const InvoiceStatusBadge: React.FC<InvoiceStatusBadgeProps> = ({
 
   const formatStatus = (status: InvoiceStatus) => {
     if (!status) return 'Unknown';
-    
-    switch (status) {
-      case 'partially_paid':
-        return 'Partially Paid';
-      case 'partial':
-        return 'Partial';
-      default:
-        return status.charAt(0).toUpperCase() + status.slice(1);
-    }
+    return status.charAt(0).toUpperCase() + status.slice(1);
   };
 
   return (

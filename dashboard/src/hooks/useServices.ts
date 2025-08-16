@@ -1,6 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { servicesApi } from '../api/services';
-import type { Service, ServiceFormData, ServiceFilters } from '../types/service';
+import type { ServiceFormData, ServiceFilters } from '../types/service';
 
 // Query Keys
 export const serviceKeys = {

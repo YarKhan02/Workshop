@@ -1,5 +1,5 @@
 import { apiClient } from './client';
-import type { LoginData, CreateUserData, UpdateUserData, User } from '../types/user';
+import type { LoginData, User } from '../types/user';
 import type { ChangePasswordData } from '../types/settings';
 
 export interface LoginResponse {

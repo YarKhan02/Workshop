@@ -97,8 +97,7 @@ const EditBookingModal: React.FC<EditBookingModalProps> = ({ isOpen, onClose, bo
       if (selectedService) {
         setFormData(prev => ({
           ...prev,
-          price: selectedService.base_price,
-          estimated_duration_minutes: selectedService.estimated_duration_minutes
+          price: selectedService.price,
         }));
       }
     }
@@ -189,7 +188,7 @@ const EditBookingModal: React.FC<EditBookingModalProps> = ({ isOpen, onClose, bo
                     <option value="">Select service...</option>
                     {(services as Service[]).map((service: Service) => (
                       <option key={service.id} value={service.id}>
-                        {service.name} - {formatCurrency(service.base_price)}
+                        {service.name} - {formatCurrency(service.price)}
                       </option>
                     ))}
                   </select>

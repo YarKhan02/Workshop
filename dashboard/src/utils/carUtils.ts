@@ -38,7 +38,7 @@ export const filterCars = (cars: Car[], filters: CarFilters): Car[] => {
 
   // Customer ID filter
   if (filters.customerId) {
-    filtered = filtered.filter(car => car.customer_id === filters.customerId);
+    filtered = filtered.filter(car => car.customer === filters.customerId);
   }
 
   // Make filter
@@ -60,7 +60,7 @@ export const filterCars = (cars: Car[], filters: CarFilters): Car[] => {
  * Calculate car statistics
  */
 export const calculateCarStats = (cars: Car[], filteredCars: Car[]): CarStatsData => {
-  const uniqueOwners = new Set(cars.map(car => car.customer_id)).size;
+  const uniqueOwners = new Set(cars.map(car => car.customer)).size;
   const averageYear = cars.length > 0 
     ? Math.round(cars.reduce((sum, car) => sum + car.year, 0) / cars.length)
     : 0;
@@ -144,7 +144,7 @@ export const validateCarData = (carData: Partial<Car>): string[] => {
     errors.push('Color is required');
   }
 
-  if (!carData.customer_id) {
+  if (!carData.customer) {
     errors.push('Customer is required');
   }
 

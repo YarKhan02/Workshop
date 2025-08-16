@@ -1,5 +1,5 @@
 import React from 'react';
-import { Edit, Trash2, Car, Calendar, Hash, Palette } from 'lucide-react';
+import { Car, Calendar, Hash, Palette } from 'lucide-react';
 import type { CarDetailModalProps } from '../../../types';
 import { useTheme, cn, ThemedModal, ThemedButton, ThemedCard } from '../../ui';
 
@@ -7,8 +7,8 @@ const CarDetailModal: React.FC<CarDetailModalProps> = ({
   car,
   isOpen,
   onClose,
-  onEdit,
-  onDelete
+  // onEdit,
+  // onDelete
 }) => {
   const { theme } = useTheme();
   

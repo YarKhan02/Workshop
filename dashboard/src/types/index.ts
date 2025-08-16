@@ -85,69 +85,6 @@ export type {
 
 // Import for internal use in this file (for other interfaces that reference Customer/Car)
 import type { Customer } from './customer';
-import type { Car } from './car';
-
-export interface Job {
-  id: string;
-  customerId: string;
-  carId: string;
-  assignedTo?: string;
-  jobType: 'basic_wash' | 'full_detail' | 'interior_detail' | 'exterior_detail' | 'premium_detail' | 'custom';
-  status: 'pending' | 'in_progress' | 'completed' | 'cancelled';
-  priority: 'low' | 'medium' | 'high' | 'urgent';
-  scheduledDate: string;
-  estimatedDuration: number;
-  actualDuration?: number;
-  startTime?: string;
-  endTime?: string;
-  price: number;
-  discount?: number;
-  totalPrice: number;
-  notes?: string;
-  customerNotes?: string;
-  beforePhotos?: string[];
-  afterPhotos?: string[];
-  services: string[];
-  materials: string[];
-  isActive: boolean;
-  createdAt: string;
-  updatedAt: string;
-  customer?: Customer;
-  car?: Car;
-}
-
-export interface JobFormData {
-  customerId: number;
-  carId: number;
-  assignedTo?: number;
-  jobType: 'basic_wash' | 'full_detail' | 'interior_detail' | 'exterior_detail' | 'premium_detail' | 'custom';
-  status: 'pending' | 'in_progress' | 'completed' | 'cancelled';
-  priority: 'low' | 'medium' | 'high' | 'urgent';
-  scheduledDate: string;
-  estimatedDuration: number;
-  actualDuration?: number;
-  startTime?: string;
-  endTime?: string;
-  price: number;
-  discount?: number;
-  totalPrice: number;
-  notes?: string;
-  customerNotes?: string;
-  beforePhotos?: string[];
-  afterPhotos?: string[];
-  services: string[];
-  materials: string[];
-}
-
-export interface JobStats {
-  totalJobs: number;
-  pendingJobs: number;
-  inProgressJobs: number;
-  completedJobs: number;
-  todayJobs: number;
-  totalRevenue: number;
-  todayRevenue: number;
-}
 
 export enum ServiceType {
   BASIC_WASH = 'Basic Wash',
@@ -160,26 +97,6 @@ export enum ServiceType {
   HEADLIGHT_RESTORATION = 'Headlight Restoration',
   LEATHER_CARE = 'Leather Care',
   ENGINE_BAY_CLEANING = 'Engine Bay Cleaning'
-}
-
-export enum JobStatus {
-  SCHEDULED = 'Scheduled',
-  IN_PROGRESS = 'In Progress',
-  COMPLETED = 'Completed',
-  DELIVERED = 'Delivered',
-  CANCELLED = 'Cancelled'
-}
-
-// Billing & Receipts Types
-export interface ServicePackage {
-  id: string;
-  name: string;
-  description: string;
-  price: number;
-  duration: number; // in minutes
-  isActive: boolean;
-  createdAt: Date;
-  updatedAt: Date;
 }
 
 export interface CreateInvoicePayload {
@@ -197,29 +114,6 @@ export interface CreateInvoicePayload {
     unitPrice: number;
     totalPrice: number;
   }>;
-}
-
-export interface Invoice {
-  id: number;
-  invoiceNumber: string;
-  customerId: number;
-  jobId?: number;
-  subtotal: number;
-  taxAmount: number;
-  discountAmount: number;
-  totalAmount: number;
-  status: 'draft' | 'pending' | 'paid' | 'overdue' | 'cancelled' | 'partial';
-  paymentMethod?: 'cash' | 'card' | 'bank_transfer' | 'upi' | 'wallet' | 'check';
-  dueDate: string;
-  paidDate?: string;
-  notes?: string;
-  terms?: string;
-  isActive: boolean;
-  createdAt: string;
-  updatedAt: string;
-  customer?: Customer;
-  job?: Job;
-  items?: InvoiceItem[];
 }
 
 // Define the InvoiceItem type based on its usage in AddInvoiceModal

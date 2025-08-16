@@ -1,7 +1,7 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import toast from 'react-hot-toast';
 import { customerAPI, customerQueries } from '../api/customers';
-import type { Customer, CustomerStats, CustomerUpdateData, CustomerCreateData, CustomerMutationVariables } from '../types/customer';
+import type { Customer, CustomerStats, CustomerCreateData, CustomerMutationVariables } from '../types/customer';
 
 // Hook for fetching customers list
 export const useCustomers = () => {

@@ -26,7 +26,7 @@ const Header: React.FC = () => {
       </div>
       <div className="flex items-center gap-4">
         <div className="flex flex-col items-end">
-          <span className="font-medium text-gray-100 text-sm">{user?.username}</span>
+          <span className="font-medium text-gray-100 text-sm">{user?.name}</span>
           <span className="text-xs text-gray-400 capitalize">{user?.role}</span>
         </div>
         <button

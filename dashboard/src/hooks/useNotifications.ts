@@ -6,8 +6,6 @@ import {
   markNotificationsAsRead,
   deleteNotification,
   createNotification,
-  type Notification,
-  type NotificationStats,
   type NotificationFilters
 } from '../api/notifications';
 

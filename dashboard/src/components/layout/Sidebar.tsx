@@ -21,7 +21,7 @@ import {
 const Sidebar: React.FC = () => {
   const { user } = useAuth();
   const [isCollapsed, setIsCollapsed] = useState(false);
-  const isAdmin = user?.role === 'admin';
+  // const isAdmin = user?.role === 'admin';
   
   // Get booking stats to show pending count
   const { data: bookingStats } = useBookingStats();
@@ -178,14 +178,14 @@ const Sidebar: React.FC = () => {
           <div className="flex items-center gap-4">
             <div className="relative group">
               <div className="w-14 h-14 bg-gradient-to-br from-orange-400 via-red-500 to-pink-500 rounded-full flex items-center justify-center text-white font-bold text-lg shadow-lg ring-2 ring-gray-700/50 group-hover:ring-orange-400/50 transition-all duration-300">
-                {user.username?.charAt(0).toUpperCase() || 'U'}
+                {user.name?.charAt(0).toUpperCase() || 'U'}
               </div>
               <div className="absolute -bottom-1 -right-1 w-4 h-4 bg-green-400 rounded-full border-2 border-gray-900 animate-pulse"></div>
               <div className="absolute inset-0 bg-gradient-to-br from-orange-400/20 to-transparent rounded-full animate-pulse"></div>
             </div>
             <div className="flex-1 min-w-0">
               <div className="font-medium text-gray-100 truncate text-lg">
-                {user.username}
+                {user.name}
               </div>
               <div className="text-xs text-gray-400 capitalize flex items-center gap-2 mt-1">
                 <ShieldCheckIcon className="h-3 w-3 text-orange-400" />
