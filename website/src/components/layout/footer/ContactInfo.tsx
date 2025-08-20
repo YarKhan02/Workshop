@@ -1,13 +1,13 @@
 import React from 'react';
-import { Phone, Mail, MapPin, Clock } from 'lucide-react';
+import { Mail, MapPin, Clock } from 'lucide-react';
 import { themeClasses } from '../../../config/theme';
 
 const contactData = [
-  {
-    icon: Phone,
-    title: 'Call Us',
-    content: '+91 98765 43210',
-  },
+  // {
+  //   icon: Phone,
+  //   title: 'Call Us',
+  //   content: '034190655342',
+  // },
   {
     icon: Mail,
     title: 'Email',
@@ -16,7 +16,7 @@ const contactData = [
   {
     icon: MapPin,
     title: 'Address',
-    content: '123 Auto Street, Car City\nMumbai, Maharashtra 400001',
+    content: '176-C Al-Murtaza Commercial Lane 3, DHA Phase 8\nKarachi, Pakistan 75500',
   },
   {
     icon: Clock,

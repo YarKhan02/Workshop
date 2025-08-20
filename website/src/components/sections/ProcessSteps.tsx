@@ -32,19 +32,20 @@ const ProcessSteps: React.FC<ProcessStepsProps> = ({
 
         <div className="grid md:grid-cols-4 gap-8">
           {steps.map((step, index) => (
-            <div key={index} className="text-center group">
-              <div className="relative mb-8">
-                <div className="w-20 h-20 mx-auto bg-gradient-to-br from-orange-500 to-orange-600 rounded-full flex items-center justify-center group-hover:scale-110 transition-transform duration-300 shadow-lg">
+            <div key={index} className="text-center group relative flex flex-col items-center">
+              {/* Connecting Line - always consistent, solid, and behind the circle */}
+              {index < steps.length - 1 && (
+                <div
+                  className="hidden md:block absolute top-1/2 left-1/2 translate-x-1/2 w-[calc(100%+2rem)] h-0.5 bg-orange-500 z-0"
+                  style={{ right: '-50%', left: '50%', transform: 'translateY(-50%)', width: 'calc(100% + 2rem)' }}
+                ></div>
+              )}
+              <div className="relative mb-8 z-10">
+                <div className="w-20 h-20 mx-auto bg-orange-500 rounded-full flex items-center justify-center">
                   <span className="text-2xl font-bold text-black">{step.step}</span>
                 </div>
-                
-                {/* Connecting Line */}
-                {index < steps.length - 1 && (
-                  <div className="hidden md:block absolute top-10 left-full w-full h-0.5 bg-gradient-to-r from-orange-500/50 to-transparent"></div>
-                )}
               </div>
-              
-              <h3 className="text-xl font-bold text-white mb-4 group-hover:text-orange-400 transition-colors duration-300">
+              <h3 className="text-xl font-bold text-white mb-4">
                 {step.title}
               </h3>
               <p className="text-white/70 leading-relaxed">

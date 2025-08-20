@@ -1,6 +1,6 @@
 # workshop/views/service_view.py
 from rest_framework import viewsets, status
-from workshop.permissions import IsAdmin
+from workshop.permissions import IsAdmin, IsCustomer
 from rest_framework.decorators import action
 from rest_framework.response import Response
 
@@ -13,7 +13,14 @@ from workshop.serializers.booking_serializer import (
 
 
 class ServiceView(viewsets.ViewSet):
-    # permission_classes = [IsAdmin]
+
+    # Define permissions for each action
+    def get_permissions(self):
+        if self.action in ['get_services']:  
+            permission_classes = [IsAdmin | IsCustomer]
+        else:
+            permission_classes = [IsAdmin]
+        return [perm() for perm in permission_classes]
 
     
     # List all services (both active and inactive for admin)
@@ -44,14 +51,6 @@ class ServiceView(viewsets.ViewSet):
         if category:
             queryset = queryset.filter(category=category)
         
-        serializer = ServiceListSerializer(queryset, many=True)
-        return Response(serializer.data)
-
-    
-    # Get detailed service information (all active services)
-    @action(detail=False, methods=['get'], url_path='details')
-    def get_service_details(self, request):
-        queryset = Service.objects.filter(is_active=True)
         serializer = ServiceSerializer(queryset, many=True)
         return Response(serializer.data)
 

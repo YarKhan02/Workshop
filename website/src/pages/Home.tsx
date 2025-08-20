@@ -4,14 +4,14 @@ import HeroSection from '../components/sections/HeroSection';
 import ServicesSection from '../components/sections/ServicesSection';
 import FeaturesSection from '../components/sections/FeaturesSection';
 import StatsSection from '../components/sections/StatsSection';
-import TestimonialsSection from '../components/sections/TestimonialsSection';
+// import TestimonialsSection from '../components/sections/TestimonialsSection';
 import CTASection from '../components/sections/CTASection';
 import {
   heroData,
   servicesData,
   featuresData,
   statsData,
-  testimonialsData,
+  // testimonialsData,
   ctaData,
 } from '../data/homeData';
 
@@ -31,6 +31,10 @@ const Home: React.FC = () => {
         subtitle={servicesData.subtitle}
         ctaLink={servicesData.ctaLink}
       />
+
+      <StatsSection
+        stats={statsData}
+      />
       
       <FeaturesSection
         title={featuresData.title}
@@ -38,15 +42,11 @@ const Home: React.FC = () => {
         features={featuresData.features}
       />
       
-      <StatsSection
-        stats={statsData}
-      />
-      
-      <TestimonialsSection
+      {/* <TestimonialsSection
         title={testimonialsData.title}
         subtitle={testimonialsData.subtitle}
         testimonials={testimonialsData.testimonials}
-      />
+      /> */}
       
       <CTASection
         title={ctaData.title}

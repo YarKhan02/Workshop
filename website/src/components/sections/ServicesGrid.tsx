@@ -1,6 +1,6 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import ServiceCard from '../ui/ServiceCard';
-import { servicesAPI, Service, ServiceCategory } from '../../services/api/services';
+import { useServices } from '../../hooks/useServices';
 
 interface ServicesGridProps {
   ctaLink?: string;
@@ -9,43 +9,12 @@ interface ServicesGridProps {
 const ServicesGrid: React.FC<ServicesGridProps> = ({ 
   ctaLink = '/book' 
 }) => {
-  const [services, setServices] = useState<Service[]>([]);
-  const [categories, setCategories] = useState<ServiceCategory[]>([]);
+  const { services, categories, loading, error, refetch } = useServices();
   const [selectedCategory, setSelectedCategory] = useState('All');
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-
-  // Fetch services and categories on component mount
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        setLoading(true);
-        setError(null);
-
-        // Fetch services (only active ones for public display)
-        const servicesResponse = await servicesAPI.getServices(undefined, true);
-        if (servicesResponse.data) {
-          setServices(servicesResponse.data);
-        }
-
-        // Get categories from services
-        const categoriesData = await servicesAPI.getCategories();
-        setCategories([{ value: 'All', label: 'All Services' }, ...categoriesData]);
-
-      } catch (err) {
-        console.error('Error fetching services:', err);
-        setError('Failed to load services. Please try again later.');
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchData();
-  }, []);
   
   // Filter services based on selected category
-  const filteredServices = selectedCategory === 'All' 
-    ? services 
+  const filteredServices = selectedCategory === 'All'
+    ? services
     : services.filter(service => service.category === selectedCategory);
 
   // Show loading state
@@ -73,7 +42,7 @@ const ServicesGrid: React.FC<ServicesGridProps> = ({
             <div className="text-center">
               <p className="text-red-400 mb-4">{error}</p>
               <button 
-                onClick={() => window.location.reload()}
+                onClick={refetch}
                 className="px-6 py-3 bg-orange-500 text-black rounded-lg font-medium hover:bg-orange-400 transition-colors"
               >
                 Retry

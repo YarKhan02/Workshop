@@ -1,4 +1,4 @@
-import { Phone, Mail, MapPin, Clock, CheckCircle } from 'lucide-react';
+import { Mail, MapPin, Clock, CheckCircle } from 'lucide-react';
 
 export const contactPageData = {
   hero: {
@@ -8,23 +8,23 @@ export const contactPageData = {
   },
 
   contactInfo: [
-    {
-      icon: Phone,
-      title: 'Call Us',
-      details: '+91 98765 43210',
-      subtext: 'Mon-Sun, 8:00 AM - 8:00 PM'
-    },
+    // {
+    //   icon: Phone,
+    //   title: 'Call Us',
+    //   details: '+91 98765 43210',
+    //   subtext: 'Mon-Sun, 8:00 AM - 8:00 PM'
+    // },
     {
       icon: Mail,
       title: 'Email Us',
-      details: 'info@detailinghub.com',
+      details: 'admin@detailinghubpk.com',
       subtext: 'We reply within 2 hours'
     },
     {
       icon: MapPin,
       title: 'Visit Us',
-      details: '123 Auto Street, Car City',
-      subtext: 'Mumbai, Maharashtra 400001'
+      details: '176-C Al-Murtaza Commercial Lane 3, DHA Phase 8',
+      subtext: 'Karachi, Pakistan 75500'
     },
     {
       icon: Clock,
@@ -79,8 +79,8 @@ export const contactPageData = {
 
   location: {
     title: 'Find Us Here',
-    address: '123 Auto Street, Car City',
-    city: 'Mumbai, Maharashtra 400001',
+    address: '176-C Al-Murtaza Commercial Lane 3, DHA Phase 8',
+    city: 'Karachi, Pakistan 75500',
     mapPlaceholder: 'Interactive map coming soon'
   },
 
@@ -89,8 +89,8 @@ export const contactPageData = {
     features: [
       {
         icon: CheckCircle,
-        title: 'Free Pickup & Delivery',
-        description: 'Convenient service at your location'
+        title: 'On-Demand Scheduling',
+        description: 'Book a wash anytime that fits your schedule'
       },
       {
         icon: CheckCircle,

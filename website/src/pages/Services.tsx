@@ -2,7 +2,6 @@ import React from 'react';
 import Layout from '../components/layout/Layout';
 import PageHero from '../components/ui/PageHero';
 import ServicesGrid from '../components/sections/ServicesGrid';
-import AddOnsSection from '../components/sections/AddOnsSection';
 import ProcessSteps from '../components/sections/ProcessSteps';
 import GuaranteeSection from '../components/sections/GuaranteeSection';
 import CTASection from '../components/sections/CTASection';
@@ -31,10 +30,6 @@ const Services: React.FC = () => {
       
       <ServicesGrid 
         ctaLink="/book"
-      />
-      
-      <AddOnsSection 
-        addOns={servicesPageData.addOns}
       />
       
       <ProcessSteps 

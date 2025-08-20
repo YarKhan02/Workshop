@@ -1,6 +1,7 @@
 // API client configuration for the website
 import { handleAuthError } from '../../utils/authErrorHandler';
 
+// const API_BASE_URL = 'https://api.detailinghubpk.com';
 const API_BASE_URL = 'http://localhost:8000';
 
 interface ApiResponse<T> {

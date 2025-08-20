@@ -1,4 +1,4 @@
-import { Car, Star, Shield, Clock, Users } from 'lucide-react';
+import { Shield, Clock, Users } from 'lucide-react';
 
 export const heroData = {
   title: {
@@ -26,32 +26,6 @@ export const servicesData = {
   title: 'Choose Your Perfect Package',
   subtitle: 'From basic cleaning to premium protection, we have the perfect service for your vehicle',
   ctaLink: '/book',
-  services: [
-    {
-      name: 'Exterior Detailing',
-      description: 'Complete exterior cleaning with premium products and ceramic coating',
-      price: '₹1,299',
-      originalPrice: '₹1,599',
-      icon: Car,
-      features: ['Hand wash', 'Tire detailing', 'Window cleaning', 'Ceramic protection', 'Paint correction']
-    },
-    {
-      name: 'Interior Deep Clean',
-      description: 'Professional interior cleaning and sanitization service',
-      price: '₹899',
-      originalPrice: '₹1,199',
-      icon: Shield,
-      features: ['Vacuum cleaning', 'Dashboard restoration', 'Leather treatment', 'Odor removal', 'UV protection']
-    },
-    {
-      name: 'Premium Full Detail',
-      description: 'Complete transformation inside and out with premium protection',
-      price: '₹2,499',
-      originalPrice: '₹2,999',
-      icon: Star,
-      features: ['Everything included', 'Paint correction', 'Ceramic coating', 'Interior protection', '6-month warranty']
-    }
-  ],
 };
 
 export const featuresData = {

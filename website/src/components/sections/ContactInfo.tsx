@@ -16,7 +16,7 @@ const ContactInfo: React.FC<ContactInfoProps> = ({ contactInfo }) => {
   return (
     <section className="py-16 bg-black">
       <div className="container mx-auto px-4">
-        <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
+        <div className="flex flex-col md:grid md:grid-cols-2 lg:flex lg:flex-row lg:justify-center lg:items-center lg:gap-32 gap-8">
           {contactInfo.map((info, index) => {
             const IconComponent = info.icon;
             return (

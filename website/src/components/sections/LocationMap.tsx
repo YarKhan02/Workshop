@@ -1,6 +1,7 @@
 import React from 'react';
 import { MapPin } from 'lucide-react';
 import { LucideIcon } from 'lucide-react';
+import { themeClasses } from '../../config/theme';
 
 interface LocationData {
   title: string;
@@ -47,7 +48,7 @@ const LocationMap: React.FC<LocationMapProps> = ({ location, whyChooseUs }) => {
       </div>
 
       {/* Why Choose Us */}
-      <div className="bg-gray-900 rounded-2xl shadow-xl p-8 border border-gray-800">
+      <div className={`${themeClasses.card.primary} p-8`}>
         <h3 className="text-2xl font-bold text-white mb-6">{whyChooseUs.title}</h3>
         <div className="space-y-4">
           {whyChooseUs.features.map((feature, index) => {

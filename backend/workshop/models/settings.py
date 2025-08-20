@@ -8,10 +8,10 @@ from workshop.models import User
 
 
 class BusinessSettings(models.Model):
-    """Business/Workshop settings"""
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     name = models.CharField(max_length=255, default='Detailing Hub')
     address = models.TextField(blank=True)
+    city = models.CharField(max_length=25, blank=True)
     phone = models.CharField(max_length=20, blank=True)
     email = models.EmailField(validators=[EmailValidator()], blank=True)
     password = models.CharField(max_length=128, blank=True)  # For admin use
@@ -48,7 +48,8 @@ class BusinessSettings(models.Model):
             id=uuid.UUID('00000000-0000-0000-0000-000000000001'),
             defaults={
                 'name': 'Detailing Hub',
-                'address': '123 Main Street, City, State 12345',
+                'address': '176-C Al-Murtaza Commercial Lane 3, DHA Phase 8',
+                'city': 'Karachi, Pakistan 75500',
                 'phone': '+923001234567',
                 'email': 'admin@detailinghubpk.com',
                 'website': 'https://detailinghubpk.com',

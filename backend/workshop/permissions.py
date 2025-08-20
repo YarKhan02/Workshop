@@ -1,5 +1,4 @@
 from rest_framework import permissions
-from workshop.models.customer import Customer
 from django.contrib.auth import get_user_model
 
 User = get_user_model()

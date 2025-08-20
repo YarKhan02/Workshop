@@ -20,3 +20,9 @@ class BookingService(models.Model):
 
     price = models.DecimalField(max_digits=10, decimal_places=2)
     status = models.CharField(max_length=20, choices=Status.choices, default=Status.PENDING)
+
+    class Meta:
+        db_table = 'booking_service'
+
+    def __str__(self):
+        return f"Booking Service - {self.id}"

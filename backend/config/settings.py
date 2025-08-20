@@ -5,13 +5,18 @@ from datetime import timedelta
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-# SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-@9itwpwrzv6!o9n&7%c3j*72zvlq*bs)*g%94+#v4=&=!@djf$'
+SECRET_KEY = config('SECRET_KEY')
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['localhost', '127.0.0.1', '*']
+ALLOWED_HOSTS = [
+    'api.detailinghubpk.com', 
+    "detailinghubpk.com",
+    "www.detailinghubpk.com",
+    "admin.detailinghubpk.com",
+    'localhost', '127.0.0.1', '*'
+]
 
 
 # Application definition
@@ -66,6 +71,8 @@ MIDDLEWARE = [
 CORS_ALLOW_CREDENTIALS = True
 
 CORS_ALLOWED_ORIGINS = [
+    "https://detailinghubpk.com",
+    "https://admin.detailinghubpk.com",
     "http://localhost:3000",  # Frontend website
     "http://localhost:3001",  # Frontend dashboard
 ]

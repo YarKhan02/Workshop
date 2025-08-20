@@ -12,7 +12,7 @@ from .auth.token_management import TokenRefreshView, LogoutView
 from .auth.auth_status import CustomerAuthStatusView, AdminAuthStatusView
 from .auth.registration import CustomerRegisterView
 
-from .views import ProfileView, CustomerView, CarView, ProductView, ProductVariantView, StockMovementView, InvoiceView, DashboardView
+from .views import ProfileView, CustomerView, CarView, ProductView, ProductVariantView, StockMovementView, InvoiceView, DashboardView, ContactView
 from .views.booking_view import BookingView
 from .views.service_view import ServiceView
 from .views.notification_view import NotificationView
@@ -30,6 +30,7 @@ router.register(r'bookings', BookingView, basename='booking')
 router.register(r'services', ServiceView, basename='service')
 router.register(r'settings', SettingsView, basename='settings')
 router.register(r'dashboard', DashboardView, basename='dashboard')
+router.register(r'contact', ContactView, basename='contact')
 # router.register(r'notifications', NotificationView, basename='notification')
 
 router.register(r'customer', MyBookingsView, basename='customer-bookings')

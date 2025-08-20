@@ -22,10 +22,6 @@ const FeaturesSection: React.FC<FeaturesSectionProps> = ({
   return (
     <section className={`${themeClasses.section.primary} relative overflow-hidden`}>
       {/* Background Elements */}
-      <div className="absolute inset-0">
-        <div className="absolute top-1/4 left-10 w-32 h-32 bg-orange-500/10 rounded-full blur-xl"></div>
-        <div className="absolute bottom-1/4 right-10 w-40 h-40 bg-orange-600/10 rounded-full blur-xl"></div>
-      </div>
       
       <div className="container mx-auto px-4 relative z-10">
         <div className="text-center mb-20">

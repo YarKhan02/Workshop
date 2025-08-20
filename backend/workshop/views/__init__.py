@@ -10,5 +10,6 @@ from .booking_view import BookingView
 from .service_view import ServiceView
 from .dashboard_view import DashboardView
 from .notification_view import NotificationView
+from .contact_view import ContactView
 
 from .my_bookings_view import MyBookingsView
