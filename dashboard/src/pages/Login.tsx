@@ -161,7 +161,7 @@ const Login: React.FC = () => {
           {/* Mobile Logo */}
           <div className="lg:hidden text-center mb-8">
             <img 
-              src="/assets/logo-200x60.png" 
+              src="/assets/detailing-hub-logo-no-bg.png" 
               alt="Detailing Hub" 
               className="h-16 w-auto mx-auto object-contain mb-4"
             />
