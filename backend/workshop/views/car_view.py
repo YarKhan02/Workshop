@@ -12,7 +12,7 @@ from workshop.serializers.car_serializer import CarSerializer
 class CarView(viewsets.ViewSet):
 
     def get_permissions(self):
-        if self.action in ['car_details', 'add_car']:  
+        if self.action in ['cars_by_customer', 'add_car']:
             permission_classes = [IsAdmin | IsCustomer]
         else:
             permission_classes = [IsAdmin]
@@ -42,8 +42,7 @@ class CarView(viewsets.ViewSet):
     
     @action(detail=False, methods=['get'], url_path='by-customer')
     def cars_by_customer(self, request):
-        customer_id = request.query_params.get('customer_id')
-        result = self.car_service.get_cars_by_customer(customer_id)
+        result = self.car_service.get_cars_by_customer(request.user.id)
         if 'error' in result:
             if result['error'] == 'customer_id query parameter is required':
                 return Response(result, status=status.HTTP_400_BAD_REQUEST)

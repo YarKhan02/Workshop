@@ -26,7 +26,7 @@ export const servicesAPI = {
 export const carsAPI = {
   // Get user's cars
   getMyCars: async () => {
-    return apiClient.get<Car[]>('/cars/details/');
+    return apiClient.get<Car[]>('/cars/by-customer/');
   },
 
   // Add a new car
