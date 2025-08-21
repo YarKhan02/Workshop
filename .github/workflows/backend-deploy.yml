@@ -20,11 +20,9 @@ jobs:
           username: ${{ secrets.EC2_USER }}
           key: ${{ secrets.EC2_KEY }}
           script: |
-            cd /srv/django
+            cd /srv/django/Workshop/backend
 
             git pull origin main
-
-            cd Workshop/backend
 
             # Remove any existing virtual environment
             if [ -d "venv" ]; then

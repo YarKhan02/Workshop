@@ -27,8 +27,8 @@ class TokenRefreshView(APIView):
                     key='admin_access_token',
                     value=access_token,
                     httponly=True,
-                    secure=False,
-                    samesite='Lax',
+                    secure=True,
+                    samesite='Strict',
                     max_age=8*60*60,  # 8 hours
                     path='/'
                 )
@@ -46,8 +46,8 @@ class TokenRefreshView(APIView):
                     key='customer_access_token',
                     value=access_token,
                     httponly=True,
-                    secure=False,
-                    samesite='Lax',
+                    secure=True,
+                    samesite='Strict',
                     max_age=8*60*60,  # 8 hours
                     path='/'
                 )

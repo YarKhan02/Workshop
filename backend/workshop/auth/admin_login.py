@@ -47,8 +47,8 @@ class AdminLoginView(APIView):
                     key='admin_refresh_token',
                     value=str(refresh),
                     httponly=True,
-                    secure=False,  # Set to True in production with HTTPS
-                    samesite='Lax',
+                    secure=True,  # Set to True in production with HTTPS
+                    samesite='Strict',
                     max_age=7*24*60*60,  # 7 days
                     path='/auth/'
                 )
@@ -57,7 +57,7 @@ class AdminLoginView(APIView):
                     value=access_token,
                     httponly=True,
                     secure=False,  # Set to True in production with HTTPS
-                    samesite='Lax',
+                    samesite='Strict',
                     max_age=8*60*60,  # 8 hours
                     path='/'
                 )
