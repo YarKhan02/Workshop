@@ -53,7 +53,7 @@ const MyBookings: React.FC = () => {
   };
 
   return (
-    <Layout>
+    <Layout showFooter={false}>
       <div className={`min-h-screen bg-black text-white`}>
         {/* Hero Section */}
         <PageHero

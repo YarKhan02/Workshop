@@ -140,22 +140,24 @@ const Sidebar: React.FC = () => {
         {!isCollapsed && (
           <div className="flex items-center gap-4">
             <div className="relative">
-              <img 
-                src="/assets/logo-200x60.png" 
-                alt="Detailing Hub" 
-                className="h-12 w-auto object-contain"
-              />
+                <img 
+                  src="/assets/detailing-hub-logo-no-bg.png" 
+                  alt="Detailing Hub" 
+                  className="h-20 w-auto object-contain drop-shadow-none bg-transparent"
+                  style={{ background: 'none' }}
+                />
             </div>
           </div>
         )}
         
         {isCollapsed && (
           <div className="flex items-center justify-center">
-            <img 
-              src="/assets/logo-32.png" 
-              alt="Detailing Hub" 
-              className="h-8 w-8 object-contain"
-            />
+              <img 
+                src="/assets/detailing-hub-logo-no-bg.png" 
+                alt="Detailing Hub" 
+                className="h-12 w-12 object-contain drop-shadow-none bg-transparent"
+                style={{ background: 'none' }}
+              />
           </div>
         )}
         
@@ -213,7 +215,7 @@ const Sidebar: React.FC = () => {
       <div className={`p-6 border-t border-gray-700/30 bg-gradient-to-r from-gray-800/30 to-slate-800/30 backdrop-blur-md ${isCollapsed ? 'text-center' : ''}`}>
         {isCollapsed ? (
           <img 
-            src="/assets/logo-32.png" 
+            src="/assets/detailing-hub-logo-no-bg.png" 
             alt="Detailing Hub" 
             className="w-10 h-10 mx-auto object-contain opacity-80"
           />

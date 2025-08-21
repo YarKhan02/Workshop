@@ -16,8 +16,8 @@ class ServiceView(viewsets.ViewSet):
 
     # Define permissions for each action
     def get_permissions(self):
-        if self.action in ['get_services']:  
-            permission_classes = [IsAdmin | IsCustomer]
+        if self.action in ['get_services', 'get_service_detail']:  
+            permission_classes = []
         else:
             permission_classes = [IsAdmin]
         return [perm() for perm in permission_classes]

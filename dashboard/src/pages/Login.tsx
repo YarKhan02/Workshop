@@ -99,7 +99,7 @@ const Login: React.FC = () => {
           {/* Large Logo */}
           <div className="mb-8">
             <img 
-              src="/assets/logo-512.png" 
+              src="/assets/detailing-hub-logo-no-bg.png" 
               alt="Detailing Hub" 
               className="w-full max-w-sm mx-auto object-contain filter drop-shadow-2xl"
             />
@@ -144,7 +144,7 @@ const Login: React.FC = () => {
         Detailing Hub • Peak Performance Management
       </p>
       <p style={{ fontSize: '0.7rem', color: '#475569' }}>
-        © 2024 All rights reserved
+        © 2025 All rights reserved
       </p>
     </motion.div>
   );

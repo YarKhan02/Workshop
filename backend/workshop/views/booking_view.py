@@ -8,7 +8,12 @@ from workshop.services.booking_service import BookingService
 
 class BookingView(viewsets.ViewSet):
     
-    # permission_classes = [IsAdmin]
+    def get_permissions(self):
+        if self.action in ['create_customer_booking', 'get_available_dates']:  
+            permission_classes = [IsCustomer]
+        else:
+            permission_classes = [IsAdmin]
+        return [perm() for perm in permission_classes]
     
     def __init__(self, **kwargs):
         super().__init__(**kwargs)

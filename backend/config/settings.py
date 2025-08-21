@@ -13,7 +13,6 @@ DEBUG = True
 ALLOWED_HOSTS = [
     'api.detailinghubpk.com', 
     "detailinghubpk.com",
-    "www.detailinghubpk.com",
     "admin.detailinghubpk.com",
     'localhost', '127.0.0.1', '*'
 ]
@@ -134,6 +133,17 @@ DATABASES = {
 }
 
 
+# GoDaddy Email SMTP settings
+
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = 'smtpout.secureserver.net'
+EMAIL_PORT = 587
+EMAIL_HOST_USER = 'admin@detailinghubpk.com'
+EMAIL_HOST_PASSWORD = config('EMAIL_HOST_PASSWORD')
+EMAIL_USE_TLS = True
+DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
+
+
 # Password validation
 
 AUTH_PASSWORD_VALIDATORS = [
@@ -167,7 +177,6 @@ STATIC_URL = 'static/'
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 # Security Settings for Production
-# Uncomment these for production deployment with HTTPS
 
 # SECURE_SSL_REDIRECT = True  # Redirect HTTP to HTTPS
 # SECURE_HSTS_SECONDS = 31536000  # HTTP Strict Transport Security

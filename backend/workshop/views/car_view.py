@@ -11,7 +11,12 @@ from workshop.serializers.car_serializer import CarSerializer
 
 class CarView(viewsets.ViewSet):
 
-    # permission_classes = [IsAdmin, IsCustomer]
+    def get_permissions(self):
+        if self.action in ['car_details', 'add_car']:  
+            permission_classes = [IsAdmin | IsCustomer]
+        else:
+            permission_classes = [IsAdmin]
+        return [perm() for perm in permission_classes]
     
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
