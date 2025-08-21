@@ -20,7 +20,7 @@ jobs:
           username: ${{ secrets.EC2_USER }}
           key: ${{ secrets.EC2_KEY }}
           script: |
-            cd /srv/django/Workshop/backend   # your repo path
+            cd /srv/django
 
             git pull origin main
 
