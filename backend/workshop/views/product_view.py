@@ -9,7 +9,7 @@ from workshop.services.product_service import ProductService
 
 class ProductView(viewsets.ViewSet):
     
-    # permission_classes = [IsAdmin]
+    permission_classes = [IsAdmin]
     
     def __init__(self, **kwargs):
         super().__init__(**kwargs)

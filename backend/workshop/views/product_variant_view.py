@@ -3,9 +3,12 @@ from rest_framework import viewsets, status
 from rest_framework.response import Response
 from rest_framework.decorators import action
 from workshop.services.product_variant_service import ProductVariantService
+from workshop.permissions import IsAdmin
 
 
 class ProductVariantView(viewsets.ViewSet):
+
+    permission_classes = [IsAdmin]
     
     def __init__(self, **kwargs):
         super().__init__(**kwargs)

@@ -9,7 +9,7 @@ from workshop.services.invoice_service import InvoiceService
 
 class InvoiceView(viewsets.ViewSet):
     
-    # permission_classes = [IsAdmin]
+    permission_classes = [IsAdmin]
     
     def __init__(self, **kwargs):
         super().__init__(**kwargs)

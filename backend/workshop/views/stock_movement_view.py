@@ -6,12 +6,12 @@ from rest_framework.viewsets import ViewSet
 from rest_framework.decorators import action
 from workshop.services.stock_movement_service import StockMovementService
 from workshop.models.product_variant import ProductVariant
+from workshop.permissions import IsAdmin
 
 
 class StockMovementView(ViewSet):
-    """
-    ViewSet for handling all stock movement operations
-    """
+    
+    permission_classes = [IsAdmin]
 
     def _validate_quantity(self, quantity_data, field_name='quantity'):
         """Helper method to validate quantity input"""
