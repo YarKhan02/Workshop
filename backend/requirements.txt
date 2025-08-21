@@ -11,3 +11,5 @@ django-cors-headers
 faker
 
 django-phonenumber-field[phonenumbers]
+
+gunicorn>=20.1.0
