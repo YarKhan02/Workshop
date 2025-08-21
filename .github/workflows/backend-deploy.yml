@@ -24,6 +24,8 @@ jobs:
 
             git pull origin main
 
+            cd Workshop/backend
+
             # Remove any existing virtual environment
             if [ -d "venv" ]; then
               echo "Removing existing virtual environment..."
