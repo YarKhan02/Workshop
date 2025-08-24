@@ -235,7 +235,7 @@ const Services: React.FC = () => {
         <div>
           <ServiceTable
             services={paginationData.items}
-            isLoading={isLoading && !error} // Don't show loading spinner if there's an error
+            isLoading={isLoading && !error}
             onViewService={handleViewService}
             onEditService={handleEditService}
             onToggleStatus={handleToggleStatus}

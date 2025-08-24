@@ -104,13 +104,13 @@ const BookingTable: React.FC<BookingTableProps> = ({
       label: 'View Details',
       icon: Eye,
       onClick: onViewBooking,
-      className: 'text-orange-400 hover:text-orange-300 transition-colors duration-200 p-1.5 rounded-lg hover:bg-orange-500/20',
+      className: theme.components.table.actionButtonView,
     },
     {
       label: 'Edit Appointment',
       icon: Edit,
       onClick: onEditBooking,
-      className: 'text-emerald-400 hover:text-emerald-300 transition-colors duration-200 p-1.5 rounded-lg hover:bg-emerald-500/20',
+      className: theme.components.table.actionButtonEdit,
     },
   ];
 

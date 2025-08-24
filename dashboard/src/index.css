@@ -1,14 +1,197 @@
+/* Utility to completely hide scrollbars (for collapsed sidebar) */
+.scrollbar-hide {
+  -ms-overflow-style: none; /* IE and Edge */
+  scrollbar-width: none; /* Firefox */
+}
+.scrollbar-hide::-webkit-scrollbar {
+  display: none; /* Chrome, Safari, Opera */
+}
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 @layer base {
+  :root {
+    /* Core Background & Text */
+    --background: 222 84% 4.9%;
+    --foreground: 210 40% 98%;
+    
+    /* Cards & Surfaces */
+    --card: 222 84% 6.1%;
+    --card-foreground: 210 40% 98%;
+    --card-glow: 222 84% 8%;
+
+    /* Popover */
+    --popover: 222 84% 6.1%;
+    --popover-foreground: 210 40% 98%;
+
+    /* Primary - Professional Automotive Blue */
+    --primary: 217 91% 60%;
+    --primary-foreground: 222 84% 4.9%;
+    --primary-glow: 217 91% 70%;
+
+    /* Secondary - Refined Gray */
+    --secondary: 217 32% 17%;
+    --secondary-foreground: 210 40% 98%;
+
+    /* Muted Elements */
+    --muted: 217 32% 15%;
+    --muted-foreground: 215 20% 65%;
+
+    /* Accent - Vibrant Highlight */
+    --accent: 142 76% 36%;
+    --accent-foreground: 210 40% 98%;
+    --accent-glow: 142 76% 46%;
+
+    /* Status Colors */
+    --success: 142 76% 36%;
+    --success-foreground: 210 40% 98%;
+    --warning: 38 92% 50%;
+    --warning-foreground: 222 84% 4.9%;
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 210 40% 98%;
+
+    /* Borders & Inputs */
+    --border: 217 32% 20%;
+    --input: 217 32% 17%;
+    --ring: 217 91% 60%;
+
+    /* Chart Colors */
+    --chart-1: 217 91% 60%;  /* Primary Blue */
+    --chart-2: 142 76% 36%;  /* Success Green */
+    --chart-3: 38 92% 50%;   /* Warning Orange */
+    --chart-4: 280 100% 70%; /* Purple */
+    --chart-5: 340 75% 55%;  /* Pink */
+    --chart-6: 43 74% 66%;   /* Light Orange */
+    --chart-7: 27 87% 67%;   /* Orange Red */
+    --chart-8: 12 76% 61%;   /* Red Orange */
+
+    /* Gradients */
+    --gradient-primary: linear-gradient(135deg, hsl(217 91% 60%), hsl(217 91% 70%));
+    --gradient-success: linear-gradient(135deg, hsl(142 76% 36%), hsl(142 76% 46%));
+    --gradient-card: linear-gradient(135deg, hsl(222 84% 6.1%), hsl(222 84% 8%));
+    --gradient-dashboard: linear-gradient(135deg, hsl(222 84% 4.9%) 0%, hsl(217 32% 15%) 100%);
+
+    /* Shadows */
+    --shadow-card: 0 4px 6px -1px rgba(0, 0, 0, 0.3), 0 2px 4px -1px rgba(0, 0, 0, 0.2);
+    --shadow-chart: 0 8px 30px rgba(59, 130, 246, 0.15);
+    --shadow-glow: 0 0 20px rgba(59, 130, 246, 0.3);
+
+    --radius: 0.75rem;
+
+    --sidebar-background: 0 0% 98%;
+
+    --sidebar-foreground: 240 5.3% 26.1%;
+
+    --sidebar-primary: 240 5.9% 10%;
+
+    --sidebar-primary-foreground: 0 0% 98%;
+
+    --sidebar-accent: 240 4.8% 95.9%;
+
+    --sidebar-accent-foreground: 240 5.9% 10%;
+
+    --sidebar-border: 220 13% 91%;
+
+    --sidebar-ring: 217.2 91.2% 59.8%;
+  }
+
+  /* Light mode overrides - keeping dashboard primarily dark */
+  .light {
+    --background: 0 0% 100%;
+    --foreground: 222 84% 4.9%;
+    --card: 0 0% 100%;
+    --card-foreground: 222 84% 4.9%;
+    --border: 214 31% 91%;
+    --input: 214 31% 91%;
+    --muted: 210 40% 96%;
+    --muted-foreground: 215 16% 47%;
+  }
+}
+
+@layer base {
+  * {
+    border-color: hsl(var(--border));
+  }
+
+  body {
+    @apply bg-background text-foreground font-sans antialiased;
+    background: #000000;
+    min-height: 100vh;
+  }
+
+  /* Hide all scrollbars globally */
+  ::-webkit-scrollbar {
+    display: none !important;
+  }
+  html, body {
+    -ms-overflow-style: none; /* IE and Edge */
+    scrollbar-width: none;    /* Firefox */
+  }
+}
+
+@layer components {
+  /* Chart Container */
+  .chart-container {
+    @apply bg-card rounded-xl p-6 border border-border/50 relative overflow-hidden;
+    background: var(--gradient-card);
+    box-shadow: var(--shadow-card);
+    backdrop-filter: blur(10px);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .chart-container:hover {
+    border-color: hsl(var(--primary) / 0.3);
+    box-shadow: var(--shadow-glow);
+  }
+
+  .chart-container::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, hsl(var(--primary) / 0.5), transparent);
+  }
+
+  /* Metric Card */
+  .metric-card {
+    @apply bg-card rounded-lg p-4 border border-border;
+    background: var(--gradient-card);
+    box-shadow: var(--shadow-card);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .metric-card:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-glow);
+  }
+
+  /* Dashboard Grid */
+  .dashboard-grid {
+    @apply grid gap-6;
+    grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+  }
+
+  /* Loading Animation */
+  .loading-pulse {
+    animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+  }
+
+  @keyframes pulse {
+    0%, 100% {
+      opacity: 1;
+    }
+    50% {
+      opacity: .5;
+    }
+  }
+}
+
+@layer base {
   html {
     font-family: 'Inter', system-ui, sans-serif;
-  }
-  
-  body {
-    @apply bg-gradient-to-br from-slate-900 via-gray-900 to-black text-gray-100;
   }
 }
 

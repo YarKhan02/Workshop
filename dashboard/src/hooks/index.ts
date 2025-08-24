@@ -10,3 +10,4 @@ export * from './useTableData';
 export * from './useNotifications';
 export * from './useSettings';
 export * from './useServices';
+export * from './useAnalytics';

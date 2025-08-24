@@ -177,6 +177,7 @@ const ServiceTable: React.FC<ServiceTableProps> = ({
     {
       label: 'View service',
       icon: Eye,
+      className: theme.components.table.actionButtonView,
       onClick: (service: Service) => {
         try {
           if (service?.id) {
@@ -190,6 +191,7 @@ const ServiceTable: React.FC<ServiceTableProps> = ({
     {
       label: 'Edit service',
       icon: Edit2,
+      className: theme.components.table.actionButtonEdit,
       onClick: (service: Service) => {
         try {
           if (service?.id) {
@@ -212,7 +214,7 @@ const ServiceTable: React.FC<ServiceTableProps> = ({
           console.warn('Error deleting service:', error);
         }
       },
-      className: "p-1 text-red-600 hover:text-red-400",
+      className: theme.components.table.actionButtonDelete,
     },
   ];
 

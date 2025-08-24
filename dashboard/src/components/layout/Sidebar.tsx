@@ -10,13 +10,13 @@ import {
   CalendarDaysIcon,
   CurrencyDollarIcon,
   Cog6ToothIcon,
-  ShieldCheckIcon,
   ChevronLeftIcon,
   ChevronRightIcon,
   Squares2X2Icon,
   ChartBarIcon,
   WrenchScrewdriverIcon
 } from '@heroicons/react/24/outline';
+import { ShieldAlertIcon, User } from 'lucide-react';
 
 const Sidebar: React.FC = () => {
   const { user } = useAuth();
@@ -62,11 +62,11 @@ const Sidebar: React.FC = () => {
     <div className="mb-8">
       {!isCollapsed && (
         <div className="flex items-center gap-3 mb-4 px-4">
-          <div className="h-px bg-gradient-to-r from-transparent via-gray-600 to-transparent flex-1"></div>
-          <h3 className="text-xs font-medium text-gray-400 uppercase tracking-widest">
+          <div className="h-px bg-gradient-to-r from-transparent via-[#ffffff] to-transparent flex-1"></div>
+          <h3 className="text-xs font-medium text-[#ffffff] uppercase tracking-widest">
             {title}
           </h3>
-          <div className="h-px bg-gradient-to-r from-transparent via-gray-600 to-transparent flex-1"></div>
+          <div className="h-px bg-gradient-to-r from-transparent via-[#ffffff] to-transparent flex-1"></div>
         </div>
       )}
       <div className="space-y-2">
@@ -132,11 +132,11 @@ const Sidebar: React.FC = () => {
   );
 
   return (
-    <aside className={`hidden md:flex flex-col h-screen bg-gradient-to-b from-slate-900 via-gray-900 to-black text-white shadow-2xl sticky top-0 z-20 transition-all duration-500 ease-in-out ${
+    <aside className={`hidden md:flex flex-col h-screen bg-black text-white shadow-2xl sticky top-0 z-20 transition-all duration-500 ease-in-out ${
       isCollapsed ? 'w-16' : 'w-80'
     }`}>
       {/* Header */}
-      <div className={`flex items-center ${isCollapsed ? 'justify-center' : 'justify-between'} h-20 px-6 py-4 bg-gradient-to-r from-gray-800/50 to-slate-800/50 backdrop-blur-md`}>
+      <div className={`flex items-center ${isCollapsed ? 'justify-center' : 'justify-between'} h-20 px-6 py-4 bg-gradient-to-r from-[#000000] to-[#000000] backdrop-blur-md`}>
         {!isCollapsed && (
           <div className="flex items-center gap-4">
             <div className="relative">
@@ -176,13 +176,12 @@ const Sidebar: React.FC = () => {
 
       {/* User Profile Section */}
       {!isCollapsed && user && (
-        <div className="p-5 bg-gradient-to-r from-gray-800/30 to-slate-800/30 backdrop-blur-md">
+        <div className="p-5 bg-gradient-to-r from-[#000000] to-[#000000] backdrop-blur-md">
           <div className="flex items-center gap-4">
             <div className="relative group">
               <div className="w-14 h-14 bg-gradient-to-br from-orange-400 via-red-500 to-pink-500 rounded-full flex items-center justify-center text-white font-bold text-lg shadow-lg ring-2 ring-gray-700/50 group-hover:ring-orange-400/50 transition-all duration-300">
-                {user.name?.charAt(0).toUpperCase() || 'U'}
+                <User className="h-8 w-8 text-white" />
               </div>
-              <div className="absolute -bottom-1 -right-1 w-4 h-4 bg-green-400 rounded-full border-2 border-gray-900 animate-pulse"></div>
               <div className="absolute inset-0 bg-gradient-to-br from-orange-400/20 to-transparent rounded-full animate-pulse"></div>
             </div>
             <div className="flex-1 min-w-0">
@@ -190,7 +189,7 @@ const Sidebar: React.FC = () => {
                 {user.name}
               </div>
               <div className="text-xs text-gray-400 capitalize flex items-center gap-2 mt-1">
-                <ShieldCheckIcon className="h-3 w-3 text-orange-400" />
+                <ShieldAlertIcon className="h-3 w-3 text-gray-400" />
                 <span className="bg-gray-700/50 px-2 py-0.5 rounded-full text-xs font-medium">
                   {user.role}
                 </span>
@@ -204,7 +203,7 @@ const Sidebar: React.FC = () => {
       )}
 
       {/* Navigation */}
-      <nav className="flex-1 py-8 px-2 overflow-y-auto scrollbar-thin scrollbar-track-transparent scrollbar-thumb-gray-700/50">
+      <nav className="flex-1 py-8 px-2 overflow-y-auto scrollbar-hide">
         <NavSection title="Control" links={mainNavLinks} />
         <NavSection title="Operations" links={operationsLinks} />
         <NavSection title="Analytics" links={businessLinks} />
@@ -212,7 +211,7 @@ const Sidebar: React.FC = () => {
       </nav>
 
       {/* Footer */}
-      <div className={`p-6 border-t border-gray-700/30 bg-gradient-to-r from-gray-800/30 to-slate-800/30 backdrop-blur-md ${isCollapsed ? 'text-center' : ''}`}>
+      <div className={`p-6 border-t border-[#000000] bg-gradient-to-r from-[#000000] to-[#000000] backdrop-blur-md ${isCollapsed ? 'text-center' : ''}`}>
         {isCollapsed ? (
           <img 
             src="/assets/detailing-hub-logo-no-bg.png" 
@@ -223,7 +222,7 @@ const Sidebar: React.FC = () => {
           <div className="text-center">
             <div className="flex items-center justify-center gap-2 mb-2">
               <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
-              <div className="text-xs font-medium text-gray-300">System Online</div>
+              <div className="text-xs font-medium text-[#ffffff]">System Online</div>
             </div>
             <div className="text-xs text-gray-500 font-light">
               <div>© 2025 Detailing Hub</div>

@@ -6,7 +6,6 @@ import { themes, type ThemeName, type Theme } from '../styles/themes';
 interface ThemeContextType {
   currentTheme: ThemeName;
   theme: Theme;
-  toggleTheme: () => void;
   setTheme: (themeName: ThemeName) => void;
 }
 
@@ -48,10 +47,6 @@ export const ThemeProvider: React.FC<ThemeProviderProps> = ({
     }
   }, [currentTheme]);
 
-  const toggleTheme = () => {
-    setCurrentTheme(prev => prev === 'dark' ? 'light' : 'dark');
-  };
-
   const setTheme = (themeName: ThemeName) => {
     setCurrentTheme(themeName);
   };
@@ -62,7 +57,6 @@ export const ThemeProvider: React.FC<ThemeProviderProps> = ({
     <ThemeContext.Provider value={{
       currentTheme,
       theme,
-      toggleTheme,
       setTheme,
     }}>
       {children}

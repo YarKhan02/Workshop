@@ -62,19 +62,19 @@ const CarTable: React.FC<CarTableProps> = ({
       label: 'View Details',
       icon: Eye,
       onClick: onViewCar,
-      className: 'text-blue-600 dark:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/30 transition-colors duration-200 p-1.5 rounded-lg',
+      className: theme.components.table.actionButtonView,
     },
     {
       label: 'Edit Vehicle',
       icon: Edit,
       onClick: onEditCar,
-      className: 'text-green-600 dark:text-green-400 hover:bg-green-50 dark:hover:bg-green-900/30 transition-colors duration-200 p-1.5 rounded-lg',
+      className: theme.components.table.actionButtonEdit,
     },
     {
       label: 'Delete Vehicle',
       icon: Trash2,
       onClick: handleDeleteClick,
-      className: 'text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/30 transition-colors duration-200 p-1.5 rounded-lg',
+      className: theme.components.table.actionButtonDelete,
     },
   ];
 

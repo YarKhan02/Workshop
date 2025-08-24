@@ -1,15 +1,15 @@
 import React, { useState } from 'react';
-import { Plus } from 'lucide-react';
+import { Plus, Calendar, CheckCircle, Clock, User } from 'lucide-react';
 
 // Components
 import {
   PageHeader,
   Pagination,
+  StatsGrid,
 } from '../components';
 import {
   BookingTable,
   BookingFilters as BookingFiltersComponent,
-  BookingStats,
 } from '../components/features/bookings';
 import AddBookingModal from '../components/features/bookings/AddBookingModal';
 import BookingDetailModal from '../components/features/bookings/BookingDetailModal';
@@ -20,6 +20,7 @@ import { useBookings, useBookingStats } from '../hooks/useBookings';
 import { usePagination } from '../hooks/usePagination';
 import type { BookingFilters } from '../api/booking';
 import type { Booking } from '../types/booking';
+import type { StatItem } from '../components/common/StatsGrid';
 
 const Bookings: React.FC = () => {
   // State for filters
@@ -70,6 +71,34 @@ const Bookings: React.FC = () => {
     todayBookings: 0
   };
 
+  // Convert stats to StatItem format for StatsGrid
+  const statsItems: StatItem[] = [
+    {
+      label: 'Total Appointments',
+      value: stats.totalBookings,
+      icon: <Calendar className="h-8 w-8" />,
+      color: 'orange',
+    },
+    {
+      label: 'Completed Services',
+      value: stats.completedBookings,
+      icon: <CheckCircle className="h-8 w-8" />,
+      color: 'green',
+    },
+    {
+      label: 'Pending Services',
+      value: stats.pendingBookings,
+      icon: <Clock className="h-8 w-8" />,
+      color: 'yellow',
+    },
+    {
+      label: "Today's Schedule",
+      value: stats.todayBookings,
+      icon: <User className="h-8 w-8" />,
+      color: 'purple',
+    },
+  ];
+
   // Event handlers
   const handleViewBooking = (booking: Booking) => {
     setSelectedBooking(booking);
@@ -92,8 +121,6 @@ const Bookings: React.FC = () => {
     onPageChange(page);
   };
 
-
-
   return (
     <div className="space-y-8">
       {/* Header */}
@@ -109,7 +136,7 @@ const Bookings: React.FC = () => {
       />
 
       {/* Stats */}
-      <BookingStats stats={stats} />
+      <StatsGrid stats={statsItems} columns={4} />
 
       {/* Search and Filters */}
       <BookingFiltersComponent

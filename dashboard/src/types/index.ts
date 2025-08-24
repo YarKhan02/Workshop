@@ -83,6 +83,13 @@ export type {
   ProductVariantDeleteMutationVariables,
 } from './inventory';
 
+
+// Dashboard Interfaces
+export type { 
+  RecentJob, 
+  DashboardStats 
+} from './dashboard';
+
 // Import for internal use in this file (for other interfaces that reference Customer/Car)
 import type { Customer } from './customer';
 
@@ -249,26 +256,4 @@ export enum NotificationType {
   PAYMENT_DUE = 'Payment Due',
   JOB_COMPLETED = 'Job Completed',
   SYSTEM_ALERT = 'System Alert'
-}
-
-// Dashboard Types
-export interface DashboardStats {
-  totalCustomers: number;
-  totalJobs: number;
-  pendingJobs: number;
-  completedJobs: number;
-  totalRevenue: number;
-  monthlyRevenue: number;
-  activeStaff: number;
-}
-
-// Booking Types
-export interface TimeSlot {
-  id: string;
-  date: string;
-  start_time: string;
-  end_time: string;
-  available_slots?: number;
-  is_available: boolean;
-  jobId?: string;
 }

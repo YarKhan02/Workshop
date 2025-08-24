@@ -70,13 +70,13 @@ const CustomerTable: React.FC<CustomerTableProps> = ({
       label: 'View Details',
       icon: Eye,
       onClick: onViewCustomer,
-      className: 'text-orange-400 hover:text-orange-300 transition-colors duration-200 p-1 rounded-lg hover:bg-orange-500/20',
+      className: theme.components.table.actionButtonView,
     },
     {
       label: 'Edit Customer',
       icon: Edit,
       onClick: onEditCustomer,
-      className: 'text-emerald-400 hover:text-emerald-300 transition-colors duration-200 p-1 rounded-lg hover:bg-emerald-500/20',
+      className: theme.components.table.actionButtonEdit,
     },
   ];
 

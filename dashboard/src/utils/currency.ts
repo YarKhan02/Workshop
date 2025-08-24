@@ -2,7 +2,7 @@
 
 // Currency configuration interface
 export interface CurrencyConfig {
-  code: 'PKR' | 'USD' | 'EUR' | 'GBP';
+  code: 'PKR' | 'USD';
   symbol: string;
   locale: string;
   name: string;

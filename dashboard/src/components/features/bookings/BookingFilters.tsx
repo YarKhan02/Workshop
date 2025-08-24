@@ -2,7 +2,7 @@
 
 import React from 'react';
 import { Search } from 'lucide-react';
-import { useTheme, cn, ThemedCard, ThemedInput, ThemedButton } from '../../ui';
+import { useTheme, cn, ThemedInput, ThemedButton } from '../../ui';
 import type { BookingFiltersProps } from '../../../types/booking';
 
 const BookingFilters: React.FC<BookingFiltersProps> = ({
@@ -17,13 +17,13 @@ const BookingFilters: React.FC<BookingFiltersProps> = ({
   const { theme } = useTheme();
 
   return (
-    <ThemedCard className="p-6">
+    <div className="p-6 bg-[#000000] rounded-xl shadow-2xl border border-[#000000]">
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
         {/* Search */}
         <div>
-          <label className={cn("block text-sm font-medium mb-2", theme.textSecondary)}>Search Service Data</label>
+          <label className={cn("block text-sm font-medium mb-2", theme.textPrimary)}>Search Service Data</label>
           <div className="relative">
-            <Search className={cn("absolute left-3 top-3", theme.textSecondary)} size={20} />
+            <Search className={cn("absolute left-3 top-3", theme.textPrimary)} size={20} />
             <ThemedInput
               type="text"
               placeholder="Search by customer, vehicle, or service..."
@@ -36,7 +36,7 @@ const BookingFilters: React.FC<BookingFiltersProps> = ({
 
         {/* Status Filter */}
         <div>
-          <label className={cn("block text-sm font-medium mb-2", theme.textSecondary)}>Service Status</label>
+          <label className={cn("block text-sm font-medium mb-2", theme.textPrimary)}>Service Status</label>
           <select
             value={statusFilter}
             onChange={(e) => onStatusChange(e.target.value)}
@@ -53,7 +53,7 @@ const BookingFilters: React.FC<BookingFiltersProps> = ({
 
         {/* Date Filter */}
         <div>
-          <label className={cn("block text-sm font-medium mb-2", theme.textSecondary)}>Service Date</label>
+          <label className={cn("block text-sm font-medium mb-2", theme.textPrimary)}>Service Date</label>
           <ThemedInput
             type="date"
             value={dateFilter}
@@ -72,7 +72,7 @@ const BookingFilters: React.FC<BookingFiltersProps> = ({
           </ThemedButton>
         </div>
       </div>
-    </ThemedCard>
+    </div>
   );
 };
 

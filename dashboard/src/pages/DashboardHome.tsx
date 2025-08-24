@@ -10,20 +10,10 @@ import {
   AlertCircle,
   Receipt
 } from 'lucide-react';
-
-// Common Components
 import { PageHeader, StatsGrid } from '../components';
-
-// Themed Components
 import { ThemedButton, useTheme, cn } from '../components/ui';
-
-// API Types
-import type { DashboardStats, RecentJob } from '../api/dashboard';
-
-// Hooks
+import type { DashboardStats, RecentJob } from '../types/dashboard';
 import { useDashboardStats } from '../hooks/useDashboard';
-
-// Currency utility
 import { formatCurrency } from '../utils/currency';
 
 
@@ -31,10 +21,8 @@ const DashboardHome: React.FC = () => {
   const navigate = useNavigate();
   const { theme } = useTheme();
 
-  // Data fetching using the dashboard API (non-blocking)
   const { data: stats } = useDashboardStats();
   
-  // Empty structure for when no data is available
   const emptyStats: DashboardStats = {
     today_bookings: 0,
     today_revenue: 0,
@@ -153,10 +141,10 @@ const DashboardHome: React.FC = () => {
       <StatsGrid stats={statsData} />
 
       {/* Recent Activity */}
-      <div className="bg-gradient-to-br from-gray-800/50 to-slate-800/50 rounded-xl shadow-2xl border border-gray-700/30 overflow-hidden backdrop-blur-md">
-        <div className="bg-gradient-to-r from-gray-900/80 to-slate-900/80 border-b border-gray-600/30 px-6 py-4">
+      <div className={cn(theme.home.sectionBg, 'rounded-xl shadow-2xl', theme.home.sectionBg, 'overflow-hidden backdrop-blur-md')}>
+        <div className={cn(theme.primary, theme.primary, 'px-6 py-4')}>
           <div className="flex items-center justify-between">
-            <h3 className="text-xl font-semibold text-gray-100">Recent Activity</h3>
+            <h3 className={theme.home.sectionHeaderTitle}>Recent Activity</h3>
             <ThemedButton 
               variant="ghost"
               size="sm"
@@ -170,8 +158,8 @@ const DashboardHome: React.FC = () => {
           {currentStats.recent_jobs.length === 0 ? (
             <div className="text-center py-12">
               <Clock className={cn('h-12 w-12 mx-auto mb-4', theme.textMuted)} />
-              <p className={theme.textTertiary}>No recent activity</p>
-              <p className={cn('text-sm', theme.textMuted)}>Jobs will appear here once you start processing orders</p>
+              <p className={theme.textPrimary}>No recent activity</p>
+              <p className={cn('text-sm', theme.textPrimary)}>Jobs will appear here once you start processing orders</p>
             </div>
           ) : (
             <div className="space-y-4">
@@ -204,9 +192,9 @@ const DashboardHome: React.FC = () => {
       </div>
 
       {/* Quick Actions */}
-      <div className="bg-gradient-to-br from-gray-800/50 to-slate-800/50 rounded-xl shadow-2xl border border-gray-700/30 overflow-hidden backdrop-blur-md">
-        <div className="bg-gradient-to-r from-gray-900/80 to-slate-900/80 border-b border-gray-600/30 px-6 py-4">
-          <h3 className="text-xl font-semibold text-gray-100">Quick Actions</h3>
+      <div className={cn(theme.home.sectionBg, 'rounded-xl shadow-2xl', theme.home.sectionBg, 'overflow-hidden backdrop-blur-md')}>
+        <div className={cn(theme.primary, theme.primary, 'px-6 py-4')}>
+          <h3 className={theme.home.sectionHeaderTitle}>Quick Actions</h3>
         </div>
         <div className="p-6">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -216,8 +204,9 @@ const DashboardHome: React.FC = () => {
               onClick={() => handleQuickAction('booking')}
               className={cn(
                 'flex flex-col items-center gap-3 p-6 rounded-xl transition-all duration-300 border',
-                'bg-gradient-to-br from-blue-500/20 to-cyan-500/20 hover:from-blue-500/30 hover:to-cyan-500/30',
-                'border-blue-400/30 hover:transform hover:scale-105'
+                theme.home.quickAction.booking,
+                theme.home.quickActionBorder.booking,
+                'hover:transform hover:scale-105'
               )}
             >
               <CalendarDays className="h-8 w-8 text-blue-400" />
@@ -230,8 +219,9 @@ const DashboardHome: React.FC = () => {
               onClick={() => handleQuickAction('job')}
               className={cn(
                 'flex flex-col items-center gap-3 p-6 rounded-xl transition-all duration-300 border',
-                'bg-gradient-to-br from-orange-500/20 to-red-500/20 hover:from-orange-500/30 hover:to-red-500/30',
-                'border-orange-400/30 hover:transform hover:scale-105'
+                theme.home.quickAction.job,
+                theme.home.quickActionBorder.job,
+                'hover:transform hover:scale-105'
               )}
             >
               <Receipt className="h-8 w-8 text-orange-400" />
@@ -244,8 +234,9 @@ const DashboardHome: React.FC = () => {
               onClick={() => handleQuickAction('customer')}
               className={cn(
                 'flex flex-col items-center gap-3 p-6 rounded-xl transition-all duration-300 border',
-                'bg-gradient-to-br from-purple-500/20 to-pink-500/20 hover:from-purple-500/30 hover:to-pink-500/30',
-                'border-purple-400/30 hover:transform hover:scale-105'
+                theme.home.quickAction.customer,
+                theme.home.quickActionBorder.customer,
+                'hover:transform hover:scale-105'
               )}
             >
               <Users className="h-8 w-8 text-purple-400" />

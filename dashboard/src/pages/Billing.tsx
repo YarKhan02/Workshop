@@ -170,7 +170,7 @@ const Billing: React.FC = () => {
         />
 
         {/* Search and Filter Section */}
-        <div className={cn("rounded-lg border p-6", theme.background, theme.border)}>
+        <div className={cn("rounded-lg border p-6", theme.primary, theme.border)}>
           <div className="flex flex-col sm:flex-row gap-4">
             <SearchBar
               searchTerm={filters.search || ''}

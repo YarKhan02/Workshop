@@ -4,12 +4,14 @@ import React from 'react';
 import { useTheme } from '../../contexts/ThemeContext';
 import { cn } from '../../utils/themeUtils';
 
+export type StatColor = 'blue' | 'green' | 'red' | 'purple' | 'orange' | 'yellow' | 'gray';
+
 export interface StatItem {
   title?: string;
   label?: string; // Alternative to title
   value: string | number;
   icon: React.ComponentType<{ className?: string }> | React.ReactNode;
-  color?: 'blue' | 'green' | 'red' | 'purple' | 'orange' | 'yellow' | 'gray';
+  color?: StatColor;
   change?: {
     value: string;
     type: 'increase' | 'decrease';
@@ -37,17 +39,9 @@ const StatsGrid: React.FC<StatsGridProps> = ({
     5: 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5',
   }[columns] || 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-4';
 
-  const getColorClasses = (color?: string) => {
-    switch (color) {
-      case 'blue': return 'bg-blue-500/20 text-blue-400';
-      case 'green': return 'bg-green-500/20 text-green-400';
-      case 'red': return 'bg-red-500/20 text-red-400';
-      case 'purple': return 'bg-purple-500/20 text-purple-400';
-      case 'orange': return 'bg-orange-500/20 text-orange-400';
-      case 'yellow': return 'bg-yellow-500/20 text-yellow-400';
-      case 'gray': return cn(theme.surface, theme.textSecondary);
-      default: return cn(theme.surface, theme.textSecondary);
-    }
+  const getColorClasses = (color?: StatColor) => {
+    if (!color) return cn(theme.stats.cardIcon.gray);
+    return theme.stats.cardIcon[color];
   };
 
   if (loading) {
@@ -56,7 +50,7 @@ const StatsGrid: React.FC<StatsGridProps> = ({
         {[...Array(columns)].map((_, index) => (
           <div key={index} className={cn(
             theme.components.card.base,
-            "p-6"
+            "p-6 rounded-xl"
           )}>
             <div className="animate-pulse">
               <div className="flex items-center justify-between">
@@ -91,8 +85,8 @@ const StatsGrid: React.FC<StatsGridProps> = ({
     <div className={`grid ${gridCols} gap-6`}>
       {stats.map((stat, index) => (
         <div key={index} className={cn(
-          theme.components.card.base,
-          "p-6 min-w-0 flex-1"
+          theme.primary,
+          "p-6 min-w-0 flex-1 rounded-xl"
         )}>
           <div className="flex items-center justify-between">
             <div className="min-w-0 flex-1">
