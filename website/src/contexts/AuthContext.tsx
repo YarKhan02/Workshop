@@ -1,7 +1,6 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { authAPI } from '../services/api/auth';
 import { RegisterFormData } from '../services/interfaces/auth';
-import { stripNicDashes } from '../utils/nicValidation';
 import { registerAuthLogout } from '../utils/authErrorHandler';
 
 interface User {
@@ -146,14 +145,8 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const register = async (formData: Omit<RegisterFormData, 'confirmPassword'>): Promise<boolean> => {
     setLoading(true);
     try {
-      // Format NIC for backend - remove dashes
-      const backendData = {
-        ...formData,
-        nic: stripNicDashes(formData.nic)
-      };
-      
-      const response = await authAPI.register(backendData);
-      
+      const response = await authAPI.register(formData);
+
       if (response.data) {
         // On successful registration, you might want to auto-login
         // For now, just return success

@@ -50,7 +50,7 @@ const Cars: React.FC = () => {
   // Use the generic table data hook
   const { paginateItems } = useTableData(cars, {
     searchTerm,
-    searchFields: ['make', 'model', 'license_plate', 'color', 'vin'],
+    searchFields: ['make', 'model', 'license_plate', 'color'],
     itemsPerPage,
   });
 

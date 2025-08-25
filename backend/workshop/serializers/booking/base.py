@@ -64,9 +64,6 @@ class BaseBookingServiceMixin:
 
 
 class BaseAvailabilityMixin:
-    """
-    Mixin for handling daily availability operations
-    """
     
     def handle_date_change(self, instance, new_daily_availability):
         """Handle booking date change with slot management"""

@@ -50,6 +50,7 @@ export interface BookingTableProps {
   isLoading: boolean;
   onViewBooking: (booking: Booking) => void;
   onEditBooking: (booking: Booking) => void;
+  onItemBooking: (booking: Booking) => void;
 }
 
 export interface BookingFiltersProps {

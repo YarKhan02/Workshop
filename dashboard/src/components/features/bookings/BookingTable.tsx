@@ -1,7 +1,7 @@
 // ==================== BOOKING TABLE COMPONENT ====================
 
 import React from 'react';
-import { Eye, Edit } from 'lucide-react';
+import { Eye, Edit, Plus } from 'lucide-react';
 import { DataTable } from '../../shared/data';
 import { useTheme, cn } from '../../ui';
 import type { Booking, BookingTableProps } from '../../../types/booking';
@@ -43,6 +43,7 @@ const BookingTable: React.FC<BookingTableProps> = ({
   bookings,
   isLoading,
   onViewBooking,
+  onItemBooking,
   onEditBooking,
 }) => {
   const { theme } = useTheme();
@@ -112,6 +113,12 @@ const BookingTable: React.FC<BookingTableProps> = ({
       onClick: onEditBooking,
       className: theme.components.table.actionButtonEdit,
     },
+    {
+      label: 'Add Item',
+      icon: Plus,
+      onClick: onItemBooking,
+      className: theme.components.table.actionButtonAdd,
+    }
   ];
 
   return (

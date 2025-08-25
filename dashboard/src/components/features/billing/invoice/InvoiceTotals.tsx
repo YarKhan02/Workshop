@@ -2,7 +2,6 @@ import React from 'react';
 
 interface InvoiceTotalsProps {
   subtotal: number;
-  tax: number;              // Frontend field name
   discount: number;         // Frontend field name
   grand_total: number;      // Frontend field name
   onDiscountChange: (discount: number) => void;
@@ -11,7 +10,6 @@ interface InvoiceTotalsProps {
 
 const InvoiceTotals: React.FC<InvoiceTotalsProps> = ({
   subtotal,
-  tax,
   discount,
   grand_total,
   onDiscountChange,
@@ -24,10 +22,6 @@ const InvoiceTotals: React.FC<InvoiceTotalsProps> = ({
           <div className="flex justify-between">
             <span className="text-gray-300">Subtotal:</span>
             <span className="font-medium text-white">{formatCurrency(subtotal)}</span>
-          </div>
-          <div className="flex justify-between">
-            <span className="text-gray-300">Tax (10%):</span>
-            <span className="font-medium text-white">{formatCurrency(tax)}</span>
           </div>
           <div className="flex justify-between">
             <span className="text-gray-300">Discount:</span>

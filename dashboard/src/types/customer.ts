@@ -6,20 +6,15 @@ export interface CustomerStats {
   total: number;
   returning: number;
   new_this_week: number;
-  new_this_week_percentage: number;
 }
 
 // ==================== CORE CUSTOMER INTERFACES ====================
 
 export interface Customer {
   id: string;
-  nic: string;
   name: string;
   email: string;
   phone_number: string;
-  address?: string;
-  city?: string;
-  state?: string;
   cars?: CustomerCar[];
   date_joined?: string;
 }
@@ -31,11 +26,8 @@ export interface CustomerCar {
   make: string;
   model: string;
   year: number;
-  vin?: string;
   color: string;
   license_plate: string;
-  display_name?: string; // For UI display purposes
-  mileage?: number;
   created_at?: string;
   updated_at?: string;
 }
@@ -43,13 +35,9 @@ export interface CustomerCar {
 // ==================== FORM DATA INTERFACES ====================
 
 export interface CustomerFormData {
-  nic: string;
   name: string;
   email: string;
   phone_number: string;
-  address?: string;
-  city?: string;
-  state?: string;
 }
 
 export interface CustomerCreateData extends CustomerFormData {}

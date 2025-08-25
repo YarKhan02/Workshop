@@ -3,7 +3,7 @@
 import uuid
 
 from rest_framework import serializers
-from workshop.helper import is_valid_email_domain, is_valid_nic, is_valid_phone_number
+from workshop.helper import is_valid_email_domain, is_valid_phone_number
 from workshop.serializers.car_serializer import CarSerializer
 from workshop.models import User
 
@@ -11,7 +11,6 @@ from workshop.models import User
 class CustomerCreateSerializer(serializers.ModelSerializer):
 
     email = serializers.EmailField()
-    nic = serializers.CharField(max_length=13, required=True)
     phone_number = serializers.CharField(max_length=11, required=True)
     password = serializers.CharField(write_only=True, min_length=6, required=False, allow_blank=True)
     full_name = serializers.CharField(max_length=255, required=True, write_only=True)
@@ -19,14 +18,10 @@ class CustomerCreateSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         fields = [
-            'nic',
             'email',
             'full_name',
             'phone_number',
             'password',
-            'city',
-            'state',
-            'address',
         ]
 
     def create(self, validated_data):
@@ -37,14 +32,8 @@ class CustomerCreateSerializer(serializers.ModelSerializer):
         full_name = validated_data.pop('full_name')
         validated_data['name'] = full_name
         
-        # Auto-generate a unique username
-        base = f"{full_name.lower().replace(' ', '_')}"
-        suffix = uuid.uuid4().hex[:6]
-        username = f"{base}_{suffix}"
-        
         # Create customer - role will default to 'customer' from model
         customer = User.objects.create(
-            username=username,
             **validated_data
         )
         
@@ -60,20 +49,11 @@ class CustomerCreateSerializer(serializers.ModelSerializer):
         if User.objects.filter(email=attrs['email']).exists():
             raise serializers.ValidationError({"email": "A user with this email already exists."})
         
-        # Check if user with this NIC already exists
-        if User.objects.filter(nic=attrs['nic']).exists():
-            raise serializers.ValidationError({"nic": "A user with this NIC already exists."})
-            
         return attrs
 
     def validate_email(self, value):
         if not is_valid_email_domain(value):
             raise serializers.ValidationError("Please use a valid email provider like Gmail or Outlook.")
-        return value
-    
-    def validate_nic(self, value):
-        if not is_valid_nic(value):
-            raise serializers.ValidationError("NIC must be exactly 13 numeric digits without dashes.")
         return value
     
     def validate_phone_number(self, value):
@@ -88,14 +68,9 @@ class CustomerDetailSerializer(serializers.ModelSerializer):
         model = User
         fields = [
             'id',
-            'nic',
             'email',
-            'username',
             'name',
             'phone_number',
-            'city',
-            'state',
-            'address',
             'date_joined',
             'cars',
         ]
@@ -120,7 +95,6 @@ class CustomerStatsSerializer(serializers.Serializer):
     total = serializers.IntegerField()
     returning = serializers.IntegerField()
     new_this_week = serializers.IntegerField()
-    new_this_week_percentage = serializers.FloatField()
 
 # Customer Update Serializer
 class CustomerUpdateSerializer(serializers.ModelSerializer):
@@ -132,9 +106,6 @@ class CustomerUpdateSerializer(serializers.ModelSerializer):
             'email',
             'name',
             'phone_number',
-            'city',
-            'state',
-            'address',
         ]
 
     def validate_phone_number(self, value):
@@ -152,9 +123,6 @@ class CustomerUpdateSerializer(serializers.ModelSerializer):
         return value
 
     def update(self, instance, validated_data):
-        """
-        Update only the allowed fields, never touch NIC or other restricted fields
-        """
         # Define allowed fields for update
         allowed_fields = ['email', 'name', 'phone_number', 'city', 'state', 'address']
         

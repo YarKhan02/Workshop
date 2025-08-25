@@ -139,6 +139,7 @@ export interface ThemeComponents {
     actionButtonView: string;
     actionButtonEdit: string;
     actionButtonDelete: string;
+    actionButtonAdd: string;
     emptyState: string;
     loadingState: string;
     loadingSpinner: string;
@@ -330,14 +331,14 @@ export const darkTheme: ThemeColors & { components: ThemeComponents; header: The
     
     modal: {
       overlay: 'fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 z-50',
-      container: 'bg-gradient-to-br from-gray-800/95 to-slate-800/95 rounded-2xl shadow-2xl border border-gray-700/30 backdrop-blur-md w-full max-w-4xl max-h-[90vh] overflow-hidden',
-      header: 'bg-gradient-to-r from-gray-900/80 to-slate-900/80 flex items-center justify-between px-6 py-4 border-b border-gray-700/50',
+      container: 'bg-gradient-to-br from-[#37423d] to-[#37423d] rounded-2xl shadow-2xl border border-transparent backdrop-blur-md w-full max-w-4xl max-h-[90vh] overflow-hidden',
+      header: 'bg-gradient-to-r from-[#000000] to-[#000000] flex items-center justify-between px-6 py-4',
       content: 'p-6 overflow-y-auto max-h-[calc(90vh-140px)]',
-      footer: 'flex justify-end gap-4 p-6 border-t border-gray-700/30',
+      footer: 'flex justify-end gap-4 p-6',
     },
     
     table: {
-  container: 'bg-gradient-to-br from-[#000000] to-[#000000] rounded-xl shadow-2xl backdrop-blur-md overflow-hidden border-transparent',
+      container: 'bg-gradient-to-br from-[#000000] to-[#000000] rounded-xl shadow-2xl backdrop-blur-md overflow-hidden border-transparent',
       header: 'bg-gradient-to-r from-gray-900/80 to-slate-900/80 px-6 py-4 border-b border-gray-600/30',
       row: 'border-b border-gray-600/30 hover:bg-gray-700/30 transition-colors duration-200',
       rowHover: 'hover:bg-gray-700/30',
@@ -350,6 +351,7 @@ export const darkTheme: ThemeColors & { components: ThemeComponents; header: The
       actionButtonView: 'text-blue-600 dark:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/30 transition-colors duration-200 p-1.5 rounded-lg',
       actionButtonEdit: 'text-green-600 dark:text-green-400 hover:bg-green-50 dark:hover:bg-green-900/30 transition-colors duration-200 p-1.5 rounded-lg',
       actionButtonDelete: 'text-red-700 dark:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/30 transition-colors duration-200 p-1.5 rounded-lg',
+      actionButtonAdd: 'text-purple-700 dark:text-purple-500 hover:bg-purple-50 dark:hover:bg-purple-900/30 transition-colors duration-200 p-1.5 rounded-lg',
       emptyState: 'p-8 text-center',
       loadingState: 'p-8 text-center',
       loadingSpinner: 'animate-spin rounded-full h-8 w-8 border-b-2 border-orange-500 mx-auto',

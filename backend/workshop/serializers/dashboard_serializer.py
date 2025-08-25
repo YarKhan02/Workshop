@@ -5,7 +5,7 @@ from datetime import datetime, timedelta
 from django.db.models import Sum, Count, Q
 from django.utils import timezone
 
-from workshop.models import Booking, Customer, Invoice
+from workshop.models import Booking, Invoice
 
 class RecentBookingSerializer(serializers.Serializer):
     id = serializers.UUIDField()

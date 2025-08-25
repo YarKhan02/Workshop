@@ -2,22 +2,17 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.permissions import AllowAny
-from django.core.exceptions import ValidationError
 from ..serializers.customer_serializer import CustomerCreateSerializer, CustomerDetailSerializer
-from ..helper.nic_valid import is_valid_nic
 from ..helper.email_validator import is_valid_email_domain
 from ..helper.phone_number_valid import is_valid_phone_number
 
 
 class CustomerRegisterView(APIView):
-    """
-    Customer registration endpoint
-    """
     permission_classes = [AllowAny]
 
     def post(self, request):
         # Validate required fields
-        required_fields = ['nic', 'email', 'password', 'full_name', 'phone_number']
+        required_fields = ['email', 'password', 'full_name', 'phone_number']
         for field in required_fields:
             if not request.data.get(field):
                 return Response({
@@ -25,14 +20,8 @@ class CustomerRegisterView(APIView):
                 }, status=status.HTTP_400_BAD_REQUEST)
 
         # Custom validations
-        nic = request.data.get('nic')
         email = request.data.get('email')
         phone_number = request.data.get('phone_number')
-
-        if not is_valid_nic(nic):
-            return Response({
-                'error': 'Invalid NIC format. Please enter a valid 13-digit NIC number.'
-            }, status=status.HTTP_400_BAD_REQUEST)
 
         if not is_valid_email_domain(email):
             return Response({

@@ -42,7 +42,7 @@ class CarView(viewsets.ViewSet):
     
     @action(detail=False, methods=['get'], url_path='by-customer')
     def cars_by_customer(self, request):
-        result = self.car_service.get_cars_by_customer(request.user.id)
+        result = self.car_service.get_cars_by_customer(request.query_params.get('customer_id', ''))
         if 'error' in result:
             if result['error'] == 'customer_id query parameter is required':
                 return Response(result, status=status.HTTP_400_BAD_REQUEST)
@@ -53,7 +53,6 @@ class CarView(viewsets.ViewSet):
     # Add a new car
     @action(detail=False, methods=['post'], url_path='add-car')
     def add_car(self, request):
-        print(request.data)  # Debugging output
         result = self.car_service.add_car(request.data)
         if 'error' in result:
             return Response(result, status=status.HTTP_500_INTERNAL_SERVER_ERROR)

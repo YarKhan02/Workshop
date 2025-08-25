@@ -15,7 +15,7 @@ class AdminLoginView(APIView):
     def post(self, request):
         email = request.data.get('email')
         password = request.data.get('password')
-        
+
         if not email or not password:
             return Response({
                 'error': 'Email and password are required'
@@ -25,10 +25,10 @@ class AdminLoginView(APIView):
             return Response({
                 'error': 'Invalid email or password'
             }, status=status.HTTP_401_UNAUTHORIZED)
-
+        
         # Use Django's authenticate for User model
         user = authenticate(request, username=email, password=password)
-        
+
         if user and user.is_authenticated:
             # Check if user has admin role
             if hasattr(user, 'role') and user.role == 'admin':

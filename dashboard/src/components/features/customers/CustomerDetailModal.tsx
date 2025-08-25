@@ -1,7 +1,6 @@
 import React from 'react';
-import { Edit, Phone, Mail, MapPin, Car, Calendar, User } from 'lucide-react';
+import { Edit, Phone, Mail, Car, Calendar } from 'lucide-react';
 import type { CustomerDetailModalProps, CustomerCar } from '../../../types';
-import { formatNIC } from '../../../helper/nicFormatter';
 import { useTheme, cn, ThemedModal, ThemedButton, ThemedCard } from '../../ui';
 
 const CustomerDetailModal: React.FC<CustomerDetailModalProps> = ({
@@ -24,7 +23,7 @@ const CustomerDetailModal: React.FC<CustomerDetailModalProps> = ({
         <div className="flex items-center justify-between mb-6">
           <div>
             <h3 className={cn("text-xl font-semibold", theme.textPrimary)}>
-              {customer.name} | {formatNIC(customer.nic)}
+              {customer.name}
             </h3>
           </div>
           <div className="flex gap-2">
@@ -51,16 +50,6 @@ const CustomerDetailModal: React.FC<CustomerDetailModalProps> = ({
             <div className="space-y-4">
               <div className="flex items-start gap-3">
                 <div className={cn("p-2 rounded-lg mt-1", theme.backgroundSecondary)}>
-                  <Phone className="w-4 h-4 text-gray-400" />
-                </div>
-                <div className="flex-1">
-                  <p className={cn("text-sm font-medium", theme.textSecondary)}>Phone</p>
-                  <p className={cn("text-base", theme.textPrimary)}>{customer.phone_number}</p>
-                </div>
-              </div>
-
-              <div className="flex items-start gap-3">
-                <div className={cn("p-2 rounded-lg mt-1", theme.backgroundSecondary)}>
                   <Mail className="w-4 h-4 text-gray-400" />
                 </div>
                 <div className="flex-1">
@@ -71,48 +60,20 @@ const CustomerDetailModal: React.FC<CustomerDetailModalProps> = ({
 
               <div className="flex items-start gap-3">
                 <div className={cn("p-2 rounded-lg mt-1", theme.backgroundSecondary)}>
-                  <MapPin className="w-4 h-4 text-gray-400" />
+                  <Phone className="w-4 h-4 text-gray-400" />
                 </div>
                 <div className="flex-1">
-                  <p className={cn("text-sm font-medium", theme.textSecondary)}>Address</p>
-                  <p className={cn("text-base", theme.textPrimary)}>{customer.address}</p>
+                  <p className={cn("text-sm font-medium", theme.textSecondary)}>Phone</p>
+                  <p className={cn("text-base", theme.textPrimary)}>{customer.phone_number}</p>
                 </div>
               </div>
+
             </div>
           </ThemedCard>
 
           {/* Additional Information Card */}
           <ThemedCard className="space-y-4">
             <div className="flex items-center gap-3 mb-4">
-              <div className={cn("p-2 rounded-lg", theme.primaryLight)}>
-                <User className="w-5 h-5 text-orange-400" />
-              </div>
-              <h4 className={cn("text-lg font-semibold", theme.textPrimary)}>Additional Information</h4>
-            </div>
-            
-            <div className="space-y-4">
-              <div className="flex items-start gap-3">
-                <div className={cn("p-2 rounded-lg mt-1", theme.backgroundSecondary)}>
-                  <MapPin className="w-4 h-4 text-gray-400" />
-                </div>
-                <div className="flex-1">
-                  <p className={cn("text-sm font-medium", theme.textSecondary)}>City</p>
-                  <p className={cn("text-base", theme.textPrimary)}>
-                    {customer.city || 'Not provided'}
-                  </p>
-                </div>
-              </div>
-
-              <div className="flex items-start gap-3">
-                <div className={cn("p-2 rounded-lg mt-1", theme.backgroundSecondary)}>
-                  <MapPin className="w-4 h-4 text-gray-400" />
-                </div>
-                <div className="flex-1">
-                  <p className={cn("text-sm font-medium", theme.textSecondary)}>State</p>
-                  <p className={cn("text-base", theme.textPrimary)}>{customer.state || 'Not provided'}</p>
-                </div>
-              </div>
-
               {customer.date_joined && (
                 <div className="flex items-start gap-3">
                   <div className={cn("p-2 rounded-lg mt-1", theme.backgroundSecondary)}>

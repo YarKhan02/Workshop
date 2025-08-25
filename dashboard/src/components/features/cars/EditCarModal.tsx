@@ -14,7 +14,6 @@ type CarFormData = {
   year: number;
   license_plate: string;
   color: string;
-  vin?: string;
 };
 import { useUpdateCar } from '../../../hooks/useCars';
 import { useTheme, cn, ThemedModal, ThemedInput, ThemedButton } from '../../ui';
@@ -25,7 +24,6 @@ const carSchema = z.object({
   year: z.number().min(1900).max(new Date().getFullYear() + 1),
   color: z.string().min(1, 'Color is required'),
   license_plate: z.string().min(1, 'License plate is required'),
-  vin: z.string().optional(),
 });
 
 const EditCarModal: React.FC<EditCarModalProps> = ({
@@ -55,7 +53,6 @@ const EditCarModal: React.FC<EditCarModalProps> = ({
         year: car.year,
         color: car.color,
         license_plate: car.license_plate,
-        vin: car.vin || '',
       });
     }
   }, [car, reset]);
@@ -83,7 +80,6 @@ const EditCarModal: React.FC<EditCarModalProps> = ({
             year: data.year,
             color: data.color,
             license_plate: data.license_plate,
-            vin: data.vin,
           }
         });
         toast.success('Car updated successfully');
@@ -144,18 +140,6 @@ const EditCarModal: React.FC<EditCarModalProps> = ({
                 error={errors.year?.message}
               />
             </div>
-
-            <div>
-              <label className={cn("block text-sm font-medium mb-1", theme.textSecondary)}>
-                Color *
-              </label>
-              <ThemedInput
-                type="text"
-                {...register('color')}
-                placeholder="e.g., Red, Blue, Silver"
-                error={errors.color?.message}
-              />
-            </div>
           </div>
 
           <div className="space-y-4">
@@ -172,12 +156,13 @@ const EditCarModal: React.FC<EditCarModalProps> = ({
 
             <div>
               <label className={cn("block text-sm font-medium mb-1", theme.textSecondary)}>
-                VIN (Optional)
+                Color *
               </label>
               <ThemedInput
                 type="text"
-                {...register('vin')}
-                placeholder="17-character VIN"
+                {...register('color')}
+                placeholder="e.g., Red, Blue, Silver"
+                error={errors.color?.message}
               />
             </div>
           </div>

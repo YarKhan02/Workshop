@@ -14,17 +14,6 @@ const CustomerTable: React.FC<CustomerTableProps> = ({
 
   const columns = [
     {
-      key: 'nic',
-      header: 'NIC',
-      render: (customer: Customer) => (
-        <div>
-          <div className={cn("text-sm font-medium", theme.textPrimary)}>
-            {customer.nic}
-          </div>
-        </div>
-      ),
-    },
-    {
       key: 'name',
       header: 'Customer',
       render: (customer: Customer) => (
@@ -42,15 +31,6 @@ const CustomerTable: React.FC<CustomerTableProps> = ({
         <div>
           <div className={cn("text-sm", theme.textPrimary)}>{customer.email}</div>
           <div className={cn("text-sm", theme.textSecondary)}>{customer.phone_number}</div>
-        </div>
-      ),
-    },
-    {
-      key: 'address',
-      header: 'Location',
-      render: (customer: Customer) => (
-        <div className={cn("text-sm", theme.textPrimary)}>
-          {customer.city && customer.state ? `${customer.city}, ${customer.state}` : customer.address}
         </div>
       ),
     },

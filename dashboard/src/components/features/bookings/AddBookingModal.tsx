@@ -5,7 +5,9 @@ import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { FileText, Banknote } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { bookingAPI } from '../../../api/booking';
-import { useTheme, cn, ThemedModal, ThemedInput, ThemedButton } from '../../ui';
+import { useTheme, cn, ThemedInput } from '../../ui';
+import { FormModal } from '../../shared/FormModal';
+import { FormFooter } from '../../shared/FormFooter';
 import { 
   CustomerSelector, 
   CarSelector, 
@@ -116,17 +118,23 @@ const AddBookingModal: React.FC<AddBookingModalProps> = ({ isOpen, onClose }) =>
 
   if (!isOpen) return null;
 
-  // ==================== RENDER ====================
   return (
-    <ThemedModal
+    <FormModal
       isOpen={isOpen}
       onClose={onClose}
       title="Schedule New Appointment"
       subtitle="Book a workshop service appointment"
       size="xl"
+      onSubmit={handleSubmit}
+      footer={
+        <FormFooter
+          onCancel={onClose}
+          isSubmitting={createBookingMutation.isPending}
+          submitLabel="Schedule Appointment"
+        />
+      }
     >
-      <form onSubmit={handleSubmit} className="space-y-6">
-        
+      <div className="space-y-6">
         {/* Customer and Car Selection */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <CustomerSelector
@@ -140,7 +148,6 @@ const AddBookingModal: React.FC<AddBookingModalProps> = ({ isOpen, onClose }) =>
             }}
             required
           />
-
           <CarSelector
             customerId={formData.customer_id || null}
             value={formData.car_id}
@@ -156,7 +163,6 @@ const AddBookingModal: React.FC<AddBookingModalProps> = ({ isOpen, onClose }) =>
             onChange={handleServiceChange}
             required
           />
-
           <DateSelector
             value={formData.booking_date}
             onChange={(date) => handleInputChange('booking_date', date)}
@@ -200,26 +206,8 @@ const AddBookingModal: React.FC<AddBookingModalProps> = ({ isOpen, onClose }) =>
             placeholder="Special requests or service notes..."
           />
         </div>
-
-        {/* Form Actions */}
-        <div className="flex justify-end gap-4 pt-6">
-          <ThemedButton
-            type="button"
-            onClick={onClose}
-            variant="secondary"
-          >
-            Cancel
-          </ThemedButton>
-          <ThemedButton
-            type="submit"
-            disabled={createBookingMutation.isPending}
-            variant="primary"
-          >
-            {createBookingMutation.isPending ? 'Scheduling...' : 'Schedule Appointment'}
-          </ThemedButton>
-        </div>
-      </form>
-    </ThemedModal>
+      </div>
+    </FormModal>
   );
 };
 

@@ -9,7 +9,6 @@ export interface Car {
   year: number;
   license_plate: string;
   color: string;
-  vin?: string;
   customer: string;
   created_at?: string;
   is_active?: boolean;
@@ -36,7 +35,6 @@ export interface CarCreateData {
   year: number;
   license_plate: string;
   color: string;
-  vin?: string;
 }
 
 export interface CarUpdateData extends Partial<CarCreateData> {}

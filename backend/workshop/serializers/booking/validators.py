@@ -45,6 +45,7 @@ class BookingValidationMixin:
     def validate_availability(self, daily_availability, current_date=None):
         """Check if date has availability"""
         # Only check availability if it's a different date
+        print('===', current_date, daily_availability.date)
         if current_date and daily_availability.date == current_date:
             return True
             

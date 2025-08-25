@@ -1,6 +1,6 @@
 # workshop/views/service_view.py
 from rest_framework import viewsets, status
-from workshop.permissions import IsAdmin, IsCustomer
+from workshop.permissions import IsAdmin
 from rest_framework.decorators import action
 from rest_framework.response import Response
 
@@ -8,7 +8,7 @@ import json
 
 from workshop.models import Service, ServiceItem
 from workshop.serializers.booking_serializer import (
-    ServiceSerializer, ServiceListSerializer, ServiceCreateSerializer
+    ServiceSerializer, ServiceCreateSerializer
 )
 
 
@@ -73,7 +73,6 @@ class ServiceView(viewsets.ViewSet):
     # Add a new service
     @action(detail=False, methods=['post'], url_path='add')
     def add_service(self, request):
-        print(request.data)  # Debugging line to check incoming data
         serializer = ServiceCreateSerializer(data=request.data)
         if serializer.is_valid():
             service = serializer.save()

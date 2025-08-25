@@ -14,6 +14,7 @@ import {
 import AddBookingModal from '../components/features/bookings/AddBookingModal';
 import BookingDetailModal from '../components/features/bookings/BookingDetailModal';
 import EditBookingModal from '../components/features/bookings/EditBookingModal';
+import AddProductItems from '../components/features/bookings/AddProductItems';
 
 // Hooks
 import { useBookings, useBookingStats } from '../hooks/useBookings';
@@ -31,6 +32,7 @@ const Bookings: React.FC = () => {
   const [isDetailModalOpen, setIsDetailModalOpen] = useState(false);
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [isItemModalOpen, setIsItemModalOpen] = useState(false);
 
   // Use global pagination hook
   const { currentPage, itemsPerPage, onPageChange, resetToFirstPage } = usePagination();
@@ -110,6 +112,11 @@ const Bookings: React.FC = () => {
     setIsEditModalOpen(true);
   };
 
+  const handleItemBooking = (booking: Booking) => {
+    setSelectedBooking(booking);
+    setIsItemModalOpen(true);
+  };
+
   const handleClearFilters = () => {
     setSearchTerm('');
     setStatusFilter('');
@@ -155,6 +162,7 @@ const Bookings: React.FC = () => {
         isLoading={isLoading}
         onViewBooking={handleViewBooking}
         onEditBooking={handleEditBooking}
+        onItemBooking={handleItemBooking}
       />
 
       {/* Pagination */}
@@ -185,6 +193,14 @@ const Bookings: React.FC = () => {
         isOpen={isEditModalOpen}
         onClose={() => setIsEditModalOpen(false)}
         booking={selectedBooking}
+      />
+
+      <AddProductItems
+        isOpen={isItemModalOpen}
+        onClose={() => setIsItemModalOpen(false)}
+        onSuccess={() => {
+          setIsItemModalOpen(false);
+        }}
       />
     </div>
   );

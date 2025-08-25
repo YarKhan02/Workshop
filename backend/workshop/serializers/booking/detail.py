@@ -1,13 +1,12 @@
 # workshop/serializers/booking/detail.py
 
 from rest_framework import serializers
+
 from .base import BaseBookingSerializer
+from workshop.models import BookingService
 
 
 class BookingDetailSerializer(BaseBookingSerializer):
-    """
-    Detailed serializer for single booking view
-    """
     # Customer information (through car)
     customer_details = serializers.SerializerMethodField()
     
@@ -51,18 +50,31 @@ class BookingDetailSerializer(BaseBookingSerializer):
         return None
 
     def get_car_details(self, obj):
+        if not obj.car:
+            return None
         return {
-            'id': obj.car.id,
-            'make': obj.car.make,
-            'model': obj.car.model,
-            'year': obj.car.year,
-            'license_plate': obj.car.license_plate,
-            'color': getattr(obj.car, 'color', '')
+        'id': obj.car.id,
+        'make': obj.car.make,
+        'model': obj.car.model,
+        'year': obj.car.year,
+        'license_plate': obj.car.license_plate,
+        'color': getattr(obj.car, 'color', '')
         }
     
+    def get_service_id(self, obj):
+        try:
+            booking_service = BookingService.objects.get(booking=obj)
+            if booking_service.service:
+                return booking_service.service.id
+        except BookingService.DoesNotExist:
+            return None
+        return None
+    
     def get_service_details(self, obj):
-        if hasattr(obj, 'service') and obj.service:
-            booking_service = obj.service
+        try:
+            booking_service = BookingService.objects.get(booking=obj)
+            if not booking_service.service:
+                return None
             return {
                 'booking_service_id': booking_service.id,
                 'service_id': booking_service.service.id,
@@ -72,9 +84,12 @@ class BookingDetailSerializer(BaseBookingSerializer):
                 'status': booking_service.status,
                 'description': booking_service.service.description
             }
-        return None
+        except BookingService.DoesNotExist:
+            return None
     
     def get_availability_details(self, obj):
+        if not hasattr(obj, 'daily_availability') or not obj.daily_availability:
+            return None
         return {
             'date': obj.daily_availability.date,
             'total_slots': obj.daily_availability.total_slots,
@@ -83,11 +98,11 @@ class BookingDetailSerializer(BaseBookingSerializer):
         }
     
     def get_invoice_details(self, obj):
-        if obj.invoice:
-            return {
-                'id': obj.invoice.id,
-                'total_amount': obj.invoice.total_amount,
-                'status': obj.invoice.status,
-                'created_at': obj.invoice.created_at
-            }
-        return None
+        if not hasattr(obj, 'invoice') or not obj.invoice:
+            return None
+        return {
+            'id': obj.invoice.id,
+            'total_amount': obj.invoice.total_amount,
+            'status': obj.invoice.status,
+            'created_at': obj.invoice.created_at
+        }

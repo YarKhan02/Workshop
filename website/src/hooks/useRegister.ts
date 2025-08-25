@@ -3,7 +3,6 @@ import { useNavigate } from 'react-router-dom';
 import toast from 'react-hot-toast';
 import { useAuth } from '../contexts/AuthContext';
 import { RegisterFormData, AuthState, ValidationErrors } from '../services/interfaces/auth';
-import { validateNIC, getNICErrorMessage } from '../utils/nicValidation';
 
 export const useRegister = () => {
   const navigate = useNavigate();
@@ -13,7 +12,6 @@ export const useRegister = () => {
     fullName: '',
     email: '',
     phone: '',
-    nic: '',
     password: '',
     confirmPassword: ''
   });
@@ -39,12 +37,6 @@ export const useRegister = () => {
 
     if (!formData.phone.trim()) {
       errors.phone = 'Phone number is required';
-    }
-
-    if (!formData.nic.trim()) {
-      errors.nic = 'NIC is required';
-    } else if (!validateNIC(formData.nic)) {
-      errors.nic = getNICErrorMessage(formData.nic);
     }
 
     if (!formData.password) {
@@ -76,7 +68,6 @@ export const useRegister = () => {
         fullName: formData.fullName,
         email: formData.email,
         phone: formData.phone,
-        nic: formData.nic,
         password: formData.password
       });
       

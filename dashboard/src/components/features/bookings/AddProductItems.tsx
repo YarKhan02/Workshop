@@ -17,25 +17,20 @@ import type {
 } from '../../../types/billing';
 import { formatCurrency } from '../../../utils/currency';
 import type { CustomerInvoice, Product, ProductVariant } from '../../../types';
-import type { InvoiceItemWithProduct } from './invoice/types';
+import type { InvoiceItemWithProduct } from '../billing/invoice/types';
 import {
-  CustomerSelector,
-  InvoiceStatusSelector,
-  DueDateInput,
   ProductSelector,
   InvoiceItemsList,
   InvoiceTotals,
-} from './invoice';
+} from '../billing/invoice';
 
-interface AddInvoiceModalProps {
+interface AddProductItemsProps {
   isOpen: boolean;
   onClose: () => void;
   onSuccess: () => void;
-  customers: CustomerInvoice[]; // Legacy prop - now fetched via hooks
-  jobs: null; // Legacy prop - keeping for compatibility
 }
 
-const AddInvoiceModal: React.FC<AddInvoiceModalProps> = ({ 
+const AddProductItems: React.FC<AddProductItemsProps> = ({ 
   isOpen, 
   onClose, 
   onSuccess
@@ -44,9 +39,8 @@ const AddInvoiceModal: React.FC<AddInvoiceModalProps> = ({
   const [formData, setFormData] = useState({
     customerId: "",
     subtotal: 0,
-    tax: 0,          // Frontend field name
-    discount: 0,     // Frontend field name  
-    grand_total: 0,  // Frontend field name
+    discount: 0,  
+    grand_total: 0,
     status: "draft" as InvoiceStatus,
     dueDate: new Date().toISOString().split('T')[0], // Default to today
     notes: "",
@@ -63,7 +57,7 @@ const AddInvoiceModal: React.FC<AddInvoiceModalProps> = ({
   const createInvoiceMutation = useCreateInvoice();
   
   // Fetch Customers using the billing hook
-  const { data: customersData, isLoading: isLoadingCustomers } = useInvoiceCustomers();
+  const { data: customersData } = useInvoiceCustomers();
   
   // Fetch Products using the billing hook with search
   const { data: products, isLoading: isLoadingProducts } = useInvoiceProducts(productSearchTerm);
@@ -220,11 +214,6 @@ const AddInvoiceModal: React.FC<AddInvoiceModalProps> = ({
         toast.error("Please add at least one item");
         return;
       }
-
-      console.log('=== DEBUG INFO ===');
-      console.log('formData:', formData);
-      console.log('items:', items);
-      console.log('items length:', items.length);
       
       // Check if items have the required fields
       items.forEach((item, index) => {
@@ -253,8 +242,6 @@ const AddInvoiceModal: React.FC<AddInvoiceModalProps> = ({
           })),
       };
 
-      console.log('Final invoice data being sent:', JSON.stringify(invoiceData, null, 2));
-
       await createInvoiceMutation.mutateAsync(invoiceData);
       toast.success("Invoice created successfully!");
       onSuccess();
@@ -270,7 +257,6 @@ const AddInvoiceModal: React.FC<AddInvoiceModalProps> = ({
     setFormData({
       customerId: "",
       subtotal: 0,
-      tax: 0,
       discount: 0,
       grand_total: 0,
       status: "draft",
@@ -291,8 +277,8 @@ const AddInvoiceModal: React.FC<AddInvoiceModalProps> = ({
     <FormModal
       isOpen={isOpen}
       onClose={handleClose}
-      title="Create New Invoice"
-      subtitle="Add invoice details and items"
+      title="Add Product Items"
+      subtitle="Products used in the car service"
       size="xl"
       onSubmit={handleSubmit}
       footer={
@@ -303,28 +289,6 @@ const AddInvoiceModal: React.FC<AddInvoiceModalProps> = ({
         />
       }
     >
-      {/* Basic Information */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <CustomerSelector
-          value={formData.customerId}
-          onChange={(customerId) => setFormData((prev) => ({ ...prev, customerId }))}
-          customers={customersData}
-          isLoading={isLoadingCustomers}
-          error={errors.customerId}
-          required
-        />
-        <InvoiceStatusSelector
-          value={formData.status}
-          onChange={(status) => setFormData({ ...formData, status })}
-        />
-        <DueDateInput
-          value={formData.dueDate}
-          onChange={(dueDate) => setFormData({ ...formData, dueDate })}
-          disabled={formData.status === "paid"}
-          error={errors.dueDate}
-          required
-        />
-      </div>
       {/* Invoice Items */}
       <div>
         <div className="flex justify-between items-center mb-4">
@@ -370,4 +334,4 @@ const AddInvoiceModal: React.FC<AddInvoiceModalProps> = ({
   );
 };
 
-export default AddInvoiceModal;
+export default AddProductItems;

@@ -15,7 +15,6 @@ class CarSerializer(serializers.ModelSerializer):
             'year',
             'license_plate',
             'color',
-            'vin',
         ]
 
 # Serializer for creating a new car
@@ -31,7 +30,6 @@ class CarCreateSerializer(serializers.ModelSerializer):
             'year',
             'license_plate',
             'color',
-            'vin',
         ]
 
     def create(self, validated_data):
@@ -41,6 +39,15 @@ class CarCreateSerializer(serializers.ModelSerializer):
             customer = User.objects.get(id=customer)
         except User.DoesNotExist:
             raise serializers.ValidationError({'customer': 'Invalid customer ID'})
+        
+        if 'license_plate' in validated_data:
+            validated_data['license_plate'] = validated_data['license_plate'].upper()
+        if 'make' in validated_data:
+            validated_data['make'] = validated_data['make'].capitalize()
+        if 'model' in validated_data:
+            validated_data['model'] = validated_data['model'].capitalize()
+        if 'color' in validated_data:
+            validated_data['color'] = validated_data['color'].capitalize()
 
         return Car.objects.create(customer=customer, **validated_data)
 
@@ -56,7 +63,6 @@ class DetailSerializer(serializers.ModelSerializer):
             'year',
             'license_plate',
             'color',
-            'vin',
             'customer_name',
         ]
         
@@ -75,5 +81,4 @@ class CarUpdateSerializer(serializers.ModelSerializer):
             'year',
             'license_plate',
             'color',
-            'vin',
         ]

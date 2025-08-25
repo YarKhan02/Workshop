@@ -97,12 +97,6 @@ const Customers: React.FC = () => {
       value: stats?.new_this_week || 0,
       icon: <UserPlus className="h-8 w-8" />,
       color: 'purple' as const,
-      ...(stats?.new_this_week_percentage && stats.new_this_week_percentage > 0 && {
-        change: {
-          value: `${stats.new_this_week_percentage}%`,
-          type: 'increase' as const,
-        },
-      }),
     },
   ];
 

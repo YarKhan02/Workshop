@@ -5,8 +5,8 @@ NO_COLOR='\033[0m'
 LABEL="db-drop"
 printf "${CYAN}== ${LABEL}${NO_COLOR}\n"
 
-# CONNECTION_URL="postgresql://yarkhan:yarkhanworkshop@localhost:5432/postgres"
-CONNECTION_URL="postgresql://detailinghub:RoDFD9WJ6HgpV7RZc2R9@detailinghub.cz26gy8cuvti.ap-southeast-2.rds.amazonaws.com:5432/workshop"
+CONNECTION_URL="postgresql://yarkhan:yarkhanworkshop@localhost:5432/postgres"
+# CONNECTION_URL="postgresql://detailinghub:RoDFD9WJ6HgpV7RZc2R9@detailinghub.cz26gy8cuvti.ap-southeast-2.rds.amazonaws.com:5432/workshop"
 
 
 # Terminate active connections first (important!)

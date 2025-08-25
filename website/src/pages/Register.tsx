@@ -42,7 +42,6 @@ const Register: React.FC = () => {
               onChange={handleChange}
               onTogglePassword={togglePasswordVisibility}
             />
-
             {/* Submit Button */}
             <Button
               type="submit"

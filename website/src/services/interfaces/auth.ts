@@ -2,7 +2,6 @@ export interface RegisterFormData {
   fullName: string;
   email: string;
   phone: string;
-  nic: string;
   password: string;
   confirmPassword: string;
 }

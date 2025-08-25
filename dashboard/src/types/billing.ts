@@ -128,17 +128,16 @@ export interface InvoiceItemFormData {
 }
 
 export interface CreateInvoicePayload {
-  customerId: string;        // camelCase for frontend -> customer_id
-  subtotal?: number;         // -> subtotal (calculated by backend)
-  taxAmount: number;         // camelCase for frontend -> tax -> tax_percentage
-  discountAmount: number;    // camelCase for frontend -> discount -> discount_amount
-  totalAmount: number;       // camelCase for frontend -> grand_total -> total_amount
+  customerId: string;
+  subtotal?: number;         
+  discountAmount: number;
+  totalAmount: number;
   status?: string;
   items: {
-    variantId: string;       // camelCase for frontend -> product_variant - REQUIRED
+    variantId: string;
     quantity: number;
-    unitPrice?: number;      // camelCase for frontend -> unit_price
-    totalPrice: number;      // camelCase for frontend -> total_price -> total_amount
+    unitPrice?: number;
+    totalPrice: number;
   }[];
 }export interface UpdateInvoicePayload extends Partial<InvoiceFormData> {
   items?: Omit<InvoiceItemFormData, 'variantId' | 'productName' | 'variantName' | 'sku'>[];

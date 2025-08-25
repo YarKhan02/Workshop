@@ -7,7 +7,6 @@ export const authAPI = {
       full_name: userData.fullName,
       email: userData.email,
       phone_number: userData.phone,
-      nic: userData.nic,
       password: userData.password,
       city: '',
       state: '',

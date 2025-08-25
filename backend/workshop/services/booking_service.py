@@ -1,12 +1,10 @@
 # workshop/services/booking_service.py
 from workshop.models.booking import Booking
-from workshop.models.customer import Customer
 from workshop.models.car import Car
 from workshop.models.daily_availability import DailyAvailability
 from workshop.serializers.booking_serializer import (
     BookingListSerializer, BookingDetailSerializer, 
     BookingCreateSerializer, BookingUpdateSerializer,
-    BookingStatsSerializer
 )
 from workshop.queries import booking_queries as bq
 from workshop.queries import daily_availability_queries as daq
@@ -46,8 +44,6 @@ class BookingService:
         # Serialize the results
         serializer = BookingListSerializer(result['queryset'], many=True)
 
-        print('=====================\n', serializer.data)  # Debugging output
-        
         return {
             'bookings': serializer.data,
             'pagination': result['pagination']
@@ -55,9 +51,6 @@ class BookingService:
 
     
     def get_booking_detail(self, pk):
-        """
-        Get optimized booking detail
-        """
         booking = bq.get_optimized_booking_detail(pk)
         if booking:
             serializer = BookingDetailSerializer(booking)
@@ -70,29 +63,24 @@ class BookingService:
         serializer = BookingCreateSerializer(data=data, context={'request': request})
         if serializer.is_valid():
             booking = serializer.save()
-            response_serializer = BookingDetailSerializer(booking)
             return {
                 'message': 'Booking created successfully',
-                'booking': response_serializer.data
+                'booking_id': str(booking.id)
             }, None
+        print(serializer.errors)
         return None, serializer.errors
     
+    
     def create_customer_booking(self, data, request=None):
-        """
-        Create customer booking with optimized queries
-        """
-        print("Creating customer booking with data:", data)
         context = {'request': request} if request else {}
         serializer = BookingCreateSerializer(data=data, context=context)
         if serializer.is_valid():
-            print("Serializer is valid, creating booking...")
             booking = serializer.save()
             response_serializer = BookingDetailSerializer(booking)
             return {
                 'message': 'Customer booking created successfully',
                 'booking': response_serializer.data
             }, None
-        print("Serializer errors:", serializer.errors)
         return None, serializer.errors
 
 
@@ -102,13 +90,12 @@ class BookingService:
         if not booking:
             return None, {'error': 'Booking not found'}
             
-        serializer = BookingUpdateSerializer(booking, data=data, context={'request': request})
+        serializer = BookingUpdateSerializer(booking, data=data, context={'request': request, 'pk': pk})
+        print(serializer)
         if serializer.is_valid():
-            updated_booking = serializer.save()
-            response_serializer = BookingDetailSerializer(updated_booking)
+            serializer.save()
             return {
-                'message': 'Booking updated successfully',
-                'booking': response_serializer.data
+                'message': 'Booking updated successfully'
             }, None
         return None, serializer.errors
 
@@ -131,9 +118,6 @@ class BookingService:
 
 
     def cancel_booking(self, pk, user, reason):
-        """
-        Cancel booking with time slot availability handling
-        """
         booking = bq.get_booking_for_update(pk)
         if not booking:
             return None, {'error': 'Booking not found'}
@@ -152,9 +136,6 @@ class BookingService:
         return bq.get_booking_stats()
 
     def get_customer_cars(self, customer_id):
-        """
-        Get optimized customer cars
-        """
         result = bq.get_customer_cars_optimized(customer_id)
         if result:
             return result, None
@@ -179,9 +160,6 @@ class BookingService:
             return None, {'error': f'Error fetching available dates: {str(e)}'}
 
     def get_availability_for_date(self, date_param):
-        """
-        Get availability info for a specific date
-        """
         if not date_param:
             return None, {'error': 'Date parameter is required (format: YYYY-MM-DD)'}
             

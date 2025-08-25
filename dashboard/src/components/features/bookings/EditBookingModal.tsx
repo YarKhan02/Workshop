@@ -159,7 +159,7 @@ const EditBookingModal: React.FC<EditBookingModalProps> = ({ isOpen, onClose, bo
         
         {/* Client Info (Read-only) */}
         <div className={cn("rounded-xl p-4 border", theme.background, theme.border)}>
-          <h3 className={cn("text-lg font-semibold mb-3", theme.primary)}>Customer & Vehicle</h3>
+          <h3 className={cn("text-lg font-semibold mb-3", theme.textPrimary)}>Customer & Vehicle</h3>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
               <p className={cn("font-medium", theme.textPrimary)}>{booking.customerName}</p>
@@ -267,22 +267,6 @@ const EditBookingModal: React.FC<EditBookingModalProps> = ({ isOpen, onClose, bo
                     className="w-full px-4 py-3 bg-gray-900/50 border border-gray-600/50 rounded-xl text-gray-100 focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-all duration-300"
                     min="0"
                     step="0.01"
-                  />
-                </div>
-              </div>
-
-              {/* Special Instructions */}
-              <div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-300 mb-2">
-                    Special Instructions
-                  </label>
-                  <textarea
-                    value={formData.special_instructions}
-                    onChange={(e) => handleInputChange('special_instructions', e.target.value)}
-                    rows={3}
-                    className="w-full px-4 py-3 bg-gray-900/50 border border-gray-600/50 rounded-xl text-gray-100 focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-all duration-300 resize-none"
-                    placeholder="Customer requests or special instructions..."
                   />
                 </div>
               </div>

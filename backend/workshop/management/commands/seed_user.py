@@ -8,7 +8,6 @@ class Command(BaseCommand):
         users_data = [
             {
                 'nic': '1234567890123',
-                'username': 'adminuser',
                 'email': 'admin@detailinghubpk.com',
                 'name': 'Admin',
                 'role': 'admin',
@@ -19,7 +18,6 @@ class Command(BaseCommand):
 
         for u in users_data:
             user, created = User.objects.get_or_create(
-                username=u['username'],
                 defaults={
                     'email': u['email'],
                     'name': u['name'],
@@ -31,6 +29,6 @@ class Command(BaseCommand):
             if created:
                 user.set_password(u['password'])
                 user.save()
-                self.stdout.write(self.style.SUCCESS(f"Created user: {u['username']}"))
+                self.stdout.write(self.style.SUCCESS(f"Created user: {u['name']}"))
             else:
-                self.stdout.write(self.style.WARNING(f"User already exists: {u['username']}"))
+                self.stdout.write(self.style.WARNING(f"User already exists: {u['name']}"))

@@ -5,13 +5,9 @@ from workshop.helper.date_utils import get_start_of_week, get_start_of_week_perc
 def get_customer_by_id(customer_id: str) -> User:
     try:
         return User.objects.only('id', 
-                                    'nic',
                                     'email', 
                                     'name',
                                     'phone_number', 
-                                    'city', 
-                                    'state', 
-                                    'address'
                                 ).get(id=customer_id)
     except User.DoesNotExist:
         return None
@@ -41,11 +37,9 @@ def get_customer_stats_data():
     total = get_total_customers()
     returning = get_returning_customers()
     new_this_week = get_new_customers_this_week()
-    percentage = get_start_of_week_percentage(new_this_week, total)
-
+    
     return {
         "total": total,
         "returning": returning,
-        "new_this_week": new_this_week,
-        "new_this_week_percentage": percentage
+        "new_this_week": new_this_week
     }

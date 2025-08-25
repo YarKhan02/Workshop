@@ -52,23 +52,23 @@ const CarDetailModal: React.FC<CarDetailModalProps> = ({
 
               <div className="flex items-start gap-3">
                 <div className={cn("p-2 rounded-lg mt-1", theme.backgroundSecondary)}>
-                  <Calendar className="w-4 h-4 text-gray-400" />
+                  <Hash className="w-4 h-4 text-gray-400" />
                 </div>
                 <div className="flex-1">
-                  <p className={cn("text-sm font-medium", theme.textSecondary)}>Year</p>
-                  <p className={cn("text-base", theme.textPrimary)}>{car.year}</p>
+                  <p className={cn("text-sm font-medium", theme.textSecondary)}>License Plate</p>
+                  <p className={cn("text-base", theme.textPrimary)}>
+                    {car.license_plate}
+                  </p>
                 </div>
               </div>
 
               <div className="flex items-start gap-3">
                 <div className={cn("p-2 rounded-lg mt-1", theme.backgroundSecondary)}>
-                  <Hash className="w-4 h-4 text-gray-400" />
+                  <Calendar className="w-4 h-4 text-gray-400" />
                 </div>
                 <div className="flex-1">
-                  <p className={cn("text-sm font-medium", theme.textSecondary)}>License Plate</p>
-                  <p className={cn("font-mono text-lg px-3 py-1 rounded-md inline-block", theme.backgroundTertiary, theme.textPrimary)}>
-                    {car.license_plate}
-                  </p>
+                  <p className={cn("text-sm font-medium", theme.textSecondary)}>Year</p>
+                  <p className={cn("text-base", theme.textPrimary)}>{car.year}</p>
                 </div>
               </div>
             </div>
@@ -100,28 +100,6 @@ const CarDetailModal: React.FC<CarDetailModalProps> = ({
                   </div>
                 </div>
               </div>
-
-              {car.vin && (
-                <div className="flex items-start gap-3">
-                  <div className={cn("p-2 rounded-lg mt-1", theme.backgroundSecondary)}>
-                    <Hash className="w-4 h-4 text-gray-400" />
-                  </div>
-                  <div className="flex-1">
-                    <p className={cn("text-sm font-medium", theme.textSecondary)}>VIN Number</p>
-                    <p className={cn("font-mono text-sm px-3 py-2 rounded-md break-all", theme.backgroundTertiary, theme.textPrimary)}>
-                      {car.vin}
-                    </p>
-                  </div>
-                </div>
-              )}
-              
-              {!car.vin && (
-                <div className="flex items-center justify-center py-4">
-                  <p className={cn("text-center text-sm", theme.textTertiary)}>
-                    No VIN information available
-                  </p>
-                </div>
-              )}
             </div>
           </ThemedCard>
         </div>

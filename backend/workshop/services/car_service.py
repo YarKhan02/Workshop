@@ -1,4 +1,5 @@
 # services/car_service.py
+import uuid
 from typing import Dict, Any, Optional
 from workshop.models.car import Car
 from workshop.serializers.car_serializer import CarSerializer, DetailSerializer, CarCreateSerializer, CarUpdateSerializer
@@ -36,13 +37,13 @@ class CarService(BaseService):
                 details=str(e)
             )
 
-    def get_cars_by_customer(self, customer_id: Optional[str]) -> Dict[str, Any]:
+    def get_cars_by_customer(self, customer_id: str) -> Dict[str, Any]:
         if not customer_id:
             return self.error_response(
                 message="customer_id query parameter is required"
             )
         try:
-            queryset = Car.objects.filter(customer_id=customer_id)
+            queryset = Car.objects.filter(customer=customer_id)
             serializer = CarSerializer(queryset, many=True)
             return self.success_response(
                 message="Cars for customer retrieved successfully",
@@ -64,13 +65,11 @@ class CarService(BaseService):
                     message="Car added successfully",
                     data=CarSerializer(car).data
                 )
-            print("Serializer errors:", serializer.errors)
             return self.error_response(
                 message="Invalid data",
                 details=serializer.errors
             )
         except Exception as e:
-            print("Error while adding car:", str(e))
             return self.error_response(
                 message="Failed to add car",
                 details=str(e)
