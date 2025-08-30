@@ -54,9 +54,10 @@ const InvoiceItemsList: React.FC<InvoiceItemsListProps> = ({
             </label>
             <input
               type="number"
-              min="1"
-              value={item.quantity || ''}
-              onChange={(e) => onUpdateItem(index, "quantity", parseInt(e.target.value) || 1)}
+              min="0"
+              step="any"
+              value={item.quantity === 0 ? '' : item.quantity}
+              onChange={(e) => onUpdateItem(index, "quantity", e.target.value)}
               className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-gray-700 text-white ${
                 errors[`item${index}Quantity`] ? "border-red-500" : "border-gray-600"
               }`}

@@ -19,7 +19,9 @@ class BookingService(models.Model):
     service = models.ForeignKey(Service, on_delete=models.CASCADE, related_name='bookings')
 
     price = models.DecimalField(max_digits=10, decimal_places=2)
+    product_items_price = models.DecimalField(max_digits=10, decimal_places=2, default=0)
     status = models.CharField(max_length=20, choices=Status.choices, default=Status.PENDING)
+
 
     class Meta:
         db_table = 'booking_service'

@@ -27,7 +27,9 @@ class StockMovement(models.Model):
     product_variant = models.ForeignKey(ProductVariant, on_delete=models.CASCADE, related_name='stock_movements')
     
     # Movement details
-    change_amount = models.IntegerField(
+    change_amount = models.DecimalField(
+        max_digits=10,
+        decimal_places=2,
         help_text="Positive for stock increase (restock), negative for stock decrease (sale)"
     )
     reason = models.CharField(
@@ -37,10 +39,14 @@ class StockMovement(models.Model):
     )
     
     # Stock levels at time of movement
-    quantity_before = models.PositiveIntegerField(
+    quantity_before = models.DecimalField(
+        max_digits=10,
+        decimal_places=2,
         help_text="Stock quantity before this movement"
     )
-    quantity_after = models.PositiveIntegerField(
+    quantity_after = models.DecimalField(
+        max_digits=10,
+        decimal_places=2,
         help_text="Stock quantity after this movement"
     )
     

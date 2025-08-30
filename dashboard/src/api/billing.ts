@@ -110,10 +110,12 @@ export const billingAPI = {
 
   // Create new invoice
   createInvoice: async (invoiceData: CreateInvoicePayload): Promise<Invoice> => {
-    // Transform payload to match backend expectations
-    const payload = transformToSnakeCase(invoiceData);
-
-    const response = await apiClient.post('/invoices/add-invoice/', payload);
+    // Ensure booking_id is always sent if present
+    let payload = transformToSnakeCase(invoiceData);
+    if (invoiceData.bookingId) {
+      payload = { ...payload, booking_id: invoiceData.bookingId };
+    }
+    const response = await apiClient.post('/variants/add-to-booking/', payload);
     return response.data;
   },
 

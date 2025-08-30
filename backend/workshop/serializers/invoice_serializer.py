@@ -21,7 +21,6 @@ class InvoiceSerializer(serializers.ModelSerializer):
             'customer',
             'items',
             'subtotal',
-            'tax_percentage',
             'discount_amount',
             'total_amount',
             'status',
@@ -30,48 +29,52 @@ class InvoiceSerializer(serializers.ModelSerializer):
     
     def get_items(self, obj):
         """
-        Get combined items from both InvoiceItems and Booking services
+        Fetch all product items for the booking service related to this invoice, with defensive checks.
         """
-        combined_items = []
-        
-        # Get regular invoice items
-        invoice_items = obj.items.all()
-        for item in invoice_items:
-            combined_items.append({
-                'id': str(item.id),
-                'type': 'product',
-                'description': getattr(item.product_variant.product, 'name', 'Product') if hasattr(item, 'product_variant') and item.product_variant and item.product_variant.product else 'Product',
-                'product_name': getattr(item.product_variant.product, 'name', 'Product') if hasattr(item, 'product_variant') and item.product_variant and item.product_variant.product else 'Product',
-                'product_variant': item.product_variant.variant_name if hasattr(item, 'product_variant') and item.product_variant else 'Default',
-                'quantity': item.quantity,
-                'unit_price': str(item.unit_price),
-                'total_amount': str(item.total_amount),
-            })
-        
-        # Get booking service items
+        items = []
+        booking = getattr(obj, 'bookings', None)
+        if not booking:
+            return items
+        booking_service = getattr(booking, 'service', None)
+        if not booking_service:
+            return items
+        # Add service item (optional, as before)
         try:
-            booking = getattr(obj, 'bookings', None)
-            if booking:
-                booking_service = getattr(booking, 'service', None)
-                if booking_service:
-                    combined_items.append({
-                        'id': str(booking_service.id),
-                        'type': 'service',
-                        'description': f"{booking_service.service.name} - {booking.car.license_plate}",
-                        'service_name': booking_service.service.name,
-                        'service_description': booking_service.service.description,
-                        'car_info': f"{booking.car.make} {booking.car.model} ({booking.car.license_plate})",
-                        'scheduled_date': booking.daily_availability.date.isoformat() if booking.daily_availability else None,
-                        'quantity': 1,
-                        'unit_price': str(booking_service.price),
-                        'total_amount': str(booking_service.price),
-                        'status': booking_service.status,
-                    })
-        except AttributeError:
-            # No booking data available
+            service_obj = getattr(booking_service, 'service', None)
+            car_obj = getattr(booking, 'car', None)
+            daily_availability = getattr(booking, 'daily_availability', None)
+            items.append({
+                'id': str(booking_service.id),
+                'type': 'service',
+                'description': f"{getattr(service_obj, 'name', '')} - {getattr(car_obj, 'license_plate', '')}",
+                'service_name': getattr(service_obj, 'name', ''),
+                'service_description': getattr(service_obj, 'description', ''),
+                'car_info': f"{getattr(car_obj, 'make', '')} {getattr(car_obj, 'model', '')} ({getattr(car_obj, 'license_plate', '')})",
+                'scheduled_date': daily_availability.date.isoformat() if daily_availability and hasattr(daily_availability, 'date') else None,
+                'quantity': 1,
+                'unit_price': str(getattr(booking_service, 'price', '')),
+                'total_amount': str(getattr(booking_service, 'price', '')),
+                'status': getattr(booking_service, 'status', ''),
+            })
+        except Exception:
             pass
-        
-        return combined_items
+        # Add all product items linked to this booking service
+        try:
+            for invoice_item in getattr(booking_service, 'items', []).all() if hasattr(booking_service, 'items') else []:
+                pv = getattr(invoice_item, 'product_variant', None)
+                items.append({
+                    'id': str(getattr(invoice_item, 'id', '')),
+                    'type': 'product',
+                    'product_variant': str(getattr(pv, 'id', '')),
+                    'variant_name': getattr(pv, 'variant_name', ''),
+                    'sku': getattr(pv, 'sku', ''),
+                    'quantity': float(getattr(invoice_item, 'quantity', 0)),
+                    'unit_price': str(getattr(invoice_item, 'unit_price', '')),
+                    'total_amount': str(getattr(invoice_item, 'total_amount', '')),
+                })
+        except Exception:
+            pass
+        return items
 
 # This serializer is used for creating an invoice with items
 class InvoiceCreateSerializer(serializers.ModelSerializer):
@@ -79,12 +82,10 @@ class InvoiceCreateSerializer(serializers.ModelSerializer):
     items = InvoiceItemCreateSerializer(many=True)
     
     # Accept frontend field names and map them to model fields
-    tax = serializers.DecimalField(max_digits=10, decimal_places=2, write_only=True, required=False)
     discount = serializers.DecimalField(max_digits=10, decimal_places=2, write_only=True, required=False)
     grand_total = serializers.DecimalField(max_digits=10, decimal_places=2, write_only=True, required=False)
     
     # Make model fields optional since they'll be populated from frontend fields
-    tax_percentage = serializers.DecimalField(max_digits=10, decimal_places=2, required=False)
     discount_amount = serializers.DecimalField(max_digits=10, decimal_places=2, required=False)
     total_amount = serializers.DecimalField(max_digits=10, decimal_places=2, required=False)
 
@@ -93,10 +94,8 @@ class InvoiceCreateSerializer(serializers.ModelSerializer):
         fields = [
             'customer_id',
             'subtotal',
-            'tax_percentage', 
             'discount_amount',
             'total_amount',
-            'tax',        # Frontend field -> tax_percentage
             'discount',   # Frontend field -> discount_amount  
             'grand_total', # Frontend field -> total_amount
             'status',
@@ -109,9 +108,6 @@ class InvoiceCreateSerializer(serializers.ModelSerializer):
         print("Data keys:", list(data.keys()))
         
         # Map frontend fields to model fields
-        if 'tax' in data:
-            print("Mapping tax to tax_percentage")
-            data['tax_percentage'] = data.pop('tax')
         if 'discount' in data:
             print("Mapping discount to discount_amount")
             data['discount_amount'] = data.pop('discount')
@@ -139,7 +135,6 @@ class InvoiceCreateSerializer(serializers.ModelSerializer):
             invoice = Invoice.objects.create(
                 user=customer,
                 subtotal=validated_data.get('subtotal', 0),
-                tax_percentage=validated_data.get('tax_percentage', 0),
                 discount_amount=validated_data.get('discount_amount', 0),
                 total_amount=validated_data.get('total_amount', 0),
                 status=validated_data.get('status', 'pending')

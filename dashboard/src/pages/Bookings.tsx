@@ -201,6 +201,7 @@ const Bookings: React.FC = () => {
         onSuccess={() => {
           setIsItemModalOpen(false);
         }}
+        bookingId={selectedBooking?.id}
       />
     </div>
   );

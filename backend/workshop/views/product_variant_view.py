@@ -55,3 +55,14 @@ class ProductVariantView(viewsets.ViewSet):
         if errors and errors.get('error') == 'Product variant not found':
             return Response(errors, status=status.HTTP_404_NOT_FOUND)
         return Response(errors, status=status.HTTP_400_BAD_REQUEST)
+    
+
+    # Add product variant to booking
+    @action(detail=False, methods=['post'], url_path='add-to-booking')
+    def add_to_booking(self, request):
+        print('Adding product variant to booking')
+        print('=============', request.data)
+        result, errors = self.product_variant_service.add_variant_to_booking(request.data)
+        if result:
+            return Response(result, status=status.HTTP_201_CREATED)
+        return Response(errors, status=status.HTTP_400_BAD_REQUEST)

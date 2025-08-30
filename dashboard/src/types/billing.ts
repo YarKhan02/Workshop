@@ -8,15 +8,12 @@ export interface Invoice {
   invoice_number?: string; // Backend field
   customerId?: string;
   customer: InvoiceCustomer;
-  jobId?: string;
-  job?: InvoiceJob;
   subtotal: number;
-  taxAmount: number;
-  tax_amount?: number; // Backend field
   discountAmount: number;
   discount_amount?: number; // Backend field
   totalAmount: number;
   total_amount?: string; // Backend field (sometimes string)
+  variant_name?: string;
   status: InvoiceStatus;
   payment_status?: InvoiceStatus; // Backend field for booking invoices
   paymentMethod?: PaymentMethod;
@@ -45,16 +42,19 @@ export interface InvoiceItem {
   id: string;
   type: 'product' | 'service';  // Unified type field
   description: string;
-  quantity: number;
+  quantity: number | "";
   unitPrice: number;        // Frontend field name
   unit_price?: string;      // Backend field name
   totalPrice: number;       // Frontend field name  
   total_amount?: string;    // Backend field name
   // Product-specific fields
   productVariant?: string;  // Frontend field name
-  product_variant?: string; // Backend field name
+  product_variant?: string; // Backend field name (ID)
   productName?: string;
   product_name?: string;    // Backend field name
+  variantName?: string;     // Frontend field name
+  variant_name?: string;    // Backend field name
+  sku?: string;             // Backend field name
   // Service-specific fields  
   serviceName?: string;
   service_name?: string;    // Backend field name
@@ -118,7 +118,7 @@ export interface InvoiceFormData {
 
 export interface InvoiceItemFormData {
   description: string;
-  quantity: number;
+  quantity: number | "";
   unitPrice: number;     // Frontend field name
   totalPrice: number;    // Frontend field name
   variantId?: string;
@@ -128,31 +128,20 @@ export interface InvoiceItemFormData {
 }
 
 export interface CreateInvoicePayload {
-  customerId: string;
   subtotal?: number;         
   discountAmount: number;
   totalAmount: number;
   status?: string;
   items: {
     variantId: string;
-    quantity: number;
+    quantity: number | "";
     unitPrice?: number;
     totalPrice: number;
   }[];
+  bookingId?: string;
 }export interface UpdateInvoicePayload extends Partial<InvoiceFormData> {
   items?: Omit<InvoiceItemFormData, 'variantId' | 'productName' | 'variantName' | 'sku'>[];
 }
-
-// ==================== STATS INTERFACES ====================
-
-export interface BillingStats {
-  totalRevenue: number;
-  totalOrders: number;
-  outstandingAmount: number;
-  monthlyRevenue: number;
-}
-
-// ==================== MODAL PROP INTERFACES ====================
 
 export interface AddInvoiceModalProps {
   isOpen: boolean;
@@ -251,7 +240,6 @@ export interface InvoiceBooking {
   created_at: string;
   // Invoice financial fields
   invoice_subtotal: string;
-  invoice_tax_percentage: string;
   invoice_discount_amount: string;
   invoice_total_amount: string;
   invoice_status: string;
@@ -321,3 +309,10 @@ export interface StatusUpdateRequest {
 export interface Order extends Invoice {}
 export interface OrderItem extends InvoiceItem {}
 export interface CustomerInvoice extends InvoiceCustomer {}
+
+export interface BillingStats {
+  totalRevenue: number
+  totalOrders: number
+  outstandingAmount: number
+  monthlyRevenue: number
+}

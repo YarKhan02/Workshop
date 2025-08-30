@@ -6,4 +6,5 @@ export interface InvoiceItemWithProduct extends Omit<BaseInvoiceItem, 'id' | 'in
   productName?: string;
   variantName?: string;
   sku?: string;
+  quantity: number | "";
 }

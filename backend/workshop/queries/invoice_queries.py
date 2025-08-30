@@ -10,7 +10,7 @@ from workshop.models.booking import Booking
 
 
 def get_optimized_invoices():
-    return Invoice.objects.select_related('customer').prefetch_related('items__product_variant').only(
+    return Invoice.objects.select_related('customer').only(
         'id',
         'total_amount',
         'created_at',
@@ -19,10 +19,6 @@ def get_optimized_invoices():
         'customer__first_name',
         'customer__last_name',
         'customer__phone_number',
-        'items__id',
-        'items__quantity',
-        'items__unit_price',
-        'items__total_price',
     )
 
 
@@ -31,7 +27,6 @@ def get_invoices_with_items_and_variants() -> QuerySet:
     Get invoices with optimized queries for both items and booking data
     """
     return Invoice.objects.select_related('user').prefetch_related(
-        'items__product_variant__product',  # For invoice items
         'bookings__car',                    # For booking car info  
         'bookings__service__service',       # For booking service info
         'bookings__daily_availability'      # For booking date info

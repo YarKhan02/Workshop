@@ -1,15 +1,16 @@
 import uuid
 from django.db import models
-from workshop.models import ProductVariant, Invoice
+from workshop.models.product_variant import ProductVariant
+from workshop.models.booking_service import BookingService
 
 class InvoiceItems(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     unit_price = models.DecimalField(max_digits=10, decimal_places=2)
-    quantity = models.PositiveIntegerField()
+    quantity = models.DecimalField(max_digits=10, decimal_places=2)
     total_amount = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)  
 
     # Relationships
-    invoice = models.ForeignKey(Invoice, on_delete=models.CASCADE, related_name='items')
+    booking_service = models.ForeignKey(BookingService, on_delete=models.CASCADE, related_name='items')
     product_variant = models.ForeignKey(ProductVariant, on_delete=models.CASCADE, null=False, blank=False)
 
     class Meta:

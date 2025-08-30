@@ -123,13 +123,13 @@ const InvoiceDetailModal: React.FC<InvoiceDetailModalProps> = ({
                       <Package className={cn("w-4 h-4 mr-2", theme.textSecondary)} />
                       <div>
                         <p className={cn("text-sm font-medium", theme.textPrimary)}>
-                          {item.description || (item as any).product_name || 'No description'}
+                          {item.description || (item as any).variant_name || 'No description'}
                         </p>
-                        {((item as any).product_variant || item.productVariant) && (
+                        {/* {((item as any).product_variant || item.productVariant) && (
                           <p className={cn("text-xs", theme.textSecondary)}>
                             Variant: {(item as any).product_variant || item.productVariant}
                           </p>
-                        )}
+                        )} */}
                       </div>
                     </div>
                   </td>
@@ -154,10 +154,6 @@ const InvoiceDetailModal: React.FC<InvoiceDetailModalProps> = ({
             <div className="flex justify-between">
               <span className={cn("", theme.textSecondary)}>Subtotal:</span>
               <span className={cn("font-medium", theme.textPrimary)}>{formatCurrency((invoice as any).subtotal || (invoice as any).total_amount || 0)}</span>
-            </div>
-            <div className="flex justify-between">
-              <span className={cn("", theme.textSecondary)}>Tax:</span>
-              <span className={cn("font-medium", theme.textPrimary)}>{formatCurrency((invoice as any).tax_percentage || (invoice as any).tax || 0)}</span>
             </div>
             <div className="flex justify-between">
               <span className={cn("", theme.textSecondary)}>Discount:</span>

@@ -39,7 +39,7 @@ export const ThemedInput: React.FC<ThemedInputProps> = ({
       {label && (
         <label className={cn('block text-sm font-medium', theme.textSecondary)}>
           {label}
-          {props.required && <span className={theme.error}>*</span>}
+          {props.required && <span className="text-red-500"> *</span>}
         </label>
       )}
       

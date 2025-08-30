@@ -2,6 +2,7 @@
 from django.db import transaction
 from workshop.models.stock_movement import StockMovement
 from workshop.models.product_variant import ProductVariant
+from decimal import Decimal, InvalidOperation
 
 
 class StockMovementService:
@@ -63,20 +64,21 @@ class StockMovementService:
             with transaction.atomic():
                 # Lock the variant to prevent race conditions
                 variant = ProductVariant.objects.select_for_update().get(id=product_variant.id)
-                original_quantity = variant.quantity
+                try:
+                    original_quantity = Decimal(variant.quantity)
+                    adjustment_amount = Decimal(adjustment_amount)
+                except (InvalidOperation, TypeError, ValueError):
+                    return None, {'error': 'Quantity and adjustment must be decimal-compatible'}
                 new_quantity = original_quantity + adjustment_amount
-                
                 # Validate new quantity
                 if new_quantity < 0:
                     return None, {
                         'error': f'Adjustment would result in negative quantity: '
                                 f'{original_quantity} + {adjustment_amount} = {new_quantity}'
                     }
-                
                 # Update variant quantity
                 variant.quantity = new_quantity
                 variant.save(update_fields=['quantity'])
-                
                 # Create stock movement record
                 movement = StockMovement.objects.create(
                     product_variant=variant,
@@ -87,7 +89,6 @@ class StockMovementService:
                     reference_id=reference_id or f"Manual_Adjustment_{variant.id}",
                     created_by=adjusted_by
                 )
-                
                 return {
                     'message': 'Stock adjusted successfully',
                     'variant_id': str(variant.id),
@@ -96,7 +97,6 @@ class StockMovementService:
                     'adjustment_amount': adjustment_amount,
                     'movement_id': str(movement.id)
                 }, None
-                
         except ProductVariant.DoesNotExist:
             return None, {'error': 'Product variant not found'}
         except Exception as e:
@@ -137,7 +137,9 @@ class StockMovementService:
     def create_sale_movement(product_variant, sold_quantity, reference_id="", sold_by="System"):
         if sold_quantity <= 0:
             return None, {'error': 'Sold quantity must be positive'}
-        
+
+        print(f"Creating sale movement - Variant ID: {product_variant.id}, Sold Quantity: {sold_quantity}")
+
         # Use negative amount for stock decrease
         return StockMovementService.adjust_stock(
             product_variant=product_variant,

@@ -54,5 +54,4 @@ class InvoiceItemCreateSerializer(serializers.ModelSerializer):
             invoice=invoice,  # Link to Invoice
             unit_price=unit_price,  # Set from ProductVariant
             **validated_data  # quantity and total_amount
-            # total_amount calculation is handled in validate() method
         )

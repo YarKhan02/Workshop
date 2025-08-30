@@ -8,7 +8,7 @@ class ProductVariant(models.Model):
     variant_name = models.CharField(max_length=30, null=False, blank=False)
     sku = models.CharField(max_length=50, unique=True, blank=False, null=False)
     price = models.DecimalField(max_digits=10, decimal_places=2)
-    quantity = models.PositiveIntegerField()
+    quantity = models.DecimalField(max_digits=10, decimal_places=2)
     created_at = models.DateTimeField(auto_now_add=True)
 
     # Relationships

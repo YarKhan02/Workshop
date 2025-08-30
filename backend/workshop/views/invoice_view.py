@@ -32,7 +32,9 @@ class InvoiceView(viewsets.ViewSet):
         except (ValueError, TypeError):
             page = 1
             page_size = 10
-        
+
+        print(f"Fetching invoices for customer_id={customer_id}, invoice_type={invoice_type}, date_from={date_from}, date_to={date_to}, page={page}, page_size={page_size}")
+
         # Call service method
         result = self.invoice_service.get_invoices_paginated(
             customer_id=customer_id,

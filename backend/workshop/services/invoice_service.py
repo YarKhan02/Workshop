@@ -25,20 +25,24 @@ class InvoiceService(BaseService):
     # Get Invoices
     @staticmethod
     def get_invoices_paginated(customer_id=None, invoice_type=None, page=1, page_size=10, date_from=None, date_to=None):
-        """
-        Get paginated invoices with unified items structure
-        """
-        result = get_filtered_invoices(
-            customer_id=customer_id,
-            invoice_type=invoice_type,
-            page=page,
-            page_size=page_size,
-            date_from=date_from,
-            date_to=date_to
-        )
-        
+        print(f"Fetching invoices for customer_id={customer_id}, invoice_type={invoice_type}, date_from={date_from}, date_to={date_to}, page={page}, page_size={page_size}")
+        try:
+            result = get_filtered_invoices(
+                customer_id=customer_id,
+                invoice_type=invoice_type,
+                page=page,
+                page_size=page_size,
+                date_from=date_from,
+                date_to=date_to
+            )
+            print(result)
+        except Exception as e:
+            import traceback
+            print("Error in get_filtered_invoices:", e)
+            traceback.print_exc()
+            raise
         invoices_data = InvoiceSerializer(result['invoices'], many=True).data
-        
+        print(invoices_data)
         return {
             'invoices': invoices_data,
             'pagination': result['pagination']

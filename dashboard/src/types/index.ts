@@ -107,13 +107,10 @@ export enum ServiceType {
 }
 
 export interface CreateInvoicePayload {
-  customerId: string;
   subtotal: number;
-  taxAmount: number;
   discountAmount: number;
   totalAmount: number;
   status: string;
-  dueDate: string;
   isActive: boolean;
   items: Array<{
     variantId: string;
@@ -178,13 +175,6 @@ export interface Order {
   status: string
   customer: Customer
   items: OrderItem[]
-}
-
-export interface BillingStats {
-  totalRevenue: number
-  totalOrders: number
-  outstandingAmount: number
-  monthlyRevenue: number
 }
 
 // Staff Management Types
