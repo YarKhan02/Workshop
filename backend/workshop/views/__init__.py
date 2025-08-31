@@ -11,5 +11,6 @@ from .service_view import ServiceView
 from .dashboard_view import DashboardView
 from .notification_view import NotificationView
 from .contact_view import ContactView
+from .employee_view import EmployeeView
 
 from .my_bookings_view import MyBookingsView

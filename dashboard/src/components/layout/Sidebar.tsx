@@ -14,7 +14,8 @@ import {
   ChevronRightIcon,
   Squares2X2Icon,
   ChartBarIcon,
-  WrenchScrewdriverIcon
+  WrenchScrewdriverIcon,
+  ClipboardDocumentListIcon
 } from '@heroicons/react/24/outline';
 import { ShieldAlertIcon, User } from 'lucide-react';
 
@@ -51,6 +52,7 @@ const Sidebar: React.FC = () => {
   ];
 
   const systemLinks = [
+    { name: 'Employee Management', to: '/employee', icon: ClipboardDocumentListIcon, badge: null, description: 'Employee records and payroll management' },
     { name: 'Settings', to: '/settings', icon: Cog6ToothIcon, badge: null, description: 'Tuning Console' },
   ];
 

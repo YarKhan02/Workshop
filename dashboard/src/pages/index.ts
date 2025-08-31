@@ -9,3 +9,4 @@ export { default as Settings } from './Settings';
 export { default as Login } from './Login';
 export { default as Services } from './Services';
 export { default as Analytics } from './Analytics';
+export { default as EmployeeManagement } from './EmployeeManagement';

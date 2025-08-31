@@ -2,13 +2,14 @@ import React from 'react';
 import { motion } from 'framer-motion';
 
 interface ActionButtonProps {
-  onClick: () => void;
+  onClick?: () => void;
   icon: React.ReactNode;
   children: React.ReactNode;
   variant?: 'primary' | 'secondary' | 'success' | 'danger' | 'warning';
   size?: 'sm' | 'md' | 'lg';
   disabled?: boolean;
   className?: string;
+  type?: 'button' | 'submit' | 'reset';
 }
 
 const ActionButton: React.FC<ActionButtonProps> = ({
@@ -18,7 +19,8 @@ const ActionButton: React.FC<ActionButtonProps> = ({
   variant = 'secondary',
   size = 'md',
   disabled = false,
-  className = ""
+  className = "",
+  type = 'button',
 }) => {
   const getVariantClasses = () => {
     switch (variant) {
@@ -48,6 +50,7 @@ const ActionButton: React.FC<ActionButtonProps> = ({
 
   return (
     <motion.button
+      type={type}
       whileHover={{ scale: 1.02 }}
       whileTap={{ scale: 0.98 }}
       onClick={onClick}

@@ -13,3 +13,4 @@ from .service import Service, ServiceItem
 from .booking_service import BookingService
 from .payment import Payment
 from .settings import BusinessSettings
+from .employee import Employee

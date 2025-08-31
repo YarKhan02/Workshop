@@ -20,6 +20,7 @@ interface InputFieldProps {
   hasToggle?: boolean;
   showPassword?: boolean;
   togglePasswordVisibility?: () => void;
+  maxLength?: number;
 }
 
 const InputField: React.FC<InputFieldProps> = ({
@@ -32,7 +33,8 @@ const InputField: React.FC<InputFieldProps> = ({
   onChange,
   hasToggle,
   showPassword,
-  togglePasswordVisibility
+  togglePasswordVisibility,
+  maxLength
 }) => (
   <div>
     <label htmlFor={id} className="block text-sm text-slate-400 mb-3 transition-all duration-200" style={STYLES.label}>
@@ -52,6 +54,7 @@ const InputField: React.FC<InputFieldProps> = ({
         className={`block w-full pl-12 ${hasToggle ? 'pr-12' : 'pr-4'} py-4 border border-slate-600/50 rounded-md focus:outline-none focus:ring-1 focus:ring-orange-400/80 focus:border-orange-400/80 bg-slate-800/50 text-slate-100 placeholder-slate-500 transition-all duration-200 hover:border-orange-400/60`}
         style={STYLES.input}
         placeholder={placeholder}
+        {...(maxLength ? { maxLength } : {})}
       />
       {hasToggle && togglePasswordVisibility && (
         <button
