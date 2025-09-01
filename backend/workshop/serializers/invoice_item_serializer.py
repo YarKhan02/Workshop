@@ -55,3 +55,14 @@ class InvoiceItemCreateSerializer(serializers.ModelSerializer):
             unit_price=unit_price,  # Set from ProductVariant
             **validated_data  # quantity and total_amount
         )
+    
+
+class InvoiceItemsListSerializer(serializers.Serializer):
+    id = serializers.CharField()
+    booking_service_id = serializers.CharField()
+    service_name = serializers.CharField()
+    product_variant_id = serializers.CharField()
+    product_variant_name = serializers.CharField()
+    unit_price = serializers.FloatField()
+    quantity = serializers.FloatField()
+    total_amount = serializers.FloatField(allow_null=True)

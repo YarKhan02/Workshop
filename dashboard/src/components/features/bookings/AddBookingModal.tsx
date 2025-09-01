@@ -19,6 +19,7 @@ import type { BookingCreateData } from '../../../api/booking';
 interface AddBookingModalProps {
   isOpen: boolean;
   onClose: () => void;
+  bookingId?: string | null; // If provided, fetch and show booking items
 }
 
 interface Service {

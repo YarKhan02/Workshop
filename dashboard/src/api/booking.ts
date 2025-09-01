@@ -140,6 +140,13 @@ export const bookingAPI = {
       params: { date }
     });
     return response.data;
+  },
+
+  // Get invoice items for a booking
+  getBookingInvoiceItems: async (bookingId: string) => {
+    if (!bookingId) throw new Error('bookingId is required');
+    const response = await apiClient.get(`/bookings/${bookingId}/invoice-items/`);
+    return response.data;
   }
 };
 

@@ -26,7 +26,6 @@ const EmployeeManagement: React.FC = () => {
   // Add Employee Dialog state
   const [addDialogOpen, setAddDialogOpen] = useState(false);
 
-
   // Backend data
   const { data: employees = [] } = useEmployees();
 

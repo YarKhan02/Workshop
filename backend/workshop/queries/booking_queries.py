@@ -3,7 +3,7 @@
 from django.db.models import Q, Count, Sum
 from django.utils import timezone
 from datetime import datetime, date
-from workshop.models import Booking, BookingService, Car, User
+from workshop.models import Booking, BookingService, Car, User, InvoiceItems
 
 
 # Get optimized bookings list
@@ -171,3 +171,29 @@ def get_booking_for_update(booking_id):
     if booking_service:
         return booking_service
     return False
+
+
+def get_invoice_items(booking_id):
+    print(f"[DEBUG] get_invoice_items called with booking_id: {booking_id}")
+    booking_service = BookingService.objects.filter(booking_id=booking_id).select_related('service').first()
+    print(f"[DEBUG] BookingService found: {booking_service}")
+    if not booking_service:
+        print("[DEBUG] No BookingService found for this booking_id.")
+        return []
+    invoice_items = InvoiceItems.objects.filter(booking_service=booking_service).select_related('product_variant')
+    print(f"[DEBUG] InvoiceItems count: {invoice_items.count()}")
+    items = []
+    for item in invoice_items:
+        print(f"[DEBUG] InvoiceItem: id={item.id}, product_variant={item.product_variant}, unit_price={item.unit_price}, quantity={item.quantity}")
+        items.append({
+            'id': str(item.id),
+            'booking_service_id': str(booking_service.id),
+            'service_name': booking_service.service.name if booking_service.service else None,
+            'product_variant_id': str(item.product_variant.id),
+            'product_variant_name': str(item.product_variant.product.name + " " + item.product_variant.variant_name),
+            'unit_price': float(item.unit_price),
+            'quantity': float(item.quantity),
+            'total_amount': float(item.total_amount) if item.total_amount is not None else None,
+        })
+    print(f"[DEBUG] Returning {len(items)} invoice items.")
+    return items

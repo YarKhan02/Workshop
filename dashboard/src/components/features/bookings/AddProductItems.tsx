@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useEffect, useMemo } from 'react';
+import { useQuery } from '@tanstack/react-query';
 import { Package } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { useTheme, cn } from '../../ui';
@@ -19,6 +20,7 @@ import {
   InvoiceItemsList,
   InvoiceTotals,
 } from '../billing/invoice';
+import { bookingAPI } from '../../../api/booking';
 
 interface AddProductItemsProps {
   isOpen: boolean;
@@ -41,6 +43,16 @@ const AddProductItems: React.FC<AddProductItemsProps> = ({
     status: "draft" as InvoiceStatus,
     notes: "",
     terms: "",
+  });
+  // Fetch invoice items for the selected bookingId
+  const {
+    data: invoiceItems,
+    isLoading: invoiceItemsLoading,
+    isError: invoiceItemsError,
+  } = useQuery({
+    queryKey: ['booking-invoice-items', bookingId],
+    queryFn: () => bookingId ? bookingAPI.getBookingInvoiceItems(bookingId) : Promise.resolve([]),
+    enabled: !!bookingId,
   });
 
   // Start with an empty array for items
@@ -261,8 +273,8 @@ const AddProductItems: React.FC<AddProductItemsProps> = ({
         />
       }
     >
-      {/* Invoice Items */}
-      <div>
+      {/* Invoice Items (Editable) */}
+      <div className="mb-8">
         <div className="flex justify-between items-center mb-4">
           <h3 className={cn("text-lg font-medium", theme.textPrimary)}>Invoice Items</h3>
           {/* Add Product Button */}
@@ -302,6 +314,53 @@ const AddProductItems: React.FC<AddProductItemsProps> = ({
           ) : null
         )}
       </div>
+
+      {/* Invoice Items (Read-only from backend) */}
+      <div className={cn("rounded-lg border overflow-hidden mb-8", theme.background, theme.border)}>
+        <h3 className={cn("text-lg font-medium mb-4 p-4", theme.textPrimary)}>Invoice Items</h3>
+        {invoiceItemsLoading ? (
+          <div className="p-4 text-center text-sm">Loading invoice items...</div>
+        ) : invoiceItemsError ? (
+          <div className="p-4 text-center text-red-500 text-sm">Failed to load invoice items.</div>
+        ) : (
+          <table className="w-full">
+            <thead className={cn("", theme.background)}>
+              <tr>
+                <th className={cn("text-left py-3 px-4 font-medium", theme.textPrimary)}>Description</th>
+                <th className={cn("text-right py-3 px-4 font-medium", theme.textPrimary)}>Quantity</th>
+                <th className={cn("text-right py-3 px-4 font-medium", theme.textPrimary)}>Unit Price</th>
+                <th className={cn("text-right py-3 px-4 font-medium", theme.textPrimary)}>Total</th>
+              </tr>
+            </thead>
+            <tbody className={cn("divide-y", theme.border)}>
+              {(invoiceItems || []).map((item: any, index: number) => (
+                <tr key={index}>
+                  <td className="py-3 px-4">
+                    <div className="flex items-center">
+                      {/* You can use a Package icon if imported */}
+                      <div>
+                        <p className={cn("text-sm font-medium", theme.textPrimary)}>
+                          {item.product_variant_name || item.service_name || 'No description'}
+                        </p>
+                      </div>
+                    </div>
+                  </td>
+                  <td className={cn("text-right py-3 px-4 text-sm", theme.textSecondary)}>
+                    {item.quantity}
+                  </td>
+                  <td className={cn("text-right py-3 px-4 text-sm", theme.textSecondary)}>
+                    {item.unit_price || item.unitPrice || 0}
+                  </td>
+                  <td className={cn("text-right py-3 px-4 text-sm font-medium", theme.textPrimary)}>
+                    {(item.total_amount || item.total_price || item.totalPrice || 0)}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        )}
+      </div>
+
       {/* Totals */}
       <InvoiceTotals
         subtotal={formData.subtotal}

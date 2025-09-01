@@ -32,6 +32,14 @@ class BookingView(viewsets.ViewSet):
         if data:
             return Response(data)
         return Response({"error": "Booking not found"}, status=status.HTTP_404_NOT_FOUND)
+    
+
+    @action(detail=True, methods=['get'], url_path='invoice-items')
+    def get_booking_invoice_items(self, request, pk=None):
+        data = self.booking_service.get_booking_invoice_items(pk)
+        if data:
+            return Response(data)
+        return Response({"error": "Booking not found"}, status=status.HTTP_404_NOT_FOUND)
 
 
     # Create a new booking

@@ -6,6 +6,7 @@ from workshop.serializers.booking_serializer import (
     BookingListSerializer, BookingDetailSerializer, 
     BookingCreateSerializer, BookingUpdateSerializer,
 )
+from workshop.serializers.invoice_item_serializer import InvoiceItemsListSerializer
 from workshop.queries import booking_queries as bq
 from workshop.queries import daily_availability_queries as daq
 from workshop.helper.booking_helpers import (
@@ -56,6 +57,13 @@ class BookingService:
             serializer = BookingDetailSerializer(booking)
             return serializer.data
         return None
+    
+
+    def get_booking_invoice_items(self, pk):
+        invoice_items = bq.get_invoice_items(pk)
+        print(invoice_items)
+        serializer = InvoiceItemsListSerializer(invoice_items, many=True)
+        return serializer.data
 
 
     # Create a new booking
