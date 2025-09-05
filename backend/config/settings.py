@@ -188,6 +188,7 @@ SECURE_CONTENT_TYPE_NOSNIFF = True  # Prevent MIME sniffing
 SECURE_BROWSER_XSS_FILTER = True  # XSS protection
 X_FRAME_OPTIONS = 'DENY'  # Prevent clickjacking
 SECURE_REFERRER_POLICY = 'strict-origin-when-cross-origin'
+SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
 
 # Session Security
 SESSION_COOKIE_SECURE = True  # Set to True with HTTPS
