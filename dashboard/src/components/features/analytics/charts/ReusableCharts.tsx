@@ -215,7 +215,6 @@ interface PieChartProps {
 
 export const PieChart: React.FC<PieChartProps> = ({
   data,
-  nameKey,
   valueKey,
   showLegend = true,
 }) => (
@@ -231,10 +230,10 @@ export const PieChart: React.FC<PieChartProps> = ({
         fill="#8884d8"
         dataKey={valueKey}
       >
-        {data.map((entry, index) => (
-          <Cell 
-            key={`cell-${index}`} 
-            fill={CHART_COLORS[index % CHART_COLORS.length]} 
+        {data.map((_, index) => (
+          <Cell
+            key={`cell-${index}`}
+            fill={CHART_COLORS[index % CHART_COLORS.length]}
           />
         ))}
       </Pie>

@@ -31,7 +31,6 @@ export const filterCars = (cars: Car[], filters: CarFilters): Car[] => {
       car.model.toLowerCase().includes(searchLower) ||
       car.license_plate.toLowerCase().includes(searchLower) ||
       car.color.toLowerCase().includes(searchLower) ||
-      car.vin?.toLowerCase().includes(searchLower) ||
       `${car.year}`.includes(searchLower)
     );
   }

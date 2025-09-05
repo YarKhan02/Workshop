@@ -180,19 +180,19 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 # Security Settings for Production
 
-# SECURE_SSL_REDIRECT = True  # Redirect HTTP to HTTPS
-# SECURE_HSTS_SECONDS = 31536000  # HTTP Strict Transport Security
-# SECURE_HSTS_INCLUDE_SUBDOMAINS = True
-# SECURE_HSTS_PRELOAD = True
-# SECURE_CONTENT_TYPE_NOSNIFF = True  # Prevent MIME sniffing
-# SECURE_BROWSER_XSS_FILTER = True  # XSS protection
-# X_FRAME_OPTIONS = 'DENY'  # Prevent clickjacking
-# SECURE_REFERRER_POLICY = 'strict-origin-when-cross-origin'
+SECURE_SSL_REDIRECT = True  # Redirect HTTP to HTTPS
+SECURE_HSTS_SECONDS = 31536000  # HTTP Strict Transport Security
+SECURE_HSTS_INCLUDE_SUBDOMAINS = True
+SECURE_HSTS_PRELOAD = True
+SECURE_CONTENT_TYPE_NOSNIFF = True  # Prevent MIME sniffing
+SECURE_BROWSER_XSS_FILTER = True  # XSS protection
+X_FRAME_OPTIONS = 'DENY'  # Prevent clickjacking
+SECURE_REFERRER_POLICY = 'strict-origin-when-cross-origin'
 
 # Session Security
-SESSION_COOKIE_SECURE = False  # Set to True with HTTPS
+SESSION_COOKIE_SECURE = True  # Set to True with HTTPS
 SESSION_COOKIE_HTTPONLY = True
 SESSION_COOKIE_SAMESITE = 'Strict'
-CSRF_COOKIE_SECURE = False  # Set to True with HTTPS
+CSRF_COOKIE_SECURE = True  # Set to True with HTTPS
 CSRF_COOKIE_HTTPONLY = True
 CSRF_COOKIE_SAMESITE = 'Strict'

@@ -41,12 +41,37 @@ const AddInvoiceModal: React.FC<AddInvoiceModalProps> = ({
   onSuccess
 }) => {
   const { theme } = useTheme();
-  const [formData, setFormData] = useState({
+  // Local types for AddInvoiceModal only
+  interface LocalInvoiceItem {
+    type: string;
+    description: string;
+    quantity: number;
+    unitPrice: number;
+    totalPrice: number;
+    variantId?: string;
+    productName?: string;
+    variantName?: string;
+    sku?: string;
+  }
+
+  interface LocalFormData {
+    customerId: string;
+    subtotal: number;
+    tax: number;
+    discount: number;
+    grand_total: number;
+    status: InvoiceStatus;
+    dueDate: string;
+    notes: string;
+    terms: string;
+  }
+
+  const [formData, setFormData] = useState<LocalFormData>({
     customerId: "",
     subtotal: 0,
-    tax: 0,          // Frontend field name
-    discount: 0,     // Frontend field name  
-    grand_total: 0,  // Frontend field name
+    tax: 0,
+    discount: 0,
+    grand_total: 0,
     status: "draft" as InvoiceStatus,
     dueDate: new Date().toISOString().split('T')[0], // Default to today
     notes: "",
@@ -54,7 +79,7 @@ const AddInvoiceModal: React.FC<AddInvoiceModalProps> = ({
   });
 
   // Start with an empty array for items
-  const [items, setItems] = useState<InvoiceItemWithProduct[]>([]);
+  const [items, setItems] = useState<LocalInvoiceItem[]>([]);
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [productSearchTerm, setProductSearchTerm] = useState("");
   const [showProductSelector, setShowProductSelector] = useState(false);
@@ -160,8 +185,21 @@ const AddInvoiceModal: React.FC<AddInvoiceModalProps> = ({
     setItems(newItems);
   };
 
+  // Helper to cast LocalInvoiceItem to InvoiceItemWithProduct
+  const toInvoiceItemWithProduct = (item: LocalInvoiceItem): InvoiceItemWithProduct => ({
+    type: item.type as 'product',
+    description: item.description,
+    quantity: Number(item.quantity) || 1,
+    unitPrice: Number(item.unitPrice) || 0,
+    totalPrice: Number(item.totalPrice) || 0,
+    variantId: item.variantId,
+    productName: item.productName,
+    variantName: item.variantName,
+    sku: item.sku,
+  });
+
   const addProductVariantToInvoice = (variant: ProductVariant & { productName: string }) => {
-    const newItem: InvoiceItemWithProduct = {
+    const newItem: LocalInvoiceItem = {
       type: 'product',
       description: `${variant.productName} - ${variant.variant_name}`,
       quantity: 1,
@@ -172,21 +210,18 @@ const AddInvoiceModal: React.FC<AddInvoiceModalProps> = ({
       variantName: variant.variant_name,
       sku: variant.sku,
     };
-    
     setItems((prevItems) => {
       const existingItemIndex = prevItems.findIndex((item) => item.variantId === newItem.variantId);
-
       if (existingItemIndex > -1) {
         const updatedItems = [...prevItems];
-        updatedItems[existingItemIndex].quantity += 1;
+        updatedItems[existingItemIndex].quantity = Number(updatedItems[existingItemIndex].quantity) + 1;
         updatedItems[existingItemIndex].totalPrice =
-          updatedItems[existingItemIndex].quantity * updatedItems[existingItemIndex].unitPrice;
+          Number(updatedItems[existingItemIndex].quantity) * Number(updatedItems[existingItemIndex].unitPrice);
         toast.success(`Increased quantity for ${newItem.description}`);
         return updatedItems;
       } else {
         toast.success(`Added ${newItem.description} to invoice`);
-        const newItems = [...prevItems, newItem];
-        return newItems;
+        return [...prevItems, newItem];
       }
     });
     setShowProductSelector(false);
@@ -208,53 +243,25 @@ const AddInvoiceModal: React.FC<AddInvoiceModalProps> = ({
       toast.error("Please correct the errors in the form.");
       return;
     }
-
     try {
-      // Ensure we have all required data
       if (!formData.customerId) {
         toast.error("Please select a customer");
         return;
       }
-      
       if (items.length === 0) {
         toast.error("Please add at least one item");
         return;
       }
-
-      console.log('=== DEBUG INFO ===');
-      console.log('formData:', formData);
-      console.log('items:', items);
-      console.log('items length:', items.length);
-      
-      // Check if items have the required fields
-      items.forEach((item, index) => {
-        console.log(`Item ${index}:`, {
-          variantId: item.variantId,
-          quantity: item.quantity,
-          unitPrice: item.unitPrice,
-          totalPrice: item.totalPrice,
-          description: item.description
-        });
-      });
-
       const invoiceData: CreateInvoicePayload = {
-        customerId: formData.customerId,
+        // customerId: formData.customerId,
         subtotal: formData.subtotal,
         discountAmount: formData.discount || 0,
         totalAmount: formData.grand_total || 0,
         status: formData.status,
         items: items
-          .filter((item) => item.variantId) // Only include items with product variants
-          .map((item) => ({
-            variantId: item.variantId!, // Required - ProductVariant UUID
-            quantity: item.quantity || 1,
-            unitPrice: item.unitPrice || 0,
-            totalPrice: item.totalPrice || 0,
-          })),
+          .map(toInvoiceItemWithProduct)
+          .filter((item): item is InvoiceItemWithProduct & { variantId: string } => typeof item.variantId === 'string' && !!item.variantId),
       };
-
-      console.log('Final invoice data being sent:', JSON.stringify(invoiceData, null, 2));
-
       await createInvoiceMutation.mutateAsync(invoiceData);
       toast.success("Invoice created successfully!");
       onSuccess();
@@ -350,7 +357,7 @@ const AddInvoiceModal: React.FC<AddInvoiceModalProps> = ({
           formatCurrency={formatCurrency}
         />
         <InvoiceItemsList
-          items={items}
+          items={items.map(toInvoiceItemWithProduct)}
           onUpdateItem={updateItem}
           onRemoveItem={removeItem}
           errors={errors}

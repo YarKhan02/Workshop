@@ -83,11 +83,6 @@ const EmployeeTable: React.FC<EmployeeTableProps> = ({
     },
   ];
 
-  const handleRowClick = (employee: any) => {
-    // Don't expand on row click, only on button click
-    // setExpandedRow(expandedRow === employee.id ? null : employee.id);
-  };
-
   // Render expanded row content with payment and attendance tables
   const renderExpanded = (employee: any) => {
     const { data: payslips, isLoading: payslipsLoading, isError: payslipsError } = useEmployeePayslips(employee.id);
@@ -152,7 +147,6 @@ const EmployeeTable: React.FC<EmployeeTableProps> = ({
         data={data}
         columns={columns}
         actions={actions}
-        onRowClick={handleRowClick}
       />
       {expandedRow && (
         <div className="mt-2">

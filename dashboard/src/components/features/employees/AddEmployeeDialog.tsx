@@ -79,7 +79,7 @@ const AddEmployeeDialog: React.FC<AddEmployeeDialogProps> = ({ isOpen, onClose }
           setForm(initialState);
           onClose();
         },
-        onError: (error: any) => {
+        onError: () => {
           setSubmitting(false);
           toast.error('Failed to add employee.');
         },
