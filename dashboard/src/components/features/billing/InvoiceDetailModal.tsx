@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
-import { Package } from 'lucide-react';
+import { Package, Download } from 'lucide-react';
 import { useTheme, cn, ThemedModal, ThemedButton } from '../../ui';
 import type { Invoice, InvoiceStatus, PaymentMethod } from '../../../types/billing';
-import { getInvoiceField, formatDate } from '../../../utils/invoiceUtils';
+import { getInvoiceField, formatDate, downloadInvoice } from '../../../utils/billingUtils';
 import { formatCurrency } from '../../../utils/currency';
 import {
   InvoiceStatusBadge,
@@ -59,6 +59,17 @@ const InvoiceDetailModal: React.FC<InvoiceDetailModalProps> = ({
       size="xl"
     >
       <div className="space-y-6">
+        {/* Download Button at the top */}
+        <div className="flex justify-end">
+          <ThemedButton
+            onClick={() => downloadInvoice(invoice)}
+            variant="secondary"
+            className="flex items-center gap-2"
+          >
+            <Download className="w-4 h-4" />
+            Download Invoice
+          </ThemedButton>
+        </div>
         {/* Customer Information */}
         <div className={cn("p-4 rounded-lg border", theme.background, theme.border)}>
           <h3 className={cn("text-lg font-medium mb-4", theme.textPrimary)}>Customer Information</h3>

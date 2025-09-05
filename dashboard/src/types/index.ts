@@ -247,3 +247,17 @@ export enum NotificationType {
   JOB_COMPLETED = 'Job Completed',
   SYSTEM_ALERT = 'System Alert'
 }
+
+// Miscellaneous Bill Management Types - Re-exported from dedicated file
+export type {
+  MiscellaneousBill,
+  MiscellaneousBillCreateData,
+  MiscellaneousBillUpdateData,
+  MiscellaneousBillsResponse,
+  MiscellaneousBillApiResponse,
+  MiscellaneousBillTableProps,
+  AddMiscellaneousBillModalProps,
+  EditMiscellaneousBillModalProps,
+  MiscellaneousBillFilters,
+  MiscellaneousBillStatsData,
+} from './miscellaneousBill';

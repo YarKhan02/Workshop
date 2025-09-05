@@ -1,3 +1,6 @@
+import { apiClient } from './client';
+
+// Analytics Data Types
 export interface MonthlyRevenueData {
   month: string;
   revenue: number;
@@ -38,124 +41,139 @@ export interface TopSparePartsData {
   count: number;
 }
 
-// API Configuration
-const API_BASE_URL = '/api/analytics';
-
-// Generic API call handler with error handling
-async function apiCall<T>(endpoint: string): Promise<T> {
-  try {
-    const response = await fetch(`${API_BASE_URL}${endpoint}`);
-    
-    if (!response.ok) {
-      throw new Error(`API Error: ${response.status} ${response.statusText}`);
-    }
-    
-    return await response.json();
-  } catch (error) {
-    console.error(`Failed to fetch ${endpoint}:`, error);
-    throw error;
-  }
+export interface AnalyticsMetrics {
+  monthlyRevenue?: number;
+  totalBookings?: number;
+  activeVehicles?: number;
+  servicesCompleted?: number;
+  revenueChange?: number;
+  bookingsChange?: number;
+  vehiclesChange?: number;
+  servicesChange?: number;
+  totalSales?: number;
+  productsUsedPrices?: number;
+  salesRevenue?: number;
+  totalRevenue?: number;
 }
 
-// Analytics API methods
-export const analyticsApi = {
-  // Revenue & Payments
-  getMonthlyRevenue: (): Promise<MonthlyRevenueData[]> =>
-    apiCall<MonthlyRevenueData[]>('/revenue/monthly'),
-
-  // Bookings & Services
-  getDailyBookings: (): Promise<DailyBookingsData[]> =>
-    apiCall<DailyBookingsData[]>('/bookings/daily'),
-
-  getTopServices: (): Promise<TopServicesData[]> =>
-    apiCall<TopServicesData[]>('/services/top'),
-
-  // Car Insights
-  getCarTypes: (): Promise<CarTypesData[]> =>
-    apiCall<CarTypesData[]>('/cars/types'),
-
-  getYearlyCars: (): Promise<YearlyCarData[]> =>
-    apiCall<YearlyCarData[]>('/cars/yearly'),
-
-  // Service Utilization
-  getProfitableServices: (): Promise<ProfitableServicesData[]> =>
-    apiCall<ProfitableServicesData[]>('/services/profitable'),
-
-  getPopularServices: (): Promise<PopularServicesData[]> =>
-    apiCall<PopularServicesData[]>('/services/popular'),
-
-  getTopSpareParts: (): Promise<TopSparePartsData[]> =>
-    apiCall<TopSparePartsData[]>('/spare-parts/top'),
+/**
+ * Fetch monthly revenue analytics
+ */
+export const fetchMonthlyRevenue = async (): Promise<MonthlyRevenueData[]> => {
+  const response = await apiClient.get('/analytics/revenue/monthly/');
+  return Array.isArray(response.data) ? response.data : [];
 };
 
-// Mock data generators for development/testing
-export const mockData = {
-  monthlyRevenue: (): MonthlyRevenueData[] => [
-    { month: '2024-07', revenue: 85000 },
-    { month: '2024-08', revenue: 92000 },
-    { month: '2024-09', revenue: 78000 },
-    { month: '2024-10', revenue: 105000 },
-    { month: '2024-11', revenue: 98000 },
-    { month: '2024-12', revenue: 112000 },
-    { month: '2025-01', revenue: 89000 },
-  ],
+/**
+ * Fetch daily bookings analytics
+ */
+export const fetchDailyBookings = async (): Promise<DailyBookingsData[]> => {
+  const response = await apiClient.get('/analytics/bookings/daily/');
+  return Array.isArray(response.data) ? response.data : [];
+};
 
-  dailyBookings: (): DailyBookingsData[] => [
-    { date: '2025-01-15', count: 12 },
-    { date: '2025-01-16', count: 15 },
-    { date: '2025-01-17', count: 9 },
-    { date: '2025-01-18', count: 18 },
-    { date: '2025-01-19', count: 14 },
-    { date: '2025-01-20', count: 21 },
-    { date: '2025-01-21', count: 16 },
-  ],
+/**
+ * Fetch top services analytics
+ */
+export const fetchTopServices = async (): Promise<TopServicesData[]> => {
+  const response = await apiClient.get('/analytics/services/top/');
+  return Array.isArray(response.data) ? response.data : [];
+};
 
-  topServices: (): TopServicesData[] => [
-    { service: 'Oil Change', count: 145 },
-    { service: 'Tire Replacement', count: 89 },
-    { service: 'Brake Service', count: 76 },
-    { service: 'Engine Tune-up', count: 54 },
-    { service: 'Transmission Service', count: 32 },
-  ],
+/**
+ * Fetch car types analytics
+ */
+export const fetchCarTypes = async (): Promise<CarTypesData[]> => {
+  const response = await apiClient.get('/analytics/cars/types/');
+  return Array.isArray(response.data) ? response.data : [];
+};
 
-  carTypes: (): CarTypesData[] => [
-    { type: 'SUV', count: 120 },
-    { type: 'Sedan', count: 180 },
-    { type: 'Hatchback', count: 95 },
-    { type: 'Truck', count: 45 },
-    { type: 'Coupe', count: 28 },
-  ],
+/**
+ * Fetch yearly car analytics
+ */
+export const fetchYearlyCars = async (): Promise<YearlyCarData[]> => {
+  const response = await apiClient.get('/analytics/cars/yearly/');
+  return Array.isArray(response.data) ? response.data : [];
+};
 
-  yearlyCars: (): YearlyCarData[] => [
-    { year: 2019, count: 25 },
-    { year: 2020, count: 45 },
-    { year: 2021, count: 65 },
-    { year: 2022, count: 85 },
-    { year: 2023, count: 92 },
-    { year: 2024, count: 78 },
-  ],
+/**
+ * Fetch profitable services analytics
+ */
+export const fetchProfitableServices = async (): Promise<ProfitableServicesData[]> => {
+  const response = await apiClient.get('/analytics/services/profitable/');
+  return Array.isArray(response.data) ? response.data : [];
+};
 
-  profitableServices: (): ProfitableServicesData[] => [
-    { service: 'Engine Repair', revenue: 125000 },
-    { service: 'Transmission Fix', revenue: 89000 },
-    { service: 'AC Service', revenue: 67000 },
-    { service: 'Suspension Repair', revenue: 54000 },
-    { service: 'Electrical Work', revenue: 43000 },
-  ],
+/**
+ * Fetch popular services analytics
+ */
+export const fetchPopularServices = async (): Promise<PopularServicesData[]> => {
+  const response = await apiClient.get('/analytics/services/popular/');
+  return Array.isArray(response.data) ? response.data : [];
+};
 
-  popularServices: (): PopularServicesData[] => [
-    { service: 'Oil Change', count: 145 },
-    { service: 'Tire Rotation', count: 112 },
-    { service: 'Brake Inspection', count: 98 },
-    { service: 'Battery Check', count: 76 },
-    { service: 'Filter Replacement', count: 65 },
-  ],
+/**
+ * Fetch top spare parts analytics
+ */
+export const fetchTopSpareParts = async (): Promise<TopSparePartsData[]> => {
+  const response = await apiClient.get('/analytics/spare-parts/top/');
+  return Array.isArray(response.data) ? response.data : [];
+};
 
-  topSpareParts: (): TopSparePartsData[] => [
-    { part: 'Brake Pads', count: 89 },
-    { part: 'Air Filter', count: 76 },
-    { part: 'Oil Filter', count: 145 },
-    { part: 'Spark Plugs', count: 54 },
-    { part: 'Windshield Wipers', count: 32 },
-  ],
+/**
+ * Fetch analytics metrics (for metric cards)
+ */
+export const fetchAnalyticsMetrics = async (): Promise<AnalyticsMetrics> => {
+  try {
+    const response = await apiClient.get('/analytics/metrics/');
+    
+    // Ensure we return a valid object with default values if needed
+    const defaultMetrics: AnalyticsMetrics = {
+      monthlyRevenue: 0,
+      totalBookings: 0,
+      activeVehicles: 0,
+      servicesCompleted: 0,
+      revenueChange: 0,
+      bookingsChange: 0,
+      vehiclesChange: 0,
+      servicesChange: 0,
+      totalSales: 0,
+      productsUsedPrices: 0,
+      salesRevenue: 0,
+      totalRevenue: 0,
+    };
+    
+    // Merge response data with defaults to handle missing properties
+    return { ...defaultMetrics, ...response.data };
+  } catch (error) {
+    console.error('Failed to fetch analytics metrics:', error);
+    // Return default metrics on error
+    return {
+      monthlyRevenue: 0,
+      totalBookings: 0,
+      activeVehicles: 0,
+      servicesCompleted: 0,
+      revenueChange: 0,
+      bookingsChange: 0,
+      vehiclesChange: 0,
+      servicesChange: 0,
+      totalSales: 0,
+      productsUsedPrices: 0,
+      salesRevenue: 0,
+      totalRevenue: 0,
+    };
+  }
+};
+
+// Export grouped API object for easy import
+export const analyticsApi = {
+  fetchMonthlyRevenue,
+  fetchDailyBookings,
+  fetchTopServices,
+  fetchCarTypes,
+  fetchYearlyCars,
+  fetchProfitableServices,
+  fetchPopularServices,
+  fetchTopSpareParts,
+  fetchAnalyticsMetrics,
 };

@@ -1,5 +1,5 @@
 import { useQuery } from '@tanstack/react-query';
-import { analyticsApi, mockData } from '../api/analytics';
+import { analyticsApi } from '../api/analytics';
 import type {
   MonthlyRevenueData,
   DailyBookingsData,
@@ -8,24 +8,31 @@ import type {
   YearlyCarData,
   ProfitableServicesData,
   PopularServicesData,
-  TopSparePartsData
+  TopSparePartsData,
+  AnalyticsMetrics
 } from '../api/analytics';
 
-// Configuration
-const USE_MOCK_DATA = true; // Toggle for development
+// Query configuration
 const QUERY_CONFIG = {
   staleTime: 5 * 60 * 1000, // 5 minutes
   cacheTime: 10 * 60 * 1000, // 10 minutes
   refetchOnWindowFocus: false,
 };
 
+// Analytics Metrics Hook (for metric cards)
+export const useAnalyticsMetrics = () => {
+  return useQuery<AnalyticsMetrics>({
+    queryKey: ['analytics', 'metrics'],
+    queryFn: analyticsApi.fetchAnalyticsMetrics,
+    ...QUERY_CONFIG,
+  });
+};
+
 // Revenue & Payments Hooks
 export const useMonthlyRevenue = () => {
   return useQuery<MonthlyRevenueData[]>({
     queryKey: ['analytics', 'revenue', 'monthly'],
-    queryFn: USE_MOCK_DATA ? 
-      () => Promise.resolve(mockData.monthlyRevenue()) : 
-      analyticsApi.getMonthlyRevenue,
+    queryFn: analyticsApi.fetchMonthlyRevenue,
     ...QUERY_CONFIG,
   });
 };
@@ -34,9 +41,7 @@ export const useMonthlyRevenue = () => {
 export const useDailyBookings = () => {
   return useQuery<DailyBookingsData[]>({
     queryKey: ['analytics', 'bookings', 'daily'],
-    queryFn: USE_MOCK_DATA ? 
-      () => Promise.resolve(mockData.dailyBookings()) : 
-      analyticsApi.getDailyBookings,
+    queryFn: analyticsApi.fetchDailyBookings,
     ...QUERY_CONFIG,
   });
 };
@@ -44,9 +49,7 @@ export const useDailyBookings = () => {
 export const useTopServices = () => {
   return useQuery<TopServicesData[]>({
     queryKey: ['analytics', 'services', 'top'],
-    queryFn: USE_MOCK_DATA ? 
-      () => Promise.resolve(mockData.topServices()) : 
-      analyticsApi.getTopServices,
+    queryFn: analyticsApi.fetchTopServices,
     ...QUERY_CONFIG,
   });
 };
@@ -55,9 +58,7 @@ export const useTopServices = () => {
 export const useCarTypes = () => {
   return useQuery<CarTypesData[]>({
     queryKey: ['analytics', 'cars', 'types'],
-    queryFn: USE_MOCK_DATA ? 
-      () => Promise.resolve(mockData.carTypes()) : 
-      analyticsApi.getCarTypes,
+    queryFn: analyticsApi.fetchCarTypes,
     ...QUERY_CONFIG,
   });
 };
@@ -65,9 +66,7 @@ export const useCarTypes = () => {
 export const useYearlyCars = () => {
   return useQuery<YearlyCarData[]>({
     queryKey: ['analytics', 'cars', 'yearly'],
-    queryFn: USE_MOCK_DATA ? 
-      () => Promise.resolve(mockData.yearlyCars()) : 
-      analyticsApi.getYearlyCars,
+    queryFn: analyticsApi.fetchYearlyCars,
     ...QUERY_CONFIG,
   });
 };
@@ -76,9 +75,7 @@ export const useYearlyCars = () => {
 export const useProfitableServices = () => {
   return useQuery<ProfitableServicesData[]>({
     queryKey: ['analytics', 'services', 'profitable'],
-    queryFn: USE_MOCK_DATA ? 
-      () => Promise.resolve(mockData.profitableServices()) : 
-      analyticsApi.getProfitableServices,
+    queryFn: analyticsApi.fetchProfitableServices,
     ...QUERY_CONFIG,
   });
 };
@@ -86,9 +83,7 @@ export const useProfitableServices = () => {
 export const usePopularServices = () => {
   return useQuery<PopularServicesData[]>({
     queryKey: ['analytics', 'services', 'popular'],
-    queryFn: USE_MOCK_DATA ? 
-      () => Promise.resolve(mockData.popularServices()) : 
-      analyticsApi.getPopularServices,
+    queryFn: analyticsApi.fetchPopularServices,
     ...QUERY_CONFIG,
   });
 };
@@ -96,9 +91,7 @@ export const usePopularServices = () => {
 export const useTopSpareParts = () => {
   return useQuery<TopSparePartsData[]>({
     queryKey: ['analytics', 'spare-parts', 'top'],
-    queryFn: USE_MOCK_DATA ? 
-      () => Promise.resolve(mockData.topSpareParts()) : 
-      analyticsApi.getTopSpareParts,
+    queryFn: analyticsApi.fetchTopSpareParts,
     ...QUERY_CONFIG,
   });
 };

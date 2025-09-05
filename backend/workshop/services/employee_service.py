@@ -5,6 +5,7 @@ from workshop.serializers.employee_serializer import EmployeeSerializer
 from workshop.models.employee import Employee
 from workshop.models.payslip import PaySlip
 from workshop.serializers.payslip_serializer import PaySlipCreateSerializer, PaySlipSerializer
+from workshop.services.attendance_service import AttendanceService
 
 class EmployeeService:
 
@@ -13,6 +14,7 @@ class EmployeeService:
             'name': employee_data.get('fullName'),
             'email': employee_data.get('email'),
             'phone': employee_data.get('phone'),
+            'nic': employee_data.get('nic'),
             'position': employee_data.get('position'),
             'address': employee_data.get('address'),
             'salary': employee_data.get('salary'),
@@ -26,8 +28,31 @@ class EmployeeService:
             return None, serializer.errors
 
     def update_employee(self, employee_id, employee_data):
-        # Logic to update employee
-        pass
+        try:
+            employee = Employee.objects.get(id=employee_id)
+        except Employee.DoesNotExist:
+            return None, {'detail': 'Employee not found'}
+        
+        # Map frontend field names to backend field names
+        mapped_data = {
+            'name': employee_data.get('fullName', employee_data.get('name')),
+            'email': employee_data.get('email'),
+            'phone': employee_data.get('phone'),
+            'nic': employee_data.get('nic'),
+            'position': employee_data.get('position'),
+            'address': employee_data.get('address'),
+            'salary': employee_data.get('salary'),
+        }
+        
+        # Remove None values to avoid overwriting existing data
+        mapped_data = {k: v for k, v in mapped_data.items() if v is not None}
+        
+        serializer = EmployeeSerializer(employee, data=mapped_data, partial=True)
+        if serializer.is_valid():
+            updated_employee = serializer.save()
+            return updated_employee, None
+        else:
+            return None, serializer.errors
 
     def delete_employee(self, employee_id):
         # Logic to delete employee
@@ -95,3 +120,15 @@ class EmployeeService:
         payslips = employee.payslips.all().order_by('-month')
         serializer = PaySlipSerializer(payslips, many=True)
         return serializer.data, None
+
+    
+    def get_employee_attendance(self, employee_id):
+        """Get all attendance records for an employee"""
+        attendance_service = AttendanceService()
+        return attendance_service.get_employee_attendance(employee_id)
+
+    
+    def add_attendance(self, attendance_data):
+        """Add or update attendance for an employee"""
+        attendance_service = AttendanceService()
+        return attendance_service.add_attendance(attendance_data)

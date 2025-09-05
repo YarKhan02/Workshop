@@ -7,6 +7,7 @@ class Employee(models.Model):
     name = models.CharField(max_length=50)
     email = models.EmailField(unique=True)
     phone = models.CharField(unique=True, max_length=20, blank=True, null=True)
+    nic = models.CharField(max_length=15, unique=True, blank=True, null=True)
     position = models.CharField(max_length=100, blank=True, null=True)
     address = models.CharField(max_length=255, blank=True, null=True)
     salary = models.DecimalField(max_digits=10, decimal_places=2, blank=True, null=True)

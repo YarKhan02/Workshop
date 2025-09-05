@@ -9,6 +9,7 @@ class EmployeeSerializer(serializers.ModelSerializer):
             'name',
             'email',
             'phone',
+            'nic',
             'position',
             'salary',
             'address',

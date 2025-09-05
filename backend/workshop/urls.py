@@ -12,11 +12,12 @@ from .auth.token_management import TokenRefreshView, LogoutView
 from .auth.auth_status import CustomerAuthStatusView, AdminAuthStatusView
 from .auth.registration import CustomerRegisterView
 
-from .views import ProfileView, CustomerView, CarView, ProductView, ProductVariantView, StockMovementView, InvoiceView, DashboardView, ContactView, EmployeeView
+from .views import ProfileView, CustomerView, CarView, ProductView, ProductVariantView, StockMovementView, InvoiceView, DashboardView, ContactView, EmployeeView, ExpenseView
 from .views.booking_view import BookingView
 from .views.service_view import ServiceView
 from .views.notification_view import NotificationView
 from .views.settings_view import SettingsView
+from .views.analytics_view import AnalyticsViewSet
 
 router = DefaultRouter()
 
@@ -32,6 +33,8 @@ router.register(r'settings', SettingsView, basename='settings')
 router.register(r'dashboard', DashboardView, basename='dashboard')
 router.register(r'contact', ContactView, basename='contact')
 router.register(r'employees', EmployeeView, basename='employee')
+router.register(r'miscellaneous-bills', ExpenseView, basename='expense')
+router.register(r'analytics', AnalyticsViewSet, basename='analytics')
 # router.register(r'notifications', NotificationView, basename='notification')
 
 router.register(r'customer', MyBookingsView, basename='customer-bookings')

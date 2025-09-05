@@ -12,5 +12,6 @@ from .dashboard_view import DashboardView
 from .notification_view import NotificationView
 from .contact_view import ContactView
 from .employee_view import EmployeeView
+from .expense_view import ExpenseView
 
 from .my_bookings_view import MyBookingsView

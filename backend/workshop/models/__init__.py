@@ -14,3 +14,6 @@ from .booking_service import BookingService
 from .payment import Payment
 from .settings import BusinessSettings
 from .employee import Employee
+from .payslip import PaySlip
+from .expenses import Expense
+from .attendance import Attendance

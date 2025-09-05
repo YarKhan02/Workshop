@@ -8,9 +8,9 @@ interface AttendanceModalProps {
   isOpen: boolean;
   onClose: () => void;
   date: string;
-  status: 'Present' | 'Absent' | 'Leave';
+  status: 'Present' | 'Absent' | 'Leave' | 'Half-Day';
   onDateChange: (date: string) => void;
-  onStatusChange: (status: 'Present' | 'Absent' | 'Leave') => void;
+  onStatusChange: (status: 'Present' | 'Absent' | 'Leave' | 'Half-Day') => void;
   onSave: () => void;
 }
 
@@ -39,6 +39,7 @@ const AttendanceModal: React.FC<AttendanceModalProps> = ({ isOpen, onClose, date
         <option value="Present">Present</option>
         <option value="Absent">Absent</option>
         <option value="Leave">Leave</option>
+        <option value="Half-Day">Half Day</option>
       </select>
     </div>
     <div className="mt-6 flex justify-end">

@@ -15,7 +15,8 @@ import {
   Squares2X2Icon,
   ChartBarIcon,
   WrenchScrewdriverIcon,
-  ClipboardDocumentListIcon
+  ClipboardDocumentListIcon,
+  DocumentTextIcon
 } from '@heroicons/react/24/outline';
 import { ShieldAlertIcon, User } from 'lucide-react';
 
@@ -48,6 +49,7 @@ const Sidebar: React.FC = () => {
 
   const businessLinks = [
     { name: 'Billing', to: '/billing', icon: CurrencyDollarIcon, badge: null, description: 'Revenue Track' },
+    { name: 'Miscellaneous Bills', to: '/miscellaneous-bills', icon: DocumentTextIcon, badge: null, description: 'Other Expenses' },
     { name: 'Analytics', to: '/analytics', icon: ChartBarIcon, badge: null, description: 'Performance Data' },
   ];
 

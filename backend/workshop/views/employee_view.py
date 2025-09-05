@@ -59,11 +59,36 @@ class EmployeeView(viewsets.ViewSet):
         return Response(payslips, status=status.HTTP_200_OK)
     
 
-    @action(detail=True, methods=['put'])
-    def update_employee(self, request, pk=None):
-        # Handle employee update
-        return Response(status=status.HTTP_200_OK)
+    # List all attendance records for an employee
+    @action(detail=True, methods=['get'], url_path='attendance')
+    def list_attendance(self, request, pk=None):
+        attendance_records, errors = self.employee_service.get_employee_attendance(pk)
+        if errors:
+            return Response(errors, status=status.HTTP_404_NOT_FOUND)
+        return Response(attendance_records, status=status.HTTP_200_OK)
 
+    
+    # Add or update attendance for an employee
+    @action(detail=True, methods=['post'], url_path='add-attendance')
+    def add_attendance(self, request, pk=None):
+        # Include employee ID in the data
+        attendance_data = request.data.copy()
+        attendance_data['employee'] = pk
+        
+        attendance, errors = self.employee_service.add_attendance(attendance_data)
+        if errors:
+            return Response(errors, status=status.HTTP_400_BAD_REQUEST)
+        return Response(attendance, status=status.HTTP_201_CREATED)
+    
+
+    @action(detail=True, methods=['put'], url_path='update')
+    def update_employee(self, request, pk=None):
+        employee, errors = self.employee_service.update_employee(pk, request.data)
+        if errors:
+            return Response(errors, status=status.HTTP_400_BAD_REQUEST)
+        return Response(EmployeeSerializer(employee).data, status=status.HTTP_200_OK)
+
+    
     @action(detail=True, methods=['delete'])
     def delete_employee(self, request, pk=None):
         # Handle employee deletion

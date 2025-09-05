@@ -11,3 +11,4 @@ export * from './useNotifications';
 export * from './useSettings';
 export * from './useServices';
 export * from './useAnalytics';
+export * from './useMiscellaneousBills';

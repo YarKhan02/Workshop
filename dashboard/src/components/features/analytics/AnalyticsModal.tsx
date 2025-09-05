@@ -3,10 +3,12 @@ import {
   Calendar, 
   Car, 
   Wrench, 
-  DollarSign,
+  Coins,
   BarChart3,
 } from 'lucide-react';
 import { useTheme } from '../../../contexts/ThemeContext';
+import { useAnalyticsMetrics } from '../../../hooks/useAnalytics';
+import { formatCurrency, formatNumber } from '../../../utils/analyticsUtils';
 import { MetricCard } from './charts/ChartWrapper';
 import { RevenueChart } from './RevenueChart';
 import { BookingsChart } from './BookingsChart';
@@ -19,6 +21,20 @@ import { SparePartsChart } from './SparePartsChart';
 
 export const AnalyticsModal: React.FC = () => {
   const { theme } = useTheme();
+  const { data: metrics, isLoading: metricsLoading, error: metricsError } = useAnalyticsMetrics();
+  
+  if (metricsError) {
+    return (
+      <div className={`min-h-screen p-6 ${theme.primary}`}>
+        <div className="flex items-center justify-center h-64">
+          <div className="text-center">
+            <p className="text-red-500 mb-2">Failed to load analytics data</p>
+            <p className="text-muted-foreground text-sm">Please try again later</p>
+          </div>
+        </div>
+      </div>
+    );
+  }
   
   return (
     <div className={`min-h-screen p-6 ${theme.primary}`}>
@@ -37,30 +53,73 @@ export const AnalyticsModal: React.FC = () => {
 
       {/* Key Metrics Cards */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-        <MetricCard
-          title="Monthly Revenue"
-          value="$89,000"
-          change={{ value: 12.5, isPositive: true }}
-          icon={<DollarSign className="h-6 w-6" />}
-        />
-        <MetricCard
-          title="Total Bookings"
-          value="342"
-          change={{ value: 8.2, isPositive: true }}
-          icon={<Calendar className="h-6 w-6" />}
-        />
-        <MetricCard
-          title="Active Vehicles"
-          value="468"
-          change={{ value: -2.1, isPositive: false }}
-          icon={<Car className="h-6 w-6" />}
-        />
-        <MetricCard
-          title="Services Completed"
-          value="156"
-          change={{ value: 15.3, isPositive: true }}
-          icon={<Wrench className="h-6 w-6" />}
-        />
+        {metricsLoading ? (
+          // Loading skeleton for metrics
+          Array.from({ length: 4 }).map((_, index) => (
+            <div key={index} className="bg-card rounded-lg p-6 border">
+              <div className="flex items-center justify-between">
+                <div className="space-y-2">
+                  <div className="h-4 bg-muted animate-pulse rounded w-24"></div>
+                  <div className="h-8 bg-muted animate-pulse rounded w-16"></div>
+                  <div className="h-3 bg-muted animate-pulse rounded w-12"></div>
+                </div>
+                <div className="h-6 w-6 bg-muted animate-pulse rounded"></div>
+              </div>
+            </div>
+          ))
+        ) : metrics ? (
+          <>
+            <MetricCard
+              title="Monthly Revenue"
+              value={formatCurrency(metrics.monthlyRevenue || 0)}
+              icon={<Coins className="h-6 w-6" />}
+            />
+            <MetricCard
+              title="Total Bookings"
+              value={formatNumber(metrics.totalBookings || 0)}
+              icon={<Calendar className="h-6 w-6" />}
+            />
+            <MetricCard
+              title="Active Vehicles"
+              value={formatNumber(metrics.activeVehicles || 0)}
+              icon={<Car className="h-6 w-6" />}
+            />
+            <MetricCard
+              title="Services Completed"
+              value={formatNumber(metrics.servicesCompleted || 0)}
+              icon={<Wrench className="h-6 w-6" />}
+            />
+            <MetricCard
+              title="Total Sales"
+              value={formatCurrency(metrics.totalSales || 0)}
+              icon={<Coins className="h-6 w-6" />}
+            />
+            <MetricCard
+              title="Products Used Prices"
+              value={formatCurrency(metrics.productsUsedPrices || 0)}
+              icon={<Calendar className="h-6 w-6" />}
+            />
+            <MetricCard
+              title="Sales Revenue"
+              value={formatCurrency(metrics.salesRevenue || 0)}
+              icon={<Car className="h-6 w-6" />}
+            />
+            <MetricCard
+              title="Total Revenue"
+              value={formatCurrency(metrics.totalRevenue || 0)}
+              icon={<Wrench className="h-6 w-6" />}
+            />
+          </>
+        ) : (
+          // Fallback when no data
+          Array.from({ length: 4 }).map((_, index) => (
+            <div key={index} className="bg-card rounded-lg p-6 border">
+              <div className="flex items-center justify-center h-20">
+                <p className="text-muted-foreground text-sm">No data available</p>
+              </div>
+            </div>
+          ))
+        )}
       </div>
 
       {/* Charts Grid */}
