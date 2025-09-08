@@ -45,15 +45,12 @@ class BookingView(viewsets.ViewSet):
     # Create a new booking
     @action(detail=False, methods=['post'], url_path='create')
     def create_booking(self, request):
-        print("Creating booking with data:", request.data)
         result, errors = self.booking_service.create_booking(request.data, request)
-        print('===', result)
         if result:
             try:
                 return Response(result, status=status.HTTP_201_CREATED)
             except Exception as e:
                 import traceback
-                print('Serializer or response error:', e)
                 traceback.print_exc()
                 return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
         return Response(errors, status=status.HTTP_400_BAD_REQUEST)
@@ -61,11 +58,9 @@ class BookingView(viewsets.ViewSet):
     
     @action(detail=False, methods=['post'], url_path='create-customer')
     def create_customer_booking(self, request):
-        print("Received booking request data:", request.data)
         result, errors = self.booking_service.create_customer_booking(request.data, request)
         if result:
             return Response(result, status=status.HTTP_201_CREATED)
-        print("Booking creation failed with errors:", errors)
         return Response(errors, status=status.HTTP_400_BAD_REQUEST)
 
 

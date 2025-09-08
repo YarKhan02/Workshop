@@ -63,3 +63,74 @@ class AnalyticsMetricsSerializer(serializers.Serializer):
     productsUsedPrices = serializers.FloatField(help_text="Total cost of products used this month")
     salesRevenue = serializers.FloatField(help_text="Sales revenue after expenses")
     totalRevenue = serializers.FloatField(help_text="Total revenue after all expenses")
+
+
+class PeriodSerializer(serializers.Serializer):
+    """Serializer for period information."""
+    month = serializers.CharField(max_length=20)
+    year = serializers.IntegerField()
+    start_date = serializers.CharField(max_length=10)
+    end_date = serializers.CharField(max_length=10)
+
+
+class BookingStatsSerializer(serializers.Serializer):
+    """Serializer for booking statistics."""
+    total_bookings = serializers.IntegerField()
+    completed_bookings = serializers.IntegerField()
+    completion_rate = serializers.FloatField()
+
+
+class FinancialStatsSerializer(serializers.Serializer):
+    """Serializer for financial statistics."""
+    total_sales = serializers.FloatField()
+    service_revenue = serializers.FloatField()
+    products_used_cost = serializers.FloatField()
+    gross_revenue = serializers.FloatField()
+    net_revenue = serializers.FloatField()
+    employee_salaries = serializers.FloatField()
+    total_expenses = serializers.FloatField()
+    total_profit = serializers.FloatField()
+    profit_margin = serializers.FloatField()
+
+
+class ProductSaleDetailSerializer(serializers.Serializer):
+    """Serializer for individual product sale details."""
+    product_name = serializers.CharField(max_length=255)
+    variant_name = serializers.CharField(max_length=255)
+    sku = serializers.CharField(max_length=100)
+    quantity_sold = serializers.FloatField()
+    revenue = serializers.FloatField()
+    unit_price = serializers.FloatField()
+
+
+class ProductStatsSerializer(serializers.Serializer):
+    """Serializer for product statistics."""
+    products_sold_quantity = serializers.FloatField()
+    products_sold_value = serializers.FloatField()
+    products_used_in_services = serializers.FloatField()
+    product_sales_details = ProductSaleDetailSerializer(many=True)
+
+
+class TopServiceSerializer(serializers.Serializer):
+    """Serializer for top service data."""
+    service_name = serializers.CharField(max_length=255)
+    bookings_count = serializers.IntegerField()
+    revenue = serializers.FloatField()
+
+
+class ExpenseBreakdownSerializer(serializers.Serializer):
+    """Serializer for expense breakdown."""
+    category = serializers.CharField(max_length=50)
+    total_amount = serializers.FloatField()
+    transaction_count = serializers.IntegerField()
+
+
+class MonthlyReportSerializer(serializers.Serializer):
+    """Serializer for comprehensive monthly analytics report."""
+    period = PeriodSerializer()
+    bookings = BookingStatsSerializer()
+    financial = FinancialStatsSerializer()
+    products = ProductStatsSerializer()
+    top_services = TopServiceSerializer(many=True)
+    expense_breakdown = ExpenseBreakdownSerializer(many=True)
+    generated_at = serializers.CharField()

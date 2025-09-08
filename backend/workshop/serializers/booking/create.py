@@ -72,16 +72,13 @@ class BookingCreateSerializer(BaseBookingSerializer, BookingValidationMixin):
 
         # Calculate invoice amounts
         subtotal = Decimal(str(service_price))
-        tax_percentage = Decimal('0.00')  # No tax for now, can be configured later
-        tax_amount = (subtotal * tax_percentage) / Decimal('100')
         discount_amount = Decimal('0.00')  # Can be added later if needed
-        total_amount = subtotal + tax_amount - discount_amount
+        total_amount = subtotal - discount_amount
         
         # Create invoice first
         invoice = Invoice.objects.create(
             user=customer,
             subtotal=subtotal,
-            tax_percentage=tax_percentage,
             discount_amount=discount_amount,
             total_amount=total_amount,
             status=Invoice.Status.PENDING

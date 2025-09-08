@@ -14,8 +14,8 @@ const CarDetails: React.FC<CarDetailsProps> = ({
   onCarUpdate,
   isLoading = false,
 }) => {
-  const { cars, loading, addCar } = useCars();
   const { user } = useAuth();
+  const { cars, loading, addCar } = useCars(user?.id);
   const [isAddingNew, setIsAddingNew] = React.useState(false);
   const [selectedCarId, setSelectedCarId] = React.useState<string | null>(null);
 

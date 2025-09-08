@@ -40,7 +40,7 @@ export const useServices = (category?: string) => {
 };
 
 // Hook for managing user's cars
-export const useCars = () => {
+export const useCars = (customerId?: string) => {
   const [cars, setCars] = useState<Car[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -49,14 +49,14 @@ export const useCars = () => {
     try {
       setLoading(true);
       setError(null);
-      const response = await bookingQueries.cars.getMy();
+      const response = await bookingQueries.cars.getMy(customerId);
       setCars(response.data || []);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to fetch cars');
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [customerId]);
 
   const addCar = useCallback(async (carData: Omit<Car, 'id'>) => {
     try {

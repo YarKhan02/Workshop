@@ -25,7 +25,9 @@ class CarService(BaseService):
 
     def get_cars_with_customer(self) -> Dict[str, Any]:
         try:
+            print('====================')
             queryset = Car.objects.select_related('customer').all()
+            print(queryset.query)
             serializer = DetailSerializer(queryset, many=True)
             return self.success_response(
                 message="Cars with customer name retrieved successfully",

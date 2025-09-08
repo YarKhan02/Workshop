@@ -321,7 +321,7 @@ const AddProductItems: React.FC<AddProductItemsProps> = ({
         {invoiceItemsLoading ? (
           <div className="p-4 text-center text-sm">Loading invoice items...</div>
         ) : invoiceItemsError ? (
-          <div className="p-4 text-center text-red-500 text-sm">Failed to load invoice items.</div>
+          <div className="p-4 text-center text-red-500 text-sm">No invoice items.</div>
         ) : (
           <table className="w-full">
             <thead className={cn("", theme.background)}>

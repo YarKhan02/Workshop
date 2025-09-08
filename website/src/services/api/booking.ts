@@ -25,8 +25,9 @@ export const servicesAPI = {
 // Cars API
 export const carsAPI = {
   // Get user's cars
-  getMyCars: async () => {
-    return apiClient.get<Car[]>('/cars/by-customer/');
+  getMyCars: async (customerId?: string) => {
+    const params = customerId ? { customer_id: customerId } : {};
+    return apiClient.get<Car[]>('/cars/by-customer/', params);
   },
 
   // Add a new car
@@ -97,7 +98,7 @@ export const bookingQueries = {
     getAvailable: bookingsAPI.getAvailableDates,
   },
   cars: {
-    getMy: carsAPI.getMyCars,
+    getMy: (customerId?: string) => carsAPI.getMyCars(customerId),
     create: carsAPI.addCar,
     update: carsAPI.updateCar,
     delete: carsAPI.deleteCar,

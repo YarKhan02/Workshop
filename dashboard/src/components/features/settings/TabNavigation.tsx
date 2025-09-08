@@ -19,7 +19,7 @@ const TabNavigation: React.FC<TabNavigationProps> = ({
   return (
     <div className={cn(
       "border-b rounded-t-xl",
-      theme.components.table.header,
+      theme.primary,
       theme.border
     )}>
       <nav className="flex space-x-8 px-6">

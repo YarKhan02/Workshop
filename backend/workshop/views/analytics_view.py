@@ -3,6 +3,7 @@ from rest_framework import status
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework.viewsets import ViewSet
+import logging
 
 from workshop.permissions import IsAdmin
 from workshop.services.analytics_service import AnalyticsService
@@ -16,6 +17,7 @@ from workshop.serializers.analytics_serializer import (
     PopularServicesSerializer,
     TopSparePartsSerializer,
     AnalyticsMetricsSerializer,
+    MonthlyReportSerializer,
 )
 
 logger = logging.getLogger(__name__)
@@ -29,6 +31,28 @@ class AnalyticsViewSet(ViewSet):
     @action(detail=False, methods=['get'], url_path='data')
     def analytics(self, request):
         return Response(AnalyticsService.analytics(), status=status.HTTP_200_OK)
+
+    @action(detail=False, methods=['get'], url_path='report/monthly')
+    def get_monthly_report(self, request):
+        """Get comprehensive monthly analytics report."""
+        try:
+            month = request.query_params.get('month', 'January')
+            year = int(request.query_params.get('year', 2024))
+            
+            data = AnalyticsService.get_monthly_analytics_report(month, year)
+            serializer = MonthlyReportSerializer(data)
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        except ValueError:
+            return Response(
+                {"error": "Invalid year parameter"},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+        except Exception as e:
+            logger.error(f"Error getting monthly report: {str(e)}")
+            return Response(
+                {"error": "Failed to retrieve monthly report"},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR
+            )
 
     @action(detail=False, methods=['get'], url_path='metrics')
     def get_metrics(self, request):

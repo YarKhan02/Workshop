@@ -1,14 +1,15 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { 
   Calendar, 
   Car, 
   Wrench, 
   Coins,
   BarChart3,
+  FileText,
 } from 'lucide-react';
 import { useTheme } from '../../../contexts/ThemeContext';
 import { useAnalyticsMetrics } from '../../../hooks/useAnalytics';
-import { formatCurrency, formatNumber } from '../../../utils/analyticsUtils';
+import { formatNumber } from '../../../utils/analyticsUtils';
 import { MetricCard } from './charts/ChartWrapper';
 import { RevenueChart } from './RevenueChart';
 import { BookingsChart } from './BookingsChart';
@@ -18,10 +19,12 @@ import { YearlyCarTrendsChart } from './YearlyCarTrendsChart';
 import { ProfitableServicesChart } from './ProfitableServicesChart';
 import { PopularServicesChart } from './PopularServicesChart';
 import { SparePartsChart } from './SparePartsChart';
+import { MonthlyReportModal } from './MonthlyReportModal';
 
 export const AnalyticsModal: React.FC = () => {
   const { theme } = useTheme();
   const { data: metrics, isLoading: metricsLoading, error: metricsError } = useAnalyticsMetrics();
+  const [isMonthlyReportOpen, setIsMonthlyReportOpen] = useState(false);
   
   if (metricsError) {
     return (
@@ -40,11 +43,20 @@ export const AnalyticsModal: React.FC = () => {
     <div className={`min-h-screen p-6 ${theme.primary}`}>
       {/* Header */}
       <div className="mb-8">
-        <div className="flex items-center space-x-3 mb-2">
-          <BarChart3 className="h-8 w-8 text-primary" />
-          <h1 className="text-3xl font-bold text-foreground">
-            Workshop Analytics Dashboard
-          </h1>
+        <div className="flex items-center justify-between mb-2">
+          <div className="flex items-center space-x-3">
+            <BarChart3 className="h-8 w-8 text-primary" />
+            <h1 className="text-3xl font-bold text-foreground">
+              Workshop Analytics Dashboard
+            </h1>
+          </div>
+          <button
+            onClick={() => setIsMonthlyReportOpen(true)}
+            className="flex items-center space-x-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors"
+          >
+            <FileText className="w-4 h-4" />
+            <span>Monthly Report</span>
+          </button>
         </div>
         <p className="text-muted-foreground">
           Comprehensive insights into your car workshop operations
@@ -71,7 +83,7 @@ export const AnalyticsModal: React.FC = () => {
           <>
             <MetricCard
               title="Monthly Revenue"
-              value={formatCurrency(metrics.monthlyRevenue || 0)}
+              value={metrics.monthlyRevenue || 0}
               icon={<Coins className="h-6 w-6" />}
             />
             <MetricCard
@@ -91,22 +103,22 @@ export const AnalyticsModal: React.FC = () => {
             />
             <MetricCard
               title="Total Sales"
-              value={formatCurrency(metrics.totalSales || 0)}
+              value={metrics.totalSales || 0}
               icon={<Coins className="h-6 w-6" />}
             />
             <MetricCard
               title="Products Used Prices"
-              value={formatCurrency(metrics.productsUsedPrices || 0)}
+              value={metrics.productsUsedPrices || 0}
               icon={<Calendar className="h-6 w-6" />}
             />
             <MetricCard
               title="Sales Revenue"
-              value={formatCurrency(metrics.salesRevenue || 0)}
+              value={metrics.salesRevenue || 0}
               icon={<Car className="h-6 w-6" />}
             />
             <MetricCard
               title="Total Revenue"
-              value={formatCurrency(metrics.totalRevenue || 0)}
+              value={metrics.totalRevenue || 0}
               icon={<Wrench className="h-6 w-6" />}
             />
           </>
@@ -160,6 +172,11 @@ export const AnalyticsModal: React.FC = () => {
         </div>
       </div>
       
+      {/* Monthly Report Modal */}
+      <MonthlyReportModal
+        isOpen={isMonthlyReportOpen}
+        onClose={() => setIsMonthlyReportOpen(false)}
+      />
     </div>
   );
 };

@@ -61,7 +61,6 @@ class BookingService:
 
     def get_booking_invoice_items(self, pk):
         invoice_items = bq.get_invoice_items(pk)
-        print(invoice_items)
         serializer = InvoiceItemsListSerializer(invoice_items, many=True)
         return serializer.data
 
@@ -75,19 +74,16 @@ class BookingService:
                 'message': 'Booking created successfully',
                 'booking_id': str(booking.id)
             }, None
-        print(serializer.errors)
         return None, serializer.errors
     
     
     def create_customer_booking(self, data, request=None):
-        context = {'request': request} if request else {}
-        serializer = BookingCreateSerializer(data=data, context=context)
+        serializer = BookingCreateSerializer(data=data, context={'request': request})
         if serializer.is_valid():
             booking = serializer.save()
-            response_serializer = BookingDetailSerializer(booking)
             return {
                 'message': 'Customer booking created successfully',
-                'booking': response_serializer.data
+                'booking_id': str(booking.id)
             }, None
         return None, serializer.errors
 
@@ -99,7 +95,6 @@ class BookingService:
             return None, {'error': 'Booking not found'}
             
         serializer = BookingUpdateSerializer(booking, data=data, context={'request': request, 'pk': pk})
-        print(serializer)
         if serializer.is_valid():
             serializer.save()
             return {
