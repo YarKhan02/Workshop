@@ -93,6 +93,7 @@ const EditInventoryModal: React.FC<EditInventoryModalProps> = ({ open, onClose, 
             placeholder="0"
             leftIcon={<Hash className="h-5 w-5" />}
             min={0}
+            step="0.01"
             required
           />
         </div>

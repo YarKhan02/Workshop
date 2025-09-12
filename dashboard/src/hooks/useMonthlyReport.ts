@@ -48,6 +48,12 @@ export interface MonthlyReportData {
     total_amount: number;
     transaction_count: number;
   }>;
+  salaries: Array<{
+    employee_name: string;
+    amount: number;
+    bonus?: number;
+    total_salary: number;
+  }>;
   generated_at: string;
 }
 

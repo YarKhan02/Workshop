@@ -18,15 +18,10 @@ class AnalyticsService:
 
     def analytics():
         total_sales = Invoice.objects.filter(status='paid').aggregate(total=Sum('total_amount'))['total'] or 0
-        print('================', total_sales)
         products_used = BookingService.objects.filter(status='completed').aggregate(total=Sum('product_items_price'))['total'] or 0
-        print('================', products_used)
         sales_revenue = total_sales - products_used
-        print('================', sales_revenue)
         employee_salary = PaySlip.objects.aggregate(total=Sum('total_salary'))['total'] or 0
-        print('================', employee_salary)
         expenses = Expense.objects.aggregate(total=Sum('amount'))['total'] or 0
-        print('================', expenses)
         total_revenue = sales_revenue - employee_salary - expenses
         return total_sales, products_used, sales_revenue, total_revenue
 
@@ -102,7 +97,7 @@ class AnalyticsService:
                 total_value=Sum('total_amount')
             )
             
-            # Product Details (with names)
+            # Product Details (with names) - All products sold
             product_sales_details = InvoiceItems.objects.filter(
                 booking_service__booking__created_at__year=year,
                 booking_service__booking__created_at__month=month_num
@@ -114,7 +109,7 @@ class AnalyticsService:
                 total_quantity=Sum('quantity'),
                 total_revenue=Sum('total_amount'),
                 unit_price=Sum('unit_price')
-            ).order_by('-total_revenue')[:10]
+            ).order_by('-total_revenue')
             
             # Service Revenue (Service charges only)
             service_revenue = BookingService.objects.filter(
@@ -157,6 +152,18 @@ class AnalyticsService:
                 count=Count('id')
             ).order_by('-total')
             
+            # Salary details for each employee for the month
+            payslips = PaySlip.objects.filter(month__startswith=f"{year}-{month_num:02d}").select_related('employee')
+            salaries = [
+                {
+                    'employee_name': payslip.employee.name if hasattr(payslip.employee, 'name') else str(payslip.employee),
+                    'amount': float(payslip.amount),
+                    'bonus': float(payslip.bonus) if payslip.bonus is not None else 0,
+                    'total_salary': float(payslip.total_salary)
+                }
+                for payslip in payslips
+            ]
+
             report_data = {
                 'period': {
                     'month': month,
@@ -212,6 +219,7 @@ class AnalyticsService:
                     }
                     for item in expense_breakdown
                 ],
+                'salaries': salaries,
                 'generated_at': timezone.now().isoformat()
             }
             

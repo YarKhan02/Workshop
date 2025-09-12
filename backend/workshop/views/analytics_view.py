@@ -25,7 +25,7 @@ logger = logging.getLogger(__name__)
 
 class AnalyticsViewSet(ViewSet):
     
-    # permission_classes = [IsAdmin]
+    permission_classes = [IsAdmin]
 
 
     @action(detail=False, methods=['get'], url_path='data')

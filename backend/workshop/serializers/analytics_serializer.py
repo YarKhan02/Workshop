@@ -125,6 +125,14 @@ class ExpenseBreakdownSerializer(serializers.Serializer):
     transaction_count = serializers.IntegerField()
 
 
+class SalaryDetailSerializer(serializers.Serializer):
+    """Serializer for employee salary details."""
+    employee_name = serializers.CharField(max_length=255)
+    amount = serializers.FloatField()
+    bonus = serializers.FloatField()
+    total_salary = serializers.FloatField()
+
+
 class MonthlyReportSerializer(serializers.Serializer):
     """Serializer for comprehensive monthly analytics report."""
     period = PeriodSerializer()
@@ -133,4 +141,5 @@ class MonthlyReportSerializer(serializers.Serializer):
     products = ProductStatsSerializer()
     top_services = TopServiceSerializer(many=True)
     expense_breakdown = ExpenseBreakdownSerializer(many=True)
+    salaries = SalaryDetailSerializer(many=True)
     generated_at = serializers.CharField()

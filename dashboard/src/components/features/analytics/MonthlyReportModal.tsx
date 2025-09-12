@@ -141,25 +141,21 @@ export const MonthlyReportModal: React.FC<MonthlyReportModalProps> = ({
                 title="Total Bookings"
                 value={reportData.bookings.total_bookings.toString()}
                 icon={<Calendar className="w-5 h-5" />}
-                subtitle={`${reportData.bookings.completion_rate}% completion rate`}
               />
               <MetricCard
                 title="Total Sales"
                 value={formatCurrency(reportData.financial.total_sales)}
                 icon={<DollarSign className="w-5 h-5" />}
-                subtitle={`${reportData.financial.profit_margin}% profit margin`}
               />
               <MetricCard
                 title="Net Revenue"
                 value={formatCurrency(reportData.financial.net_revenue)}
                 icon={<TrendingUp className="w-5 h-5" />}
-                subtitle="After product costs"
               />
               <MetricCard
                 title="Total Profit"
                 value={formatCurrency(reportData.financial.total_profit)}
                 icon={<TrendingUp className="w-5 h-5" />}
-                subtitle="After all expenses"
                 valueColor={reportData.financial.total_profit >= 0 ? 'text-green-400' : 'text-red-400'}
               />
             </div>
@@ -234,7 +230,7 @@ export const MonthlyReportModal: React.FC<MonthlyReportModalProps> = ({
               {/* Product Sales Details */}
               {reportData.products.product_sales_details.length > 0 && (
                 <div>
-                  <h4 className="text-md font-semibold text-white mb-3">Top Selling Products</h4>
+                  <h4 className="text-md font-semibold text-white mb-3">All Products Sold This Month</h4>
                   <div className="space-y-3 max-h-60 overflow-y-auto">
                     {reportData.products.product_sales_details.map((product, index) => (
                       <div key={index} className="flex justify-between items-center p-3 bg-gray-700/30 rounded-lg">
@@ -301,6 +297,35 @@ export const MonthlyReportModal: React.FC<MonthlyReportModalProps> = ({
                       </p>
                     </div>
                   ))}
+                </div>
+              </div>
+            )}
+
+            {/* Salary Details Section */}
+            {reportData.salaries && reportData.salaries.length > 0 && (
+              <div className="bg-gray-800/50 rounded-lg p-6">
+                <h3 className="text-lg font-semibold text-white mb-4">Salary Details</h3>
+                <div className="overflow-x-auto">
+                  <table className="min-w-full text-sm text-left">
+                    <thead>
+                      <tr className="bg-gray-700/50">
+                        <th className="px-4 py-2 text-white/80">Employee</th>
+                        <th className="px-4 py-2 text-white/80">Base Salary</th>
+                        <th className="px-4 py-2 text-white/80">Bonus</th>
+                        <th className="px-4 py-2 text-white/80">Total Salary</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {reportData.salaries.map((salary, idx) => (
+                        <tr key={idx} className="border-b border-gray-700/30">
+                          <td className="px-4 py-2 text-white">{salary.employee_name}</td>
+                          <td className="px-4 py-2 text-green-400 font-medium">{formatCurrency(salary.amount)}</td>
+                          <td className="px-4 py-2 text-blue-400 font-medium">{formatCurrency(salary.bonus || 0)}</td>
+                          <td className="px-4 py-2 text-white font-semibold">{formatCurrency(salary.total_salary)}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
                 </div>
               </div>
             )}
