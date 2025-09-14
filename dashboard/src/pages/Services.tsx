@@ -18,6 +18,7 @@ import { ThemedButton, useTheme, cn } from '../components/ui';
 import {
   ServiceTable,
   AddServiceModal,
+  EditServiceModal,
   ServiceDetailModal,
 } from '../components/features/services';
 
@@ -26,6 +27,7 @@ import {
   useServices, 
   useServiceStats, 
   useCreateService, 
+  useUpdateService,
   useToggleServiceStatus, 
   useDeleteService,
   useTableData, 
@@ -38,6 +40,7 @@ const Services: React.FC = () => {
   const [selectedService, setSelectedService] = useState<Service | null>(null);
   const [isDetailModalOpen, setIsDetailModalOpen] = useState(false);
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [serviceToDelete, setServiceToDelete] = useState<string | null>(null);
 
@@ -48,6 +51,7 @@ const Services: React.FC = () => {
   const { data: servicesData, isLoading, error } = useServices();
   const { data: stats } = useServiceStats();
   const createServiceMutation = useCreateService();
+  const updateServiceMutation = useUpdateService();
   const toggleStatusMutation = useToggleServiceStatus();
   const deleteServiceMutation = useDeleteService();
 
@@ -101,8 +105,7 @@ const Services: React.FC = () => {
 
   const handleEditService = (service: Service) => {
     setSelectedService(service);
-    // TODO: Add edit modal when needed
-    console.log('Edit service:', service);
+    setIsEditModalOpen(true);
   };
 
   const handleToggleStatus = async (serviceId: string) => {
@@ -133,6 +136,14 @@ const Services: React.FC = () => {
 
   const handleCreateService = async (data: ServiceFormData) => {
     await createServiceMutation.mutateAsync(data);
+  };
+
+  const handleUpdateService = async (serviceId: string, data: Partial<ServiceFormData>) => {
+    try {
+      await updateServiceMutation.mutateAsync({ serviceId, data });
+    } catch (error) {
+      console.error('Error updating service:', error);
+    }
   };
 
   const handleSearchChange = (value: string) => {
@@ -270,6 +281,13 @@ const Services: React.FC = () => {
         isOpen={isAddModalOpen}
         onClose={() => setIsAddModalOpen(false)}
         onSave={handleCreateService}
+      />
+
+      <EditServiceModal
+        service={selectedService}
+        isOpen={isEditModalOpen}
+        onClose={() => setIsEditModalOpen(false)}
+        onSave={handleUpdateService}
       />
 
       <ConfirmationDialog

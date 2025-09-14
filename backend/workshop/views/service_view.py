@@ -82,7 +82,8 @@ class ServiceView(viewsets.ViewSet):
 
     
     # Update service
-    def update(self, request, pk=None):
+    @action(detail=True, methods=['patch'], url_path='update')
+    def update_service(self, request, pk=None):
         try:
             service = Service.objects.get(pk=pk)
             serializer = ServiceCreateSerializer(service, data=request.data, partial=True)

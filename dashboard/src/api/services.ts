@@ -40,7 +40,7 @@ export const servicesApi = {
 
   // Update service
   updateService: async (serviceId: string, data: Partial<ServiceFormData>): Promise<Service> => {
-    const response = await apiClient.patch(`/services/${serviceId}/`, data);
+    const response = await apiClient.patch(`/services/${serviceId}/update`, data);
     return response.data;
   },
 
