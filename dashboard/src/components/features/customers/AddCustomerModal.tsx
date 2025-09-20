@@ -11,12 +11,15 @@ import { FormFooter } from '../../shared/FormFooter';
 
 const customerSchema = z.object({
   name: z.string().min(1, 'Name is required'),
-  email: z.string().email('Invalid email address'),
+  email: z.string().email('Invalid email address').optional().or(z.literal('')),
   phone_number: z
     .string()
     .length(11, 'Phone number must be exactly 11 digits')
     .regex(/^03\d{9}$/, 'Phone number must start with 03 and be numeric'),
-});
+}).transform(data => ({
+  ...data,
+  email: data.email || undefined // Convert empty string to undefined
+}));
 
 type CustomerFormData = z.infer<typeof customerSchema>;
 
@@ -48,7 +51,12 @@ const AddCustomerModal: React.FC<AddCustomerModalProps> = ({
 
   const onSubmit = async (data: CustomerFormData) => {
     try {
-      await createCustomerMutation.mutateAsync(data);
+      // Filter out empty email if not provided
+      const customerData = {
+        ...data,
+        ...(data.email && data.email.trim() ? { email: data.email } : {})
+      };
+      await createCustomerMutation.mutateAsync(customerData);
       toast.success('Customer added successfully');
       onClose();
       reset();
@@ -89,12 +97,12 @@ const AddCustomerModal: React.FC<AddCustomerModalProps> = ({
         </div>
         <div>
           <label className={cn("block text-sm font-medium mb-1", theme.textSecondary)}>
-            Email *
+            Email
           </label>
           <ThemedInput
             type="email"
             {...register('email')}
-            placeholder="Enter email address"
+            placeholder="Enter email address (optional)"
             error={errors.email?.message}
           />
         </div>

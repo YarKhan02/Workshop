@@ -6,9 +6,9 @@ from django.contrib.auth.hashers import make_password, check_password
 
 class UserManager(BaseUserManager):
     def create_user(self, email, password=None, **extra_fields):
-        if not email:
-            raise ValueError("Email is required")
-        email = self.normalize_email(email).lower()
+        # Email is now optional
+        if email:
+            email = self.normalize_email(email).lower()
         user = self.model(email=email, **extra_fields)
         user.set_password(password)
         user.save(using=self._db)
@@ -30,7 +30,7 @@ class User(AbstractBaseUser, PermissionsMixin):
         customer = 'customer', 'Customer'
 
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    email = models.EmailField(unique=True)
+    email = models.EmailField(unique=True, null=True, blank=True)
     name = models.CharField(max_length=30)
     password = models.CharField(max_length=128, null=True, blank=True)
     role = models.CharField(max_length=20, choices=Role.choices, default=Role.customer)
@@ -46,7 +46,7 @@ class User(AbstractBaseUser, PermissionsMixin):
     objects = UserManager()
 
     USERNAME_FIELD = 'email'
-    REQUIRED_FIELDS = ['username']
+    REQUIRED_FIELDS = ['name']
     
     @property
     def is_authenticated(self):

@@ -8,7 +8,7 @@ def is_valid_email_domain(email: str) -> bool:
     """
     Check if email domain is in the allowed list
     """
-    if '@' not in email:
+    if not email or '@' not in email:
         return False
     domain = email.split('@')[-1]
     return domain.lower() in VALID_EMAIL_DOMAINS

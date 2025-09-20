@@ -13,7 +13,7 @@ export interface CustomerStats {
 export interface Customer {
   id: string;
   name: string;
-  email: string;
+  email?: string;
   phone_number: string;
   cars?: CustomerCar[];
   date_joined?: string;
@@ -36,7 +36,7 @@ export interface CustomerCar {
 
 export interface CustomerFormData {
   name: string;
-  email: string;
+  email?: string;
   phone_number: string;
 }
 

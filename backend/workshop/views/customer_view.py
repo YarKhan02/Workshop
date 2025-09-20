@@ -50,6 +50,7 @@ class CustomerView(viewsets.ViewSet):
     # Add a new customer
     @action(detail=False, methods=['post'], url_path='add-customer')
     def add_customer(self, request):
+        print('====================================', request.data)
         result = self.customer_service.create_customer(request.data)
         
         if 'error' in result:

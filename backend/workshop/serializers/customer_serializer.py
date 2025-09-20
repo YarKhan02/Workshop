@@ -10,16 +10,16 @@ from workshop.models import User
 # Customer Creation Serializer
 class CustomerCreateSerializer(serializers.ModelSerializer):
 
-    email = serializers.EmailField()
+    email = serializers.EmailField(required=False, allow_blank=True)
     phone_number = serializers.CharField(max_length=11, required=True)
     password = serializers.CharField(write_only=True, min_length=6, required=False, allow_blank=True)
-    full_name = serializers.CharField(max_length=255, required=True, write_only=True)
+    name = serializers.CharField(max_length=255, required=True, write_only=True)
     
     class Meta:
         model = User
         fields = [
             'email',
-            'full_name',
+            'name',
             'phone_number',
             'password',
         ]
@@ -28,30 +28,38 @@ class CustomerCreateSerializer(serializers.ModelSerializer):
         # Extract password if provided
         password = validated_data.pop('password', None)
         
-        # Extract full_name and map it to name for the model
-        full_name = validated_data.pop('full_name')
-        validated_data['name'] = full_name
+        # Handle email - use empty string if not provided (temporary fix for NOT NULL constraint)
+        if 'email' not in validated_data or not validated_data.get('email'):
+            validated_data['email'] = ''  # Use empty string instead of None
         
-        # Create customer - role will default to 'customer' from model
-        customer = User.objects.create(
-            **validated_data
-        )
-        
-        # Set password only if provided
-        if password:
-            customer.set_password(password)
-            customer.save()
-        
-        return customer
+        try:
+            # Create customer - role will default to 'customer' from model
+            customer = User.objects.create(
+                **validated_data
+            )
+            
+            # Set password only if provided
+            if password:
+                customer.set_password(password)
+                customer.save()
+            
+            return customer
+        except Exception as e:
+            print(f"Error creating customer: {str(e)}")
+            raise
     
     def validate(self, attrs):
-        # Check if user with this email already exists
-        if User.objects.filter(email=attrs['email']).exists():
+        # Check if user with this email already exists (only if email is provided)
+        email = attrs.get('email')
+        if email and User.objects.filter(email=email).exists():
             raise serializers.ValidationError({"email": "A user with this email already exists."})
         
         return attrs
 
     def validate_email(self, value):
+        # Skip validation if email is empty or None
+        if not value:
+            return value
         if not is_valid_email_domain(value):
             raise serializers.ValidationError("Please use a valid email provider like Gmail or Outlook.")
         return value
@@ -60,6 +68,10 @@ class CustomerCreateSerializer(serializers.ModelSerializer):
         if not is_valid_phone_number(value):
             raise serializers.ValidationError("Phone number must start with 03 and be exactly 11 digits.")
         return value
+    
+    def validate_name(self, value):
+        # Automatically convert name to title case (capitalize first letter of each word)
+        return value.title() if value else value
 
 # Customer Detail Serializer
 class CustomerDetailSerializer(serializers.ModelSerializer):
@@ -114,6 +126,9 @@ class CustomerUpdateSerializer(serializers.ModelSerializer):
         return value
 
     def validate_email(self, value):
+        # Skip validation if email is empty or None
+        if not value:
+            return value
         # Only check for duplicates if email is being changed
         if self.instance and self.instance.email != value:
             if User.objects.filter(email=value).exists():
@@ -121,6 +136,10 @@ class CustomerUpdateSerializer(serializers.ModelSerializer):
         if not is_valid_email_domain(value):
             raise serializers.ValidationError("Please use a valid email provider like Gmail or Outlook.")
         return value
+    
+    def validate_name(self, value):
+        # Automatically convert name to title case (capitalize first letter of each word)
+        return value.title() if value else value
 
     def update(self, instance, validated_data):
         # Define allowed fields for update

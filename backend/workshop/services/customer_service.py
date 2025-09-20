@@ -79,6 +79,7 @@ class CustomerService(BaseService):
                     data=CustomerDetailSerializer(customer).data
                 )
             else:
+                print('====================================', serializer.errors)
                 return self.error_response(
                     message="Invalid customer data",
                     details=serializer.errors
